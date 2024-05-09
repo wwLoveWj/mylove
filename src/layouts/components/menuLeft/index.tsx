@@ -1,0 +1,98 @@
+import type { MenuProps } from "antd";
+import { Layout, Menu } from "antd";
+import _ from "lodash"; // 引入JS工具库
+import React, { useState, useEffect } from "react";
+import { Link } from "umi";
+
+const { Sider } = Layout;
+const { SubMenu } = Menu; // 子菜单
+
+interface RouterItem {
+  title?: string;
+  key?: string;
+  path?: string;
+  routes?: RouterItem[];
+  component?: any;
+  exact?: boolean;
+  redirect?: string;
+  hidden?: boolean;
+}
+/**
+ * 获取左侧菜单项
+ * @param menuArr 所有的路由配置
+ * @returns
+ */
+function getMenuItem(menuArr: any) {
+  // 获取菜单项
+  return _.map(menuArr, (route: RouterItem) => {
+    if (route.routes) {
+      // 有多级菜单时
+      return (
+        <SubMenu key={route.key} title={route.title}>
+          {/*  重复调用函数渲染出子级菜单 */}
+          {getMenuItem(route.routes)}
+        </SubMenu>
+      );
+    }
+    return (
+      !route.hidden && (
+        <Menu.Item key={route.key}>
+          <Link to={route.path || "/"}>{route.title}</Link>
+        </Menu.Item>
+      )
+    );
+  });
+}
+
+// 左侧菜单的menu结构数据
+function sideBarRender({
+  menus,
+  colorBgContainer,
+  menuSaveKeyPath,
+}: {
+  menus: RouterItem[];
+  colorBgContainer: string;
+  menuSaveKeyPath: string[];
+}) {
+  const [saveKeyPath, setSaveKeyPath] = useState<string[]>([]); //存储选中的菜单路径集合
+  const [stateOpenKeys, setStateOpenKeys] = useState([
+    "good-quantity",
+    "good-manage",
+  ]);
+
+  const onOpenChange: MenuProps["onOpenChange"] = (openKeys) => {
+    setStateOpenKeys(openKeys);
+  };
+  const onSelectMenu = ({ keyPath }: { keyPath: string[] }) => {
+    setSaveKeyPath(keyPath);
+  };
+
+  useEffect(() => {
+    let result = location.hash.split("/");
+    result.shift();
+    setSaveKeyPath(result);
+  }, [location.hash]);
+  useEffect(() => {
+    setSaveKeyPath(menuSaveKeyPath);
+  }, [menuSaveKeyPath]);
+  return (
+    <Sider
+      width={180}
+      style={{ height: "calc(100vh - 48px)", background: colorBgContainer }}
+    >
+      <Menu
+        mode="inline"
+        theme="dark"
+        selectedKeys={saveKeyPath}
+        openKeys={stateOpenKeys}
+        style={{ height: "100%", borderRight: 0 }}
+        onOpenChange={onOpenChange}
+        onSelect={onSelectMenu}
+      >
+        {getMenuItem(menus)}
+      </Menu>
+    </Sider>
+  );
+}
+
+export default sideBarRender;
