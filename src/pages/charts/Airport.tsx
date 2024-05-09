@@ -1,4 +1,4 @@
-import react, { useEffect } from "react";
+import React, { useEffect } from "react";
 import * as echarts from "echarts";
 import request from "@/utils/request";
 import styles from "./style.less";

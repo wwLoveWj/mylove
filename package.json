@@ -26,6 +26,7 @@
     "echarts": "^5.5.0",
     "express": "^4.19.2",
     "lodash": "^4.17.21",
+    "mysql": "^2.18.1",
     "qiankun": "^2.10.16",
     "react-transition-group": "^4.4.5",
     "svg-sprite-loader": "6.0.11",

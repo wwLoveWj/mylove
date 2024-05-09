@@ -4,6 +4,7 @@
 import { useIntl, setLocale } from "umi";
 import { Select } from "antd";
 import "./style.less";
+import React from "react";
 
 const Index = () => {
   const intl = useIntl();

@@ -3,9 +3,15 @@ const cors = require("cors");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const db = require("./mysql");
 
 const app = express();
 app.use(cors());
+// 用于解析JSON类型的请求体
+app.use(express.json());
+
+// 用于解析URLEncoded的请求体
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // 请求用户信息
@@ -45,6 +51,86 @@ app.get("/getOthersUrlSvg", (req, res) => {
       svg: svg.toString(),
     },
   });
+});
+
+/**
+ * 处理数据库中短横线转换小驼峰命名
+ * @param {*} obj 数据库中的字段信息
+ * @returns
+ */
+function camelCaseKeys(obj) {
+  const result = {};
+  for (let key in obj) {
+    let newKey =
+      key[0].toLowerCase() +
+      key.slice(1).replace(/_([a-z])/g, function ($0, $1) {
+        return $1.toUpperCase();
+      });
+    result[newKey] = obj[key];
+  }
+  return result;
+}
+// 获取所有用户信息
+const lianbiao = async (res) => {
+  // 查询 users 表中所有的数据
+  const sqlStr = "select * from user";
+  await db.query(sqlStr, (err, rows) => {
+    // 查询数据失败
+    if (err) return console.log(err.message);
+    // 查询数据成功
+    // 注意：如果执行的是 select 查询语句，则执行的结果是数组
+    // console.log(results);
+    rows = rows.map((item) => camelCaseKeys(item));
+    res.send({
+      code: 0,
+      message: "success",
+      data: rows,
+    });
+  });
+};
+
+app.get("/userInfo", (req, res) => {
+  try {
+    lianbiao(res);
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+app.post("/userInfo/create", (req, res) => {
+  // 向 users 表中，新增一条数据，其中 username 的值为 Spider-Man，password 的值为 pcc123
+  let user = req.body;
+  console.log(user, "444");
+  // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
+  const sqlStr =
+    "insert into user (userId,username, age,weight,score,status) values (?, ?,?,?,?,?)";
+  // 执行 SQL 语句，使用数组的形式，依次为 ? 占位符指定具体的值
+  db.query(
+    sqlStr,
+    [
+      user.userId,
+      user.username,
+      user.age,
+      user.weight,
+      user.score,
+      user.status,
+    ],
+    (err, results) => {
+      // 执行 SQL 语句失败了
+      if (err) return console.log(err.message);
+      // 成功了
+      // 注意：如果执行的是 insert into 插入语句，则 results 是一个对象
+      // 可以通过 affectedRows 属性，来判断是否插入数据成功
+      if (results.affectedRows === 1) {
+        console.log("插入数据成功!", results);
+        res.send({
+          code: 0,
+          message: "success",
+          data: null,
+        });
+      }
+    }
+  );
 });
 app.listen(3007, () => {
   console.log("服务开启在3007端口");

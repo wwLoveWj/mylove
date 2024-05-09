@@ -64,6 +64,12 @@ export const routes = [
         ],
       },
       {
+        key: "users",
+        title: "用户管理",
+        path: "/users",
+        component: "./users/index.tsx",
+      },
+      {
         key: "good-manage",
         title: "商品管理",
         path: "/good-manage",

@@ -1,7 +1,7 @@
 import { Button } from "antd";
 // import classNames from 'classnames';
 import type { FC } from "react";
-import { createElement } from "react";
+import React, { createElement } from "react";
 import { Link } from "umi";
 import styles from "./style.less";
 import type { ExceptionProps } from "./type";
