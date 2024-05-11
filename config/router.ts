@@ -40,7 +40,7 @@ export const routes = [
       {
         key: "user-rules",
         title: "规则管理",
-        path: "/rules",
+        path: "/user-rules",
         component: "./rules/index.tsx",
       },
       {
@@ -113,10 +113,10 @@ export const routes = [
       },
     ],
   },
-  // {
-  //   path: "*",
-  //   component: "./exception/404",
-  //   redirect: "/exception/404",
-  //   layout: false,
-  // },
+  {
+    path: "*",
+    component: "./exception/404",
+    redirect: "/exception/404",
+    layout: false,
+  },
 ];

@@ -2,7 +2,7 @@ import type { MenuProps } from "antd";
 import { Layout, Menu } from "antd";
 import _ from "lodash"; // 引入JS工具库
 import React, { useState, useEffect } from "react";
-import { Link } from "umi";
+import { Link,useLocation } from "umi";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu; // 子菜单
@@ -48,17 +48,16 @@ function getMenuItem(menuArr: any) {
 function sideBarRender({
   menus,
   colorBgContainer,
-  menuSaveKeyPath,
 }: {
   menus: RouterItem[];
   colorBgContainer: string;
-  menuSaveKeyPath: string[];
 }) {
   const [saveKeyPath, setSaveKeyPath] = useState<string[]>([]); //存储选中的菜单路径集合
   const [stateOpenKeys, setStateOpenKeys] = useState([
     "good-quantity",
     "good-manage",
   ]);
+  const location = useLocation();
 
   const onOpenChange: MenuProps["onOpenChange"] = (openKeys:string[]) => {
     let keys = openKeys.slice(openKeys.length - 1)
@@ -69,13 +68,12 @@ function sideBarRender({
   };
 
   useEffect(() => {
-    let result = location.hash.split("/");
-    result.shift();
-    setSaveKeyPath(result);
-  }, [location.hash]);
-  useEffect(() => {
-    setSaveKeyPath(menuSaveKeyPath);
-  }, [menuSaveKeyPath]);
+    let keys = location.pathname.split("/");
+    keys.shift();
+    setSaveKeyPath(keys);
+    setStateOpenKeys(keys);
+  }, [location.pathname]);
+
   return (
     <Sider
       width={180}

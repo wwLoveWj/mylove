@@ -72,7 +72,6 @@ const App: React.FC = (props) => {
   const [breadcrumbItems, setBreadcrumbItems] = useState<
     { title: string; path: string }[]
   >([]); //面包屑的配置项
-  const [menuSaveKeyPath, setMenuSaveKeyPath] = useState<string[]>([]);
   const locationUrl = useLocation();
 
   /**
@@ -122,9 +121,8 @@ const App: React.FC = (props) => {
     ]);
   };
   useEffect(() => {
-    let result = location.hash.split("/");
+    let result = locationUrl.pathname.split("/");
     result.shift();
-    setMenuSaveKeyPath(result);
     keyPathMenu(result);
   }, [locationUrl.pathname]);
   return (
@@ -147,11 +145,7 @@ const App: React.FC = (props) => {
             height: "calc(100vh - 64px)",
           }}
         >
-          <SideBarRender
-            menus={menus}
-            colorBgContainer={colorBgContainer}
-            menuSaveKeyPath={menuSaveKeyPath}
-          />
+          <SideBarRender menus={menus} colorBgContainer={colorBgContainer} />
         </Sider>
         <Layout>
           <Breadcrumb
