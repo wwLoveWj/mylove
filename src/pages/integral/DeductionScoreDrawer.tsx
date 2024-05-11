@@ -28,11 +28,16 @@ const Index: React.FC<{
       let params = {
         ...rowCurrent,
         updateTime: dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+        deductionTime:
+          action === "E"
+            ? editData?.deductionTime
+            : dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss"),
         scoreId: action === "E" ? editData?.scoreId : guid(),
         score:
           action === "E"
             ? editData.score + editData.deductionScore - res.deductionScore
             : rowCurrent.score - res.deductionScore,
+        deductionPerson: "wj",
         ...res,
       };
       submitDrawer(params);

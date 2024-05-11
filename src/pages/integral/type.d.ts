@@ -6,6 +6,7 @@ export interface DataType {
   deductionScore: number;
   updateTime: string;
   scoreId: string;
+  deductionTime: string;
 }
 export interface UserInfoType {
   userId: string;

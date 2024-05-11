@@ -1,17 +1,24 @@
 .login {
+  // 子元素居中
   display: flex;
   align-items: center;
   justify-content: center;
+
   width: 500px;
   height: 330px;
-  border: 1px solid greenyellow;
-  border-radius: 8px;
-  //   box-shadow: inset 2;
-  //   margin: auto;
+  // border: 1px solid greenyellow;
+  border-radius: 15px;
+  color: #fff;
+  padding: 12px;
+
+  // 本元素居中模式
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  overflow: hidden;
+  z-index: 0;
   .showImg {
     flex: 1;
     border-right: 1px solid pink;
@@ -22,5 +29,31 @@
   }
   .userInfo {
     flex: 1.5;
+  }
+}
+.login::before {
+  content: "";
+  width: 200%;
+  height: 200%;
+  background: red;
+  // #66ddf7
+  background-image: conic-gradient(transparent, #66ddf7, transparent 30%);
+  z-index: -2;
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  animation: rotateAn 5s linear infinite;
+}
+.login::after {
+  content: "";
+  background: greenyellow;
+  position: absolute;
+  inset: 1vmin;
+  z-index: -1;
+  border-radius: 12px;
+}
+@keyframes rotateAn {
+  to {
+    transform: rotate(360deg);
   }
 }

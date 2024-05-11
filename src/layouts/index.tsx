@@ -26,7 +26,7 @@ interface RouterItem {
   redirect?: string;
   hidden?: boolean;
 }
-const { Header, Content } = Layout;
+const { Header, Content, Sider } = Layout;
 // 获取到所有的菜单数据进行处理
 const menus =
   routes
@@ -141,26 +141,33 @@ const App: React.FC = (props) => {
         <LangChgIndex />
       </Header>
       <Layout>
-        <SideBarRender
-          menus={menus}
-          colorBgContainer={colorBgContainer}
-          menuSaveKeyPath={menuSaveKeyPath}
-        />
+        <Sider
+          style={{
+            overflow: "auto",
+            height: "calc(100vh - 64px)",
+          }}
+        >
+          <SideBarRender
+            menus={menus}
+            colorBgContainer={colorBgContainer}
+            menuSaveKeyPath={menuSaveKeyPath}
+          />
+        </Sider>
         <Layout>
           <Breadcrumb
-            style={{ padding: "8px 12px", background: "#fff" }}
+            style={{ padding: "6px 12px", background: "#fff" }}
             items={breadcrumbItems}
           />
-          <Layout style={{ padding: "6px 12px" }}>
+          <Layout style={{ padding: 6 }}>
             <Content
               style={{
                 margin: 0,
-                padding: 12,
+                padding: 12, //内部容器的padding
                 minHeight: 280,
                 // background: colorBgContainer,
                 borderRadius: borderRadiusLG,
                 background: "#fff",
-                height: "calc(100vh - 126px)",
+                height: "calc(100vh - 110px)",
                 overflow: "auto",
               }}
             >

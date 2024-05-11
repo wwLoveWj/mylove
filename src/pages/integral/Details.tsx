@@ -1,44 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Space, Table, Tag, Card, Button } from "antd";
 import type { TableProps } from "antd";
+import dayjs from "dayjs";
 import { useLocation } from "umi";
 import AppealModal from "./AppealModal";
+import { useRequest } from "ahooks";
+import { ScoreInfoDetailsAPI } from "@/utils/request/api/score";
 
 interface DataType {
   key: string;
   deductionPerson: string;
   deductionScore: number;
   deductionReason: string;
-  deductionDate: string;
+  deductionTime: string;
   deductionStatus: string;
 }
 
-const data: DataType[] = [
-  {
-    key: "1",
-    deductionPerson: "John Brown",
-    deductionScore: 32,
-    deductionReason: "New York No. 1 Lake Park",
-    deductionDate: "2024-05-06",
-    deductionStatus: "0",
-  },
-  {
-    key: "2",
-    deductionPerson: "Jim Green",
-    deductionScore: 42,
-    deductionReason: "London No. 1 Lake Park",
-    deductionDate: "2024-05-01",
-    deductionStatus: "1",
-  },
-  {
-    key: "3",
-    deductionPerson: "Joe Black",
-    deductionScore: 32,
-    deductionReason: "Sydney No. 1 Lake Park",
-    deductionDate: "2024-05-03",
-    deductionStatus: "2",
-  },
-];
+// const data: DataType[] = [
+//   {
+//     key: "1",
+//     deductionPerson: "John Brown",
+//     deductionScore: 32,
+//     deductionReason: "New York No. 1 Lake Park",
+//     deductionDate: "2024-05-06",
+//     deductionStatus: "0",
+//   },
+//   {
+//     key: "2",
+//     deductionPerson: "Jim Green",
+//     deductionScore: 42,
+//     deductionReason: "London No. 1 Lake Park",
+//     deductionDate: "2024-05-01",
+//     deductionStatus: "1",
+//   },
+//   {
+//     key: "3",
+//     deductionPerson: "Joe Black",
+//     deductionScore: 32,
+//     deductionReason: "Sydney No. 1 Lake Park",
+//     deductionDate: "2024-05-03",
+//     deductionStatus: "2",
+//   },
+// ];
 
 const deductionStatusMap = new Map([
   ["0", "待审核"],
@@ -47,6 +50,7 @@ const deductionStatusMap = new Map([
 ]);
 const Index: React.FC = () => {
   const detailsData = (useLocation() as any).state;
+  const [tableData, setTableData] = useState<DataType[]>([]); //获取明细数据列表数据
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleAppeal = () => {
     setIsModalOpen(true);
@@ -61,19 +65,24 @@ const Index: React.FC = () => {
     },
     {
       title: "扣分时间",
-      dataIndex: "deductionDate",
-      key: "deductionDate",
+      dataIndex: "deductionTime",
+      key: "deductionTime",
+      render: (_, { deductionTime }) => {
+        return !!deductionTime
+          ? dayjs(deductionTime).format("YYYY-MM-DD HH:mm:ss")
+          : "-";
+      },
     },
     {
       title: "扣分原因",
       dataIndex: "deductionReason",
       key: "deductionReason",
     },
-    {
-      title: "扣分项目",
-      dataIndex: "deductionItems",
-      key: "deductionItems",
-    },
+    // {
+    //   title: "扣分项目",
+    //   dataIndex: "deductionItems",
+    //   key: "deductionItems",
+    // },
     {
       title: "扣分人",
       key: "deductionPerson",
@@ -118,13 +127,27 @@ const Index: React.FC = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
+
+  useRequest(
+    () =>
+      ScoreInfoDetailsAPI({
+        userId: detailsData.userId,
+      }),
+    {
+      debounceWait: 100,
+      onSuccess: (data: DataType[]) => {
+        setTableData(data);
+      },
+    }
+  );
+
   return (
     <Card
       title={detailsData.name}
       bodyStyle={{ padding: "15px 20px 15px 30px" }}
       bordered={false}
     >
-      <Table columns={columns} dataSource={data} />
+      <Table columns={columns} dataSource={tableData} />
       <AppealModal
         isModalOpen={isModalOpen}
         handleOk={handleOk}

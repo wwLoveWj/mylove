@@ -24,9 +24,7 @@ const Index: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState("A"); //新增编辑操作 "E"为编辑，"A"为新增
-  const [tableData, setTableData] = useState<DataType[]>(
-    JSON.parse(localStorage.getItem("table-data") as any) || []
-  );
+  const [tableData, setTableData] = useState<DataType[]>([]);
 
   // 列表项配置
   const columns: TableColumnsType<DataType> = [
@@ -144,7 +142,7 @@ const Index: React.FC = () => {
       manual: true, //若设置了这个参数,则不会默认触发,需要通过run触发
       onSuccess: () => {
         setOpen(false);
-        getScoreInfoAPI();
+        // getScoreInfoAPI();
       },
     }
   );

@@ -159,7 +159,7 @@ app.post("/scoreInfo/create", (req, res) => {
   console.log(user, "666");
   // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
   const sqlStr =
-    "insert into score (score_id,user_id,username,deduction_score,reason,description,update_time,score) values (?,?,?,?,?,?,?,?)";
+    "insert into score (score_id,user_id,username,deduction_score,deduction_reason,deduction_person,description,update_time,deduction_time,score) values (?,?,?,?,?,?,?,?,?,?)";
   const sqlUser = "update user set score=? where user_id=?";
 
   // 执行 SQL 语句，使用数组的形式，依次为 ? 占位符指定具体的值
@@ -171,8 +171,10 @@ app.post("/scoreInfo/create", (req, res) => {
       user.username,
       user.deductionScore,
       user.reason,
+      user.deductionPerson,
       user.description,
       user.updateTime,
+      user.deductionTime,
       user.score,
     ],
     (err, results) => {
@@ -207,13 +209,14 @@ app.post("/scoreInfo/create", (req, res) => {
 app.post("/scoreInfo/edit", (req, res) => {
   let user = req.body;
   const sqlUser =
-    "update score set score=?, deduction_score=?, reason=?, description=?, update_time=? where score_id=?";
+    "update score set score=?, deduction_score=?, deduction_reason=?,deduction_reason=?, description=?, update_time=? where score_id=?";
   db.query(
     sqlUser,
     [
       user.score,
       user.deductionScore,
       user.reason,
+      user.deductionReason,
       user.description,
       user.updateTime,
       user.scoreId,
@@ -247,6 +250,23 @@ app.post("/scoreInfo/delete", (req, res) => {
       //   data: null,
       // });
     }
+  });
+});
+
+app.post("/scoreInfo/details", (req, res) => {
+  let user = req.body;
+  const sqlStr = "select * from score where user_id=?";
+  // "select * from score where user_id= <select user_id from user where user_id=?>";
+  db.query(sqlStr, user.userId, (err, rows) => {
+    if (err) return console.log(err.message);
+    // 注意：执行 delete 语句之后，结果也是一个对象，也会包含 affectedRows 属性
+    console.log("查询明细数据成功");
+    rows = rows.map((item) => camelCaseKeys(item));
+    res.send({
+      code: 0,
+      message: "查询明细数据成功",
+      data: rows,
+    });
   });
 });
 app.listen(3007, () => {

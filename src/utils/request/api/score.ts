@@ -12,3 +12,6 @@ export const ScoreInfoEditAPI = (params: any): Promise<any> => {
 export const ScoreInfoDeleteAPI = (params: any): Promise<any> => {
   return request.post("/scoreInfo/delete", params);
 };
+export const ScoreInfoDetailsAPI = (params: any): Promise<any> => {
+  return request.post("/scoreInfo/details", params);
+};
