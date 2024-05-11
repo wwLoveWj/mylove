@@ -7,6 +7,11 @@ import UserInfoDrawer from "./UserInfoDrawer";
 import type { DataType } from "./type.d.ts";
 import { UserInfoCreate, UserInfo } from "@/utils/request/api/user";
 
+const statusMap = new Map([
+  ["0", "差"],
+  ["1", "良好"],
+  ["2", "优秀"],
+]);
 const Index: React.FC = () => {
   const [editData, setEditData] = useState<Partial<DataType>>({}); //获取编辑的数据
   const [open, setOpen] = useState(false); //新增编辑弹窗的打开关闭
@@ -30,16 +35,22 @@ const Index: React.FC = () => {
     {
       title: "分数",
       dataIndex: "score",
-    },
-    {
-      title: "状态",
-      dataIndex: "status",
       render: (_, { score }) => {
         let color = Number(score) > 80 ? "green" : "yellow";
         if (Number(score) < 60) {
           color = "red";
         }
         return <Tag color={color}>{Math.floor(score)}</Tag>;
+      },
+    },
+    {
+      title: "状态",
+      dataIndex: "status",
+      render: (_, { score }) => {
+        let status = Number(score) > 80 ? "2" : Number(score) < 60 ? "0" : "1";
+        let color =
+          status === "2" ? "green" : status === "1" ? "yellow" : "red";
+        return <Tag color={color}>{statusMap.get(status)}</Tag>;
       },
     },
     {

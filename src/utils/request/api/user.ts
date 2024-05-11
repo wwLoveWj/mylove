@@ -15,7 +15,6 @@ export const Login = () => {
 export const UserInfo = (): Promise<any> => {
   return request.get("/userInfo");
 };
-
 export const UserInfoCreate = (params: any): Promise<any> => {
   return request.post("/userInfo/create", params);
 };

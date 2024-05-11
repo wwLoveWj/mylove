@@ -118,7 +118,6 @@ const Index: React.FC = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  debugger;
   return (
     <Card
       title={detailsData.name}

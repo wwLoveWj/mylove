@@ -4,4 +4,7 @@ module.exports = {
     "no-unused-vars": "warn",
     "@typescript-eslint/no-unused-vars": "warn",
   },
+  globals: {
+    __WebpackModuleApi: true,
+  },
 };

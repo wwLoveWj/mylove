@@ -74,7 +74,7 @@ const App: React.FC = (props) => {
   >([]); //面包屑的配置项
   const [menuSaveKeyPath, setMenuSaveKeyPath] = useState<string[]>([]);
   const locationUrl = useLocation();
-  debugger;
+
   /**
    * 获取面包屑的配置数据
    */
@@ -126,7 +126,6 @@ const App: React.FC = (props) => {
     result.shift();
     setMenuSaveKeyPath(result);
     keyPathMenu(result);
-    debugger;
   }, [locationUrl.pathname]);
   return (
     <Layout>

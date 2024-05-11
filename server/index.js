@@ -103,7 +103,7 @@ app.post("/userInfo/create", (req, res) => {
   console.log(user, "444");
   // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
   const sqlStr =
-    "insert into user (userId,username, age,weight,score,status) values (?, ?,?,?,?,?)";
+    "insert into user (user_id,username, age,weight,score,status) values (?, ?,?,?,?,?)";
   // 执行 SQL 语句，使用数组的形式，依次为 ? 占位符指定具体的值
   db.query(
     sqlStr,
@@ -131,6 +131,123 @@ app.post("/userInfo/create", (req, res) => {
       }
     }
   );
+});
+
+// 分数信息接口
+app.get("/scoreInfo", async (req, res) => {
+  try {
+    // 查询 users 表中所有的数据
+    const sqlStr = "select * from score";
+    await db.query(sqlStr, (err, rows) => {
+      // 查询数据失败
+      if (err) return console.log(err.message);
+      // 查询数据成功
+      rows = rows.map((item) => camelCaseKeys(item));
+      res.send({
+        code: 0,
+        message: "success",
+        data: rows,
+      });
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+app.post("/scoreInfo/create", (req, res) => {
+  let user = req.body;
+  console.log(user, "666");
+  // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
+  const sqlStr =
+    "insert into score (score_id,user_id,username,deduction_score,reason,description,update_time,score) values (?,?,?,?,?,?,?,?)";
+  const sqlUser = "update user set score=? where user_id=?";
+
+  // 执行 SQL 语句，使用数组的形式，依次为 ? 占位符指定具体的值
+  db.query(
+    sqlStr,
+    [
+      user.scoreId,
+      user.userId,
+      user.username,
+      user.deductionScore,
+      user.reason,
+      user.description,
+      user.updateTime,
+      user.score,
+    ],
+    (err, results) => {
+      // 执行 SQL 语句失败了
+      if (err) return console.log(err.message);
+      // 可以通过 affectedRows 属性，来判断是否插入数据成功
+      if (results.affectedRows === 1) {
+        console.log("插入数据成功!", results);
+        res.send({
+          code: 0,
+          message: "success",
+          data: null,
+        });
+        // 等分数表插入成功后再去改分数
+        db.query(sqlUser, [user.score, user.userId], (err, results) => {
+          if (err) return console.log(err.message);
+          // 注意：执行了 update 语句之后，执行的结果，也是一个对象，可以通过 affectedRows 判断是否更新成功
+          if (results.affectedRows === 1) {
+            console.log("更新成功");
+            res.send({
+              code: 0,
+              message: "success",
+              data: null,
+            });
+          }
+        });
+      }
+    }
+  );
+});
+
+app.post("/scoreInfo/edit", (req, res) => {
+  let user = req.body;
+  const sqlUser =
+    "update score set score=?, deduction_score=?, reason=?, description=?, update_time=? where score_id=?";
+  db.query(
+    sqlUser,
+    [
+      user.score,
+      user.deductionScore,
+      user.reason,
+      user.description,
+      user.updateTime,
+      user.scoreId,
+    ],
+    (err, results) => {
+      if (err) return console.log(err.message);
+      // 注意：执行了 update 语句之后，执行的结果，也是一个对象，可以通过 affectedRows 判断是否更新成功
+      if (results.affectedRows === 1) {
+        console.log("更新成功");
+        res.send({
+          code: 0,
+          message: "success",
+          data: null,
+        });
+      }
+    }
+  );
+});
+
+app.post("/scoreInfo/delete", (req, res) => {
+  let user = req.body;
+  const sqlStr = "delete from score where score_id=?";
+  db.query(sqlStr, user.scoreId, (err, results) => {
+    if (err) return console.log(err.message);
+    // 注意：执行 delete 语句之后，结果也是一个对象，也会包含 affectedRows 属性
+    if (results.affectedRows === 1) {
+      console.log("删除数据成功");
+      // res.send({
+      //   code: 0,
+      //   message: "删除数据成功",
+      //   data: null,
+      // });
+    }
+  });
 });
 app.listen(3007, () => {
   console.log("服务开启在3007端口");

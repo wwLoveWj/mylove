@@ -1,21 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Space, Button, Table, Tag } from "antd";
 import type { TableColumnsType } from "antd";
 import { history } from "umi";
+import dayjs from "dayjs";
+import { useRequest } from "ahooks";
+import {
+  ScoreInfoCreateAPI,
+  ScoreInfoEditAPI,
+  ScoreInfoDeleteAPI,
+  ScoreInfoAPI,
+} from "@/utils/request/api/score";
 import DeductionScoreDrawer from "./DeductionScoreDrawer";
 import type { DataType } from "./type.d.ts";
 
-// const data: DataType[] = [];
-// for (let i = 0; i < 3; i++) {
-//   data.push({
-//     key: i,
-//     username: `Edward King ${i}`,
-//     age: 32,
-//     weight: Math.random() * 200,
-//     score: Math.random() * 100,
-//   });
-// }
-
+const statusMap = new Map([
+  ["0", "差"],
+  ["1", "良好"],
+  ["2", "优秀"],
+]);
 const Index: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [editData, setEditData] = useState<Partial<DataType>>({}); //获取编辑的数据
@@ -33,20 +35,8 @@ const Index: React.FC = () => {
       dataIndex: "username",
     },
     {
-      title: "年龄",
-      dataIndex: "age",
-    },
-    {
-      title: "体重",
-      dataIndex: "weight",
-    },
-    {
       title: "分数",
       dataIndex: "score",
-    },
-    {
-      title: "状态",
-      dataIndex: "status",
       render: (_, { score }) => {
         let color = Number(score) > 80 ? "green" : "yellow";
         if (Number(score) < 60) {
@@ -56,8 +46,21 @@ const Index: React.FC = () => {
       },
     },
     {
-      title: "创建时间",
-      dataIndex: "createTime",
+      title: "状态",
+      dataIndex: "status",
+      render: (_, { score }) => {
+        let status = Number(score) > 80 ? "2" : Number(score) < 60 ? "0" : "1";
+        let color =
+          status === "2" ? "green" : status === "1" ? "yellow" : "red";
+        return <Tag color={color}>{statusMap.get(status)}</Tag>;
+      },
+    },
+    {
+      title: "更新时间",
+      dataIndex: "updateTime",
+      render: (_, { updateTime }) => {
+        return dayjs(updateTime).format("YYYY-MM-DD HH:mm:ss");
+      },
     },
     {
       title: "Action",
@@ -74,6 +77,16 @@ const Index: React.FC = () => {
           >
             编辑
           </a>
+          <Button
+            type="link"
+            danger
+            onClick={() => {
+              ScoreInfoDeleteAPIRun.run({ scoreId: record?.scoreId });
+            }}
+          >
+            删除
+          </Button>
+
           <a
             onClick={() => {
               history.push(
@@ -114,20 +127,56 @@ const Index: React.FC = () => {
   };
   const hasSelected = selectedRowKeys.length > 0;
   // ------------------------------------------------------
+  /**
+   * 获取扣分系统列表
+   */
+  const getScoreInfoAPI = async () => {
+    let result = await ScoreInfoAPI();
+    setTableData(result);
+  };
+  /**
+   * 新增扣分信息接口
+   */
+  const ScoreInfoCreateAPIRun = useRequest(
+    (params: any) => ScoreInfoCreateAPI(params),
+    {
+      debounceWait: 100,
+      manual: true, //若设置了这个参数,则不会默认触发,需要通过run触发
+      onSuccess: () => {
+        setOpen(false);
+        getScoreInfoAPI();
+      },
+    }
+  );
+  const ScoreInfoEditAPIRun = useRequest(
+    (params: any) => ScoreInfoEditAPI(params),
+    {
+      debounceWait: 100,
+      manual: true, //若设置了这个参数,则不会默认触发,需要通过run触发
+      onSuccess: () => {
+        setOpen(false);
+        getScoreInfoAPI();
+      },
+    }
+  );
+  const ScoreInfoDeleteAPIRun = useRequest(
+    (params: any) => ScoreInfoDeleteAPI(params),
+    {
+      debounceWait: 100,
+      manual: true,
+      onSuccess: () => {
+        getScoreInfoAPI();
+      },
+    }
+  );
+
   // 以下是创建扣分项目的操作
   const submitDrawer = (res: any) => {
     if (action === "A") {
-      setTableData([...tableData, res]);
-      localStorage.setItem("table-data", JSON.stringify([...tableData, res]));
+      ScoreInfoCreateAPIRun.run(res);
     } else {
-      let index = tableData.findIndex((item) => item.userId === res.userId);
-      let result = [...tableData];
-      result[index] = res;
-      setTableData([...result]);
-      localStorage.setItem("table-data", JSON.stringify([...result]));
+      ScoreInfoEditAPIRun.run(res);
     }
-
-    setOpen(false);
   };
   const onClose = () => {
     setOpen(false);
@@ -140,6 +189,10 @@ const Index: React.FC = () => {
     setEditData({});
     setOpen(true);
   };
+
+  useEffect(() => {
+    getScoreInfoAPI();
+  }, []);
   return (
     <>
       <div style={{ marginBottom: 16 }}>

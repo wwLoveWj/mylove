@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Button, Col, Drawer, Form, Input, Row, Select, Space } from "antd";
 import dayjs from "dayjs";
+import { useRequest } from "ahooks";
+import { UserInfo } from "@/utils/request/api/user";
 import { guid } from "@/utils";
-import type { DataType } from "./type.d.ts";
+import type { DataType, UserInfoType } from "./type.d.ts";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -11,44 +13,40 @@ const Index: React.FC<{
   open: boolean;
   submitDrawer: (res: any) => void;
   onClose: () => void;
-  editData: Partial<DataType>;
+  editData: DataType;
   action: string;
 }> = ({ open, submitDrawer, onClose, editData, action }) => {
-  debugger;
   const [form] = Form.useForm();
+  const [userList, setUserList] = useState<UserInfoType[]>([]); //存储被扣分人的用户信息
 
-  //   TODO:获取到用户信息
-  const data = [
-    {
-      username: "ww",
-      weight: 178,
-      age: 20,
-      score: 100,
-    },
-    {
-      username: "wj",
-      weight: 102,
-      age: 18,
-      score: 100,
-    },
-  ];
+  // 提交信息后的操作
   const onFinish = () => {
     // 需要将扣分细则插入到用户信息表中
     form.validateFields().then((res) => {
-      let obj: any = data.find((item) => item.username === res.username);
+      // 根据userId拿到当前被扣分人信息
+      let rowCurrent: any = userList.find((item) => item.userId === res.userId);
       let params = {
-        createTime:
+        ...rowCurrent,
+        updateTime: dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss"),
+        scoreId: action === "E" ? editData?.scoreId : guid(),
+        score:
           action === "E"
-            ? editData?.createTime
-            : dayjs(new Date()).format("DD/MM/YYYY"),
-        userId: action === "E" ? editData?.userId : guid(),
+            ? editData.score + editData.deductionScore - res.deductionScore
+            : rowCurrent.score - res.deductionScore,
         ...res,
-        ...obj,
-        score: obj.score - Number(res.deductionScore),
       };
       submitDrawer(params);
     });
   };
+
+  // 请求个人信息接口
+  useRequest(() => UserInfo(), {
+    debounceWait: 100,
+    onSuccess: (res: UserInfoType[]) => {
+      setUserList(res);
+    },
+  });
+
   return (
     <Drawer
       title={action === "A" ? "扣分" : "编辑"}
@@ -69,7 +67,6 @@ const Index: React.FC<{
         </Space>
       }
     >
-      {/* onFinish={onFinish} */}
       <Form
         layout="vertical"
         form={form}
@@ -78,14 +75,16 @@ const Index: React.FC<{
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="username"
+              name="userId"
               label="姓名"
-              rules={[{ required: true, message: "请选择被扣分人姓名" }]}
+              rules={[{ required: true, message: "请选择被扣分人" }]}
             >
-              <Select placeholder="请选择被扣分人姓名">
-                <Option value="ww">Ww</Option>
-                <Option value="wj">Wj</Option>
-              </Select>
+              <Select
+                disabled={action === "E"}
+                placeholder="请选择被扣分人"
+                options={userList}
+                fieldNames={{ label: "username", value: "userId" }}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -95,10 +94,10 @@ const Index: React.FC<{
               rules={[{ required: true, message: "请选择扣除分数" }]}
             >
               <Select placeholder="请选择扣除分数">
-                <Option value="1">1分</Option>
-                <Option value="2">2分</Option>
-                <Option value="3">3分</Option>
-                <Option value="5">5分</Option>
+                <Option value={1}>1分</Option>
+                <Option value={2}>2分</Option>
+                <Option value={5}>5分</Option>
+                <Option value={10}>10分</Option>
               </Select>
             </Form.Item>
           </Col>
