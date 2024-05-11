@@ -60,8 +60,9 @@ function sideBarRender({
     "good-manage",
   ]);
 
-  const onOpenChange: MenuProps["onOpenChange"] = (openKeys) => {
-    setStateOpenKeys(openKeys);
+  const onOpenChange: MenuProps["onOpenChange"] = (openKeys:string[]) => {
+    let keys = openKeys.slice(openKeys.length - 1)
+    setStateOpenKeys(keys);
   };
   const onSelectMenu = ({ keyPath }: { keyPath: string[] }) => {
     setSaveKeyPath(keyPath);
