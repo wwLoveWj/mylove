@@ -19,6 +19,7 @@
 
   overflow: hidden;
   z-index: 0;
+
   .showImg {
     flex: 1;
     border-right: 1px solid pink;
@@ -27,10 +28,12 @@
     text-transform: uppercase;
     letter-spacing: 2;
   }
+
   .userInfo {
     flex: 1.5;
   }
 }
+
 .login::before {
   content: "";
   width: 200%;
@@ -38,22 +41,36 @@
   background: red;
   // #66ddf7
   background-image: conic-gradient(transparent, #66ddf7, transparent 30%);
-  z-index: -2;
+  z-index: -66;
   position: absolute;
   top: -50%;
   left: -50%;
   animation: rotateAn 5s linear infinite;
 }
+
 .login::after {
   content: "";
-  background: greenyellow;
+  // background: greenyellow;
   position: absolute;
   inset: 1vmin;
-  z-index: -1;
+  z-index: -55;
   border-radius: 12px;
 }
+
 @keyframes rotateAn {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.tvGif {
+  width: 11em;
+  height: 7.85em;
+  overflow: hidden;
+  border-radius: 10px;
+  z-index: 88;
+
+  img {
+    height: 100%;
   }
 }
