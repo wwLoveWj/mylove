@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Login } from "@/utils/request/api/user";
 import useTranslation from "@/utils/hooks/useTranslate";
 import { useIntl } from "umi";
