@@ -1,13 +1,12 @@
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
 import _ from "lodash"; // 引入JS工具库
-import React, { useState, useEffect} from "react";
-import { Link,useLocation } from "umi";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "umi";
 import "./style.less";
-import {RouterItem,MenuType} from "../type";
+import { RouterItem, MenuType } from "../type";
 
 const { SubMenu } = Menu; // 子菜单
-
 
 /**
  * 获取左侧菜单项
@@ -20,7 +19,11 @@ function getMenuItem(menuArr: any) {
     if (route.routes) {
       // 有多级菜单时
       return (
-        <SubMenu key={route.key} title={route.title}  icon={React.createElement(route.icon || "")}>
+        <SubMenu
+          key={route.key}
+          title={route.title}
+          icon={React.createElement(route.icon || "")}
+        >
           {/*  重复调用函数渲染出子级菜单 */}
           {getMenuItem(route.routes)}
         </SubMenu>
@@ -39,7 +42,7 @@ function getMenuItem(menuArr: any) {
 // 左侧菜单的menu结构数据
 function sideBarRender({
   menus,
-  theme
+  theme,
 }: {
   menus: RouterItem[];
   theme: MenuType;
@@ -51,8 +54,8 @@ function sideBarRender({
   ]);
   const location = useLocation();
 
-  const onOpenChange: MenuProps["onOpenChange"] = (openKeys:string[]) => {
-    let keys = openKeys.slice(openKeys.length - 1)
+  const onOpenChange: MenuProps["onOpenChange"] = (openKeys: string[]) => {
+    let keys = openKeys.slice(openKeys.length - 1);
     setStateOpenKeys(keys);
   };
   const onSelectMenu = ({ keyPath }: { keyPath: string[] }) => {
@@ -67,17 +70,17 @@ function sideBarRender({
   }, [location.pathname]);
 
   return (
-      <Menu
-        mode="inline"
-        theme={theme}
-        selectedKeys={saveKeyPath}
-        openKeys={stateOpenKeys}
-        // style={{ height: "100%", borderRight: 0 }}
-        onOpenChange={onOpenChange}
-        onSelect={onSelectMenu}
-      >
-        {getMenuItem(menus)}
-      </Menu>
+    <Menu
+      mode="inline"
+      theme={theme}
+      selectedKeys={saveKeyPath}
+      openKeys={stateOpenKeys}
+      style={{ height: "100%", borderRight: 0 }}
+      onOpenChange={onOpenChange}
+      onSelect={onSelectMenu}
+    >
+      {getMenuItem(menus)}
+    </Menu>
   );
 }
 

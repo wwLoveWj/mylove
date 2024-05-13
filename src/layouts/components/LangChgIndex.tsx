@@ -6,7 +6,7 @@ import { Select } from "antd";
 import "./style.less";
 import React from "react";
 
-const Index = () => {
+const Index = ({ themeColor }: { themeColor: string }) => {
   const intl = useIntl();
   const lang = intl.locale;
   const changeLocale = (value: any) => {
@@ -14,7 +14,7 @@ const Index = () => {
   };
   const t = (id: string) => intl.formatMessage({ id }); // 写成传参方式
   return (
-    <div id="language-container">
+    <div id="language-container" style={{ color: themeColor }}>
       <Select
         defaultValue={lang}
         style={{ width: 90 }}

@@ -1,5 +1,4 @@
-import { Outlet, useLocation } from "umi";
-import "./index.less";
+import { Outlet, useLocation, history } from "umi";
 import React from "react";
 import {
   LaptopOutlined,
@@ -8,7 +7,7 @@ import {
   HomeOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
-import { Breadcrumb, Layout, Menu, theme } from "antd";
+import { Breadcrumb, Layout, Menu, theme, Avatar, Badge, Dropdown } from "antd";
 import { routes } from "../../config/router"; // 配置的菜单项
 import _ from "lodash"; // 引入JS工具库
 import { useState, useEffect } from "react";
@@ -16,6 +15,7 @@ import { useState, useEffect } from "react";
 import LangChgIndex from "./components/LangChgIndex";
 import SideBarRender from "./components/menu";
 import SwitchTheme from "@/components/switchTheme";
+import "./index.less";
 import { RouterItem, MenuType } from "./type";
 
 const { Header, Content, Sider } = Layout;
@@ -62,6 +62,7 @@ const App: React.FC = (props) => {
   const [themeMenu, setThemeMenu] = useState<MenuType>("dark");
   const [checkedTheme, setCheckedTheme] = useState(true); //是否切换主题
   const [themeColor, setThemeColor] = useState("#001629"); //切换headers主题
+  const [themeColorLang, setThemeColorLang] = useState("#fff");
   const locationUrl = useLocation();
 
   // 切换主题
@@ -70,11 +71,13 @@ const App: React.FC = (props) => {
       //黑夜模式
       setThemeMenu("dark");
       setThemeColor("#001629");
+      setThemeColorLang("#fff");
       setCheckedTheme(true);
     } else {
       //白天模式
       setThemeMenu("light");
       setThemeColor("#f5f5f5");
+      setThemeColorLang("#000");
       setCheckedTheme(false);
     }
   };
@@ -129,6 +132,35 @@ const App: React.FC = (props) => {
     result.shift();
     keyPathMenu(result);
   }, [locationUrl.pathname]);
+
+  const avatarItems: MenuProps["items"] = [
+    {
+      key: "1",
+      label: (
+        <a
+          onClick={() => {
+            history.push("/login");
+            localStorage.clear();
+          }}
+        >
+          退出登录
+        </a>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.aliyun.com"
+        >
+          个人中心
+        </a>
+      ),
+    },
+  ];
+
   return (
     <Layout>
       <Header
@@ -146,23 +178,31 @@ const App: React.FC = (props) => {
           defaultSelectedKeys={["2"]}
           items={items1}
         />
-        <LangChgIndex />
+        <LangChgIndex themeColor={themeColorLang} />
         <SwitchTheme handleChange={handleChange} checkedTheme={checkedTheme} />
+        <Dropdown menu={{ items: avatarItems }} placement="bottomRight" arrow>
+          <Badge count={1}>
+            <Avatar
+              src="https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+              style={{
+                backgroundColor: "#f56a00",
+                marginLeft: "12px",
+                cursor: "pointer",
+              }}
+            />
+          </Badge>
+        </Dropdown>
       </Header>
       <Layout>
         <Sider className="sider-area-menu">
-          <SideBarRender
-            menus={menus}
-            // colorBgContainer={colorBgContainer}
-            theme={themeMenu}
-          />
+          <SideBarRender menus={menus} theme={themeMenu} />
         </Sider>
         <Layout style={{ background: "#f0f3f4" }}>
           <Breadcrumb
             style={{ padding: "6px 12px", background: "#fff" }}
             items={breadcrumbItems}
           />
-          <Layout style={{ padding: 6 }}>
+          <Layout style={{ padding: 12 }}>
             <Content
               style={{
                 margin: 0,
@@ -171,7 +211,7 @@ const App: React.FC = (props) => {
                 // background: colorBgContainer,
                 borderRadius: borderRadiusLG,
                 background: "#fff",
-                height: "calc(100vh - 110px)",
+                height: "calc(100vh - 122px)",
                 overflow: "auto",
               }}
             >
