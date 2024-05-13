@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Drawer, Form, Input, Row, Select, Space } from "antd";
+import {
+  Button,
+  Col,
+  Drawer,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  InputNumber,
+} from "antd";
 import { guid } from "@/utils";
 import type { DataType } from "./type.d.ts";
 const { Option } = Select;
@@ -66,7 +76,7 @@ const Index: React.FC<{
               label="年龄"
               rules={[{ required: true, message: "请输入您的年龄" }]}
             >
-              <Input placeholder="请输入您的年龄" />
+              <InputNumber placeholder="请输入您的年龄" min={0} max={1000} />
             </Form.Item>
           </Col>
         </Row>
@@ -86,7 +96,11 @@ const Index: React.FC<{
               label="分数"
               rules={[{ required: true, message: "请输入您的初始分数" }]}
             >
-              <Input placeholder="请输入您的初始分数" />
+              <InputNumber
+                placeholder="请输入您的初始分数"
+                min={0}
+                max={1000}
+              />
             </Form.Item>
           </Col>
         </Row>

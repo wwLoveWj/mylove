@@ -6,7 +6,7 @@ import type {
   // AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from "axios";
-import { message as Message } from "antd";
+import { message as Message ,notification} from "antd";
 
 /* 服务器返回数据的的类型，根据接口文档确定 */
 export interface Result<T = any> {
@@ -14,6 +14,8 @@ export interface Result<T = any> {
   message: string;
   data: T;
 }
+type NotificationType = 'success' | 'info' | 'warning' | 'error';
+
 const instance: AxiosInstance = axios.create({
   baseURL: "http://localhost:3007/",
   // `timeout` 指定请求超时的毫秒数(0 表示无超时时间)
@@ -54,16 +56,28 @@ instance.interceptors.request.use(
  * 如果错误码判断请求失败，此时为业务错误，比如用户名不存在等，在这里进行提示
  * 如果网络错误，则进入第二个回调函数中，根据不同的状态码设置不同的提示消息进行提示
  */
+// 接口请求的通知信息
+const openNotification = (desc:string,type:NotificationType,msg?:string) => {
+  notification[type]({
+    message: msg || "成功",
+    description:desc,
+   duration:1.5
+  });
+};
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
     const { code, message, data } = response.data;
     // 根据自定义错误码判断请求是否成功
     if (code === 0) {
       // 将组件用的数据返回
+      if(!data){//暂时操作类不会返回data信息，返回的null
+        openNotification(message,"success");
+      }
       return data;
     } else {
       // 处理业务错误。
-      Message.error(message);
+      // Message.error(message);
+      openNotification(message,"error","错误信息");
       return Promise.reject(new Error(message));
     }
   },
@@ -90,7 +104,8 @@ instance.interceptors.response.use(
         message = "网络连接故障";
     }
 
-    Message.error(message);
+    // Message.error(message);
+    openNotification(message,"error","错误信息");
     return Promise.reject(error);
   }
 );

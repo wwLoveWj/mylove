@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Space, Button, Table, Tag } from "antd";
+import { Space, Button, Table, Tag, Popconfirm } from "antd";
 import type { TableColumnsType } from "antd";
-import { useRequest } from "ahooks";
 import dayjs from "dayjs";
+import { useRequest } from "ahooks";
+import {
+  UserInfoCreate,
+  UserInfoUpdate,
+  UserInfoDel,
+  UserInfo,
+} from "@/utils/request/api/user";
+import DelPopconfirm from "@/components/DelPopconfirm";
 import UserInfoDrawer from "./UserInfoDrawer";
 import type { DataType } from "./type.d.ts";
-import { UserInfoCreate, UserInfo } from "@/utils/request/api/user";
 
 const statusMap = new Map([
   ["0", "差"],
@@ -75,6 +81,12 @@ const Index: React.FC = () => {
           >
             编辑
           </a>
+          <DelPopconfirm
+            onConfirm={() => {
+              UserInfoDelRun.run({ userId: record?.userId });
+            }}
+            title={`确定要删除【${record.username}】的用户信息吗?`}
+          />
           {/* <a
             onClick={() => {
               history.push(
@@ -108,12 +120,31 @@ const Index: React.FC = () => {
       },
     }
   );
-
+  const UserInfoUpdateRun = useRequest(
+    (params: any) => UserInfoUpdate(params),
+    {
+      debounceWait: 100,
+      manual: true, //若设置了这个参数,则不会默认触发,需要通过run触发
+      onSuccess: () => {
+        setOpen(false);
+        getUserInfo();
+      },
+    }
+  );
+  const UserInfoDelRun = useRequest((params: any) => UserInfoDel(params), {
+    debounceWait: 100,
+    manual: true, //若设置了这个参数,则不会默认触发,需要通过run触发
+    onSuccess: () => {
+      getUserInfo();
+    },
+  });
   // ------------------------------------------------------
   // 以下是创建扣分项目的操作
   const submitDrawer = (res: any) => {
     if (action === "A") {
       UserInfoCreateRun.runAsync(res);
+    } else {
+      UserInfoUpdateRun.runAsync(res);
     }
   };
   const onClose = () => {

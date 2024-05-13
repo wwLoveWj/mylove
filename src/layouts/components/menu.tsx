@@ -3,8 +3,9 @@ import { Layout, Menu } from "antd";
 import _ from "lodash"; // 引入JS工具库
 import React, { useState, useEffect } from "react";
 import { Link,useLocation } from "umi";
+import "./style.less";
 
-const { Sider } = Layout;
+// const { Sider } = Layout;
 const { SubMenu } = Menu; // 子菜单
 
 interface RouterItem {
@@ -47,7 +48,7 @@ function getMenuItem(menuArr: any) {
 // 左侧菜单的menu结构数据
 function sideBarRender({
   menus,
-  colorBgContainer,
+  // colorBgContainer,
 }: {
   menus: RouterItem[];
   colorBgContainer: string;
@@ -75,22 +76,17 @@ function sideBarRender({
   }, [location.pathname]);
 
   return (
-    <Sider
-      width={180}
-      style={{ height: "calc(100vh - 48px)", background: colorBgContainer }}
-    >
       <Menu
         mode="inline"
         theme="dark"
         selectedKeys={saveKeyPath}
         openKeys={stateOpenKeys}
-        style={{ height: "100%", borderRight: 0 }}
+        // style={{ height: "100%", borderRight: 0 }}
         onOpenChange={onOpenChange}
         onSelect={onSelectMenu}
       >
         {getMenuItem(menus)}
       </Menu>
-    </Sider>
   );
 }
 

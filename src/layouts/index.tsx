@@ -14,7 +14,8 @@ import _ from "lodash"; // 引入JS工具库
 import { useState, useEffect } from "react";
 // import { TransitionGroup, CSSTransition } from "react-transition-group";
 import LangChgIndex from "./components/LangChgIndex";
-import SideBarRender from "./components/menuLeft";
+import SideBarRender from "./components/menu";
+import SwitchTheme from "@/components/switchTheme";
 
 interface RouterItem {
   title?: string;
@@ -32,11 +33,6 @@ const menus =
   routes
     ?.find((route) => route.path === "/")
     ?.routes?.filter((item) => !item.redirect) || [];
-// const routerType = {
-//   POP: "back",
-//   PUSH: "in",
-//   REPLACE: "in",
-// };
 
 const items1: MenuProps["items"] = ["1", "2", "3"].map((key) => ({
   key,
@@ -74,6 +70,14 @@ const App: React.FC = (props) => {
   >([]); //面包屑的配置项
   const locationUrl = useLocation();
 
+  // 切换主题
+  const handleChange = (e: any) => {
+    if (e.target.checked) {
+      //黑夜模式
+    } else {
+      //白天模式
+    }
+  };
   /**
    * 获取面包屑的配置数据
    */
@@ -137,17 +141,13 @@ const App: React.FC = (props) => {
           style={{ flex: 1, minWidth: 0 }}
         />
         <LangChgIndex />
+        <SwitchTheme handleChange={handleChange} />
       </Header>
       <Layout>
-        <Sider
-          style={{
-            overflow: "auto",
-            height: "calc(100vh - 64px)",
-          }}
-        >
+        <Sider className="sider-area-menu">
           <SideBarRender menus={menus} colorBgContainer={colorBgContainer} />
         </Sider>
-        <Layout>
+        <Layout style={{ background: "#f0f3f4" }}>
           <Breadcrumb
             style={{ padding: "6px 12px", background: "#fff" }}
             items={breadcrumbItems}
