@@ -18,6 +18,7 @@ interface RouterItem {
   redirect?: string;
   hidden?: boolean;
 }
+type MenuType = 'light' | 'dark';
 /**
  * 获取左侧菜单项
  * @param menuArr 所有的路由配置
@@ -48,10 +49,12 @@ function getMenuItem(menuArr: any) {
 // 左侧菜单的menu结构数据
 function sideBarRender({
   menus,
+  theme
   // colorBgContainer,
 }: {
   menus: RouterItem[];
-  colorBgContainer: string;
+  theme: MenuType;
+  // colorBgContainer: string;
 }) {
   const [saveKeyPath, setSaveKeyPath] = useState<string[]>([]); //存储选中的菜单路径集合
   const [stateOpenKeys, setStateOpenKeys] = useState([
@@ -78,7 +81,7 @@ function sideBarRender({
   return (
       <Menu
         mode="inline"
-        theme="dark"
+        theme={theme}
         selectedKeys={saveKeyPath}
         openKeys={stateOpenKeys}
         // style={{ height: "100%", borderRight: 0 }}

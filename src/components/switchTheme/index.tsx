@@ -1,10 +1,10 @@
 import React from "react";
 import "./style.less";
 
-const Index = ({handleChange}:{handleChange:any}) => {
+const Index = ({handleChange,checkedTheme}:{handleChange:any;checkedTheme:boolean}) => {
     return (
         <label className="theme-switch">
-            <input type="checkbox" className="theme-switch__checkbox" onChange={handleChange}/>
+            <input type="checkbox" className="theme-switch__checkbox" onChange={handleChange} checked={checkedTheme}/>
             <div className="theme-switch__container">
                 <div className="theme-switch__clouds"></div>
                 <div className="theme-switch__stars-container">

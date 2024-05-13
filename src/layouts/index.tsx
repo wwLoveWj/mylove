@@ -27,6 +27,8 @@ interface RouterItem {
   redirect?: string;
   hidden?: boolean;
 }
+type MenuType = "light" | "dark";
+
 const { Header, Content, Sider } = Layout;
 // 获取到所有的菜单数据进行处理
 const menus =
@@ -68,14 +70,23 @@ const App: React.FC = (props) => {
   const [breadcrumbItems, setBreadcrumbItems] = useState<
     { title: string; path: string }[]
   >([]); //面包屑的配置项
+  const [themeMenu, setThemeMenu] = useState<MenuType>("dark");
+  const [checkedTheme, setCheckedTheme] = useState(true); //是否切换主题
+  const [themeColor, setThemeColor] = useState("#001629"); //切换headers主题
   const locationUrl = useLocation();
 
   // 切换主题
   const handleChange = (e: any) => {
     if (e.target.checked) {
       //黑夜模式
+      setThemeMenu("dark");
+      setThemeColor("#001629");
+      setCheckedTheme(true);
     } else {
       //白天模式
+      setThemeMenu("light");
+      setThemeColor("#f5f5f5");
+      setCheckedTheme(false);
     }
   };
   /**
@@ -131,21 +142,31 @@ const App: React.FC = (props) => {
   }, [locationUrl.pathname]);
   return (
     <Layout>
-      <Header style={{ display: "flex", alignItems: "center" }}>
+      <Header
+        style={{
+          display: "flex",
+          alignItems: "center",
+          background: themeColor,
+        }}
+      >
         <div className="demo-logo" />
         <Menu
-          theme="dark"
+          theme={themeMenu}
           mode="horizontal"
+          style={{ background: themeColor, flex: 1, minWidth: 0 }}
           defaultSelectedKeys={["2"]}
           items={items1}
-          style={{ flex: 1, minWidth: 0 }}
         />
         <LangChgIndex />
-        <SwitchTheme handleChange={handleChange} />
+        <SwitchTheme handleChange={handleChange} checkedTheme={checkedTheme} />
       </Header>
       <Layout>
         <Sider className="sider-area-menu">
-          <SideBarRender menus={menus} colorBgContainer={colorBgContainer} />
+          <SideBarRender
+            menus={menus}
+            // colorBgContainer={colorBgContainer}
+            theme={themeMenu}
+          />
         </Sider>
         <Layout style={{ background: "#f0f3f4" }}>
           <Breadcrumb
