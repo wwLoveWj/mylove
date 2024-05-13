@@ -1,3 +1,10 @@
+import {
+  LaptopOutlined,
+  NotificationOutlined,
+  UserOutlined,
+  HomeOutlined,
+} from "@ant-design/icons";
+
 export const routes = [
   {
     path: "/exception",
@@ -18,6 +25,11 @@ export const routes = [
   {
     path: "/login",
     component: "@/pages/login", // 加载login登录页面
+    layout: false,
+  },
+  {
+    path: "/tv",
+    component: "@/pages/bgTv", // 加载tv开机动画
     layout: false,
   },
   {
@@ -47,6 +59,7 @@ export const routes = [
         key: "user-integral",
         title: "积分管理",
         path: "/user-integral",
+        icon: NotificationOutlined,
         routes: [
           {
             key: "integral-table",
@@ -73,6 +86,7 @@ export const routes = [
         key: "good-manage",
         title: "商品管理",
         path: "/good-manage",
+        icon: LaptopOutlined,
         routes: [
           // {
           //   path: "/good-manage",
@@ -96,6 +110,7 @@ export const routes = [
       {
         key: "address-manage",
         title: "地址管理",
+        icon: HomeOutlined,
         routes: [
           {
             key: "my-address",

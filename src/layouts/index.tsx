@@ -16,25 +16,14 @@ import { useState, useEffect } from "react";
 import LangChgIndex from "./components/LangChgIndex";
 import SideBarRender from "./components/menu";
 import SwitchTheme from "@/components/switchTheme";
-
-interface RouterItem {
-  title?: string;
-  key?: string;
-  path?: string;
-  routes?: RouterItem[];
-  component?: any;
-  exact?: boolean;
-  redirect?: string;
-  hidden?: boolean;
-}
-type MenuType = "light" | "dark";
+import { RouterItem, MenuType } from "./type";
 
 const { Header, Content, Sider } = Layout;
 // 获取到所有的菜单数据进行处理
 const menus =
   routes
     ?.find((route) => route.path === "/")
-    ?.routes?.filter((item) => !item.redirect) || [];
+    ?.routes?.filter((item: any) => !item.redirect) || [];
 
 const items1: MenuProps["items"] = ["1", "2", "3"].map((key) => ({
   key,
