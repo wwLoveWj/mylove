@@ -9,6 +9,7 @@
     "setup": "umi setup",
     "start": "npm run dev",
     "server": "nodemon ./server/index.js",
+    "wss": "nodemon ./server/websocket.js",
     "lint": "umi g tmp && yarn lint:js && yarn lint:style && yarn lint:prettier",
     "lint:prettier": "prettier --check \"**/*\" --end-of-line auto",
     "lint:fix": "eslint --fix --cache --ext .js,.jsx,.ts,.tsx --format=pretty ./src && npm run lint:style",
@@ -34,7 +35,8 @@
     "svg-sprite-loader": "6.0.11",
     "svgo": "2.8.0",
     "svgo-loader": "3.0.0",
-    "umi": "^4.1.10"
+    "umi": "^4.1.10",
+    "ws": "^8.17.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.33",

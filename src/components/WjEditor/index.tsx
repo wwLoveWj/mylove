@@ -6,6 +6,7 @@ import { useRequest } from "ahooks";
 import { setEditorHtmlAPI, getEditorHtmlAPI } from "@/utils/request/api/editor";
 import { Button } from "antd";
 import _ from "lodash";
+import { createWebSocket, closeWebSocket, websocket } from "./websocket";
 
 function MyEditor() {
   // editor 实例
@@ -38,6 +39,7 @@ function MyEditor() {
   };
 
   const changeEditorDB = _.debounce(changeEditor, 10000);
+
   //   获取编辑器信息
   useRequest(() => getEditorHtmlAPI({}), {
     debounceWait: 100,
@@ -54,6 +56,12 @@ function MyEditor() {
     };
   }, [editor]);
 
+  useEffect(() => {
+    createWebSocket("ws://localhost:8080");
+    return () => {
+      closeWebSocket();
+    };
+  }, []);
   return (
     <>
       <Button type="primary" onClick={changeEditor}>
@@ -70,9 +78,14 @@ function MyEditor() {
           defaultConfig={editorConfig}
           value={html}
           onCreated={setEditor}
-          //   onChange={(editor) => {
-          //     changeEditorDB(editor);
-          //   }}
+          onChange={(editor) => {
+            //   changeEditorDB(editor);
+            if (websocket.readyState === WebSocket.OPEN) {
+              websocket && websocket?.send(editor.getHtml());
+            } else {
+              console.error("websocket 断开了......");
+            }
+          }}
           mode="default"
           style={{ height: "500px", overflowY: "hidden" }}
         />
