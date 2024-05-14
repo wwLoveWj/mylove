@@ -11,6 +11,7 @@ import {
   ScoreInfoAPI,
 } from "@/utils/request/api/score";
 import DeductionScoreDrawer from "./DeductionScoreDrawer";
+import DelPopconfirm from "@/components/DelPopconfirm";
 import type { DataType } from "./type.d.ts";
 
 const statusMap = new Map([
@@ -75,16 +76,12 @@ const Index: React.FC = () => {
           >
             编辑
           </a>
-          <Button
-            type="link"
-            danger
-            onClick={() => {
+          <DelPopconfirm
+            onConfirm={() => {
               ScoreInfoDeleteAPIRun.run({ scoreId: record?.scoreId });
             }}
-          >
-            删除
-          </Button>
-
+            title={`确定要删除【${record.username}】的分数信息吗?`}
+          />
           <a
             onClick={() => {
               history.push(
@@ -142,7 +139,7 @@ const Index: React.FC = () => {
       manual: true, //若设置了这个参数,则不会默认触发,需要通过run触发
       onSuccess: () => {
         setOpen(false);
-        // getScoreInfoAPI();
+        getScoreInfoAPI();
       },
     }
   );

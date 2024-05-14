@@ -110,7 +110,7 @@ const Index: React.FC<{
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="reason"
+              name="deductionReason"
               label="扣分原因"
               rules={[{ required: true, message: "请输入扣分原因" }]}
             >
