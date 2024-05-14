@@ -38,9 +38,8 @@ wss.on("connection", function connection(ws) {
   //     console.log("Pong received.");
   //   });
   ws.on("message", function incoming(data) {
-    console.log(data.toString(), "-----我是传送过来的数据--------");
     if (data.toString() === "heartbeat") {
-      // 心跳应答
+      console.log(data.toString(), "心跳应答");
       ws.send(data.toString());
       return;
     }
@@ -51,7 +50,7 @@ wss.on("connection", function connection(ws) {
       }
       //   判断查询到的数据存不存在，有就更新，没有就创建
       rows = rows.map((item) => camelCaseKeys(item));
-      console.log(rows, "数据库中的内容");
+      //   console.log(rows, "数据库中的内容");
       if (!rows?.length) {
         addData(data, ws);
       } else {
