@@ -18,6 +18,8 @@
   "dependencies": {
     "@ant-design/icons": "^5.3.6",
     "@umijs/plugins": "^4.1.10",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-react": "^1.0.6",
     "ahooks": "^3.7.11",
     "antd": "^5.16.5",
     "axios": "^1.6.8",

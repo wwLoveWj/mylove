@@ -3,6 +3,7 @@
     "jsx": "react",
     "esModuleInterop": true,
     "resolveJsonModule": true,
+    "allowImportingTsExtensions":true
   },
   "extends": "./src/.umi/tsconfig.json"
 }
