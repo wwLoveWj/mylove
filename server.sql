@@ -92,12 +92,10 @@ CREATE TABLE `editor_info` (
     editor_content VARCHAR(255) COMMENT '编辑器编辑内容',
     editor_id VARCHAR(255) COMMENT '编辑器的唯一ID'
 ) COMMENT '编辑器信息表';
-/* 2024-05-14 15:23:44 [207 ms] */
-DELETE FROM `editor_info` WHERE `id` IN (2, 3, 4, 5, 6, 7, 8, 9);
 
-CREATE TABLE `editor_info` (
+CREATE TABLE `login_info` (
     id int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
     create_time DATETIME COMMENT 'Create Time',
-    editor_content VARCHAR(255) COMMENT '编辑器编辑内容',
-    editor_id VARCHAR(255) COMMENT '编辑器的唯一ID'
-) COMMENT '编辑器信息表';
+    username VARCHAR(255) COMMENT '用户姓名',
+    password VARCHAR(255) COMMENT '用户密码'
+) COMMENT '用户信息';
