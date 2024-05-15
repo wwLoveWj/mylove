@@ -6,7 +6,7 @@ const router = express.Router();
 //================================  获取所有用户信息  ===========================
 const searchUser = async (res) => {
   // 查询 users 表中所有的数据
-  const sqlStr = "select * from user";
+  const sqlStr = "select * from user_info";
   await db.query(sqlStr, (err, rows) => {
     // 查询数据失败
     if (err) {
@@ -42,20 +42,20 @@ router.get("/", (req, res) => {
  */
 router.post("/create", (req, res) => {
   // 向 users 表中，新增一条数据，其中 username 的值为 Spider-Man，password 的值为 pcc123
-  let user = req.body;
+  let params = req.body;
   // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
   const sqlStr =
-    "insert into user (user_id,username, age,weight,score,status) values (?, ?,?,?,?,?)";
+    "insert into user_info (user_id,username, age,weight,score,status) values (?, ?,?,?,?,?)";
   // 执行 SQL 语句，使用数组的形式，依次为 ? 占位符指定具体的值
   db.query(
     sqlStr,
     [
-      user.userId,
-      user.username,
-      user.age,
-      user.weight,
-      user.score,
-      user.status,
+      params.userId,
+      params.username,
+      params.age,
+      params.weight,
+      params.score,
+      params.status,
     ],
     (err, results) => {
       if (err) {
@@ -84,19 +84,19 @@ router.post("/create", (req, res) => {
  * 更新用户接口
  */
 router.post("/edit", (req, res) => {
-  let user = req.body;
+  let params = req.body;
   const sqlUser =
-    "update user set username=?, age=?, weight=?, score=?, status=?, description=? where user_id=?";
+    "update user_info set username=?, age=?, weight=?, score=?, status=?, description=? where user_id=?";
   db.query(
     sqlUser,
     [
-      user.username,
-      user.age,
-      user.weight,
-      user.score,
-      user.status,
-      user.description,
-      user.userId,
+      params.username,
+      params.age,
+      params.weight,
+      params.score,
+      params.status,
+      params.description,
+      params.userId,
     ],
     (err, results) => {
       if (err) {
@@ -123,9 +123,9 @@ router.post("/edit", (req, res) => {
  * 删除用户接口
  */
 router.post("/delete", (req, res) => {
-  let user = req.body;
-  const sqlStr = "delete from user where user_id=?";
-  db.query(sqlStr, user.userId, (err, results) => {
+  let params = req.body;
+  const sqlStr = "delete from user_info where user_id=?";
+  db.query(sqlStr, params.userId, (err, results) => {
     if (err) {
       res.send({
         code: 1,

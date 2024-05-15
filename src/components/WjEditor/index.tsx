@@ -44,6 +44,7 @@ function MyEditor() {
   useRequest(() => getEditorHtmlAPI({}), {
     debounceWait: 100,
     onSuccess: (res) => {
+      // editor.restoreSelection(); //恢复选区
       setHtml(res[res.length - 1]?.editorContent);
     },
   });
