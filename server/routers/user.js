@@ -4,10 +4,10 @@ const camelCaseKeys = require("../utils");
 
 const router = express.Router();
 //================================  获取所有用户信息  ===========================
-const searchUser = async (res) => {
+const searchUser = (res) => {
   // 查询 users 表中所有的数据
   const sqlStr = "select * from user_info";
-  await db.query(sqlStr, (err, rows) => {
+  db.query(sqlStr, (err, rows) => {
     // 查询数据失败
     if (err) {
       res.send({

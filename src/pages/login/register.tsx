@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { history } from "umi";
+import md5 from "md5";
 import { useRequest } from "ahooks";
 import { registerUserAPI } from "@/utils/request/api/login";
 import styles from "./style.less";
@@ -23,7 +24,7 @@ const Login = () => {
     }
   );
   const handleLogin = () => {
-    registerUserAPIRun.run({ username, password });
+    registerUserAPIRun.run({ username, password: md5(password) });
   };
   return (
     <div className={styles.login}>

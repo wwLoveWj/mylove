@@ -1,12 +1,17 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const md5 = require("md5");
+// 导入 bcryptjs 加密包
+// const bcrypt = require("bcryptjs");
 const db = require("../mysql");
 // 导入全局配置文件（里面有token的密钥）
 const config = require("../utils/config");
 
 const router = express.Router();
 /**
- * 注册接口
+ * POST 用户注册
+ * @param username  用户名
+ * @param password  用户密码
  */
 router.post("/register", (req, res) => {
   const { username, password } = req.body;
@@ -18,13 +23,15 @@ router.post("/register", (req, res) => {
     return;
   }
   if (username && password) {
-    const result = `SELECT * FROM login_info WHERE username = '${username}'`;
-    db.query(result, [username], (err, results) => {
+    const searchSql = `SELECT * FROM login_info WHERE username=?`;
+    db.query(searchSql, [username], (err, results) => {
       if (err) throw err;
       if (results.length >= 1) {
         //2、如果有相同用户名，则注册失败，用户名重复
         res.send({ code: 0, msg: "注册失败，用户名重复" });
       } else {
+        // 调用 bcrypt.hashSync() 对密码加密
+        // let pwd = bcrypt.hashSync(password, 10); // 参数2： 加密等级 填10即可
         const sqlStr = "insert into login_info (username,password) values(?,?)";
         db.query(sqlStr, [username, password], (err, results) => {
           if (err) throw err;
@@ -52,7 +59,7 @@ router.post("/index", (req, res) => {
     });
     return;
   }
-  const sqlStr = "select * from login_info WHERE username=? AND password=?";
+  const sqlStr = "select * from login_info WHERE username=? And password=?";
   db.query(sqlStr, [username, password], (err, result) => {
     if (err) throw err;
     if (result.length > 0) {
