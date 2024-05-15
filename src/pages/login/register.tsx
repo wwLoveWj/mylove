@@ -1,16 +1,10 @@
 import React, { useState } from "react";
 import { history } from "umi";
 import { useRequest } from "ahooks";
-import {
-  loginUserAPI
-} from "@/utils/request/api/login";
+import { registerUserAPI } from "@/utils/request/api/login";
 import styles from "./style.less";
 import "./style.less";
 
-interface LoginInfoType {
-  username: string;
-  token: string;
-}
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPwd] = useState("");
@@ -19,14 +13,13 @@ const Login = () => {
    * 注册用户接口
    */
   const registerUserAPIRun = useRequest(
-    (params: any) => loginUserAPI(params),
+    (params: any) => registerUserAPI(params),
     {
       debounceWait: 100,
       manual: true,
-      onSuccess: (res: LoginInfoType) => {
-        localStorage.setItem("login-info", JSON.stringify(res));
-        history.push("/");
-      }
+      onSuccess: () => {
+        history.push("/login");
+      },
     }
   );
   const handleLogin = () => {
@@ -65,7 +58,7 @@ const Login = () => {
             </div>
             <center>
               <a onClick={handleLogin}>
-                SEND
+                注册
                 <span></span>
               </a>
             </center>

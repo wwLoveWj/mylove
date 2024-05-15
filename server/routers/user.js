@@ -11,8 +11,8 @@ const searchUser = async (res) => {
     // 查询数据失败
     if (err) {
       res.send({
-        code: 1,
-        message: err.message,
+        code: 0,
+        msg: err.message,
         data: null,
       });
       return console.log(err.message);
@@ -21,8 +21,8 @@ const searchUser = async (res) => {
     // 注意：如果执行的是 select 查询语句，则执行的结果是数组
     rows = rows.map((item) => camelCaseKeys(item));
     res.send({
-      code: 0,
-      message: "用户信息查询成功！",
+      code: 1,
+      msg: "用户信息查询成功！",
       data: rows,
     });
   });
@@ -34,7 +34,7 @@ router.get("/", (req, res) => {
   try {
     searchUser(res);
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.json({ success: false, msg: error.message, code: 0 });
   }
 });
 /**
@@ -60,8 +60,8 @@ router.post("/create", (req, res) => {
     (err, results) => {
       if (err) {
         res.send({
-          code: 1,
-          message: err.message,
+          code: 0,
+          msg: err.message,
           data: null,
         });
         return console.log(err.message);
@@ -72,8 +72,8 @@ router.post("/create", (req, res) => {
       if (results.affectedRows === 1) {
         console.log("插入数据成功!");
         res.send({
-          code: 0,
-          message: "用户信息新增成功！",
+          code: 1,
+          msg: "用户信息新增成功！",
           data: null,
         });
       }
@@ -101,8 +101,8 @@ router.post("/edit", (req, res) => {
     (err, results) => {
       if (err) {
         res.send({
-          code: 1,
-          message: err.message,
+          code: 0,
+          msg: err.message,
           data: null,
         });
         return console.log(err.message);
@@ -111,8 +111,8 @@ router.post("/edit", (req, res) => {
       if (results.affectedRows === 1) {
         console.log("用户信息更新成功");
         res.send({
-          code: 0,
-          message: "用户信息更新成功！",
+          code: 1,
+          msg: "用户信息更新成功！",
           data: null,
         });
       }
@@ -128,8 +128,8 @@ router.post("/delete", (req, res) => {
   db.query(sqlStr, params.userId, (err, results) => {
     if (err) {
       res.send({
-        code: 1,
-        message: err.message,
+        code: 0,
+        msg: err.message,
         data: null,
       });
       return console.log(err.message);
@@ -138,8 +138,8 @@ router.post("/delete", (req, res) => {
     if (results.affectedRows === 1) {
       console.log("删除数据成功");
       res.send({
-        code: 0,
-        message: "用户信息删除成功",
+        code: 1,
+        msg: "用户信息删除成功",
         data: null,
       });
     }

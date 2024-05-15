@@ -3,12 +3,19 @@ const cors = require("cors");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+//token解析中间件 一定要在路由之前配置解析 Token 的中间件
+const expressJWT = require("express-jwt");
+// 导入全局配置文件（里面有token的密钥）
+const config = require("./utils/config");
+
 // 自定义router模块
 const scoreRouter = require("./routers/score.js");
 const userRouter = require("./routers/user.js");
 const editorRouter = require("./routers/editor.js");
+const loginRouter = require("./routers/login.js");
 
 const app = express();
+
 app.use(cors());
 // 用于解析JSON类型的请求体
 app.use(express.json());
@@ -16,11 +23,47 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "./public")));
+// 注册全局中间件  链式调用 unless 方法，接收一个配置对象，path 字段设置一个正则表达式，表示不需要 token 身份认证的路由前缀。
+app.use(
+  expressJWT
+    .expressjwt({
+      // 加密时设置的密钥
+      secret: config.jwtSecretKey,
+      // 设置算法
+      algorithms: ["HS256"],
+      // 无token请求不进行解析，并且抛出异常
+      // credentialsRequired: false
+    })
+    .unless({
+      path: [
+        "/login/index",
+        "/login/register",
+        {
+          url: /^\/public\/.*/,
+          methods: ["GET", "POST"],
+        },
+      ],
+      // path: ['/users/login','/users']
+    })
+);
 
 // 对路由进行分区划分
 app.use("/userInfo", userRouter);
 app.use("/scoreInfo", scoreRouter);
 app.use("/editor", editorRouter);
+app.use("/login", loginRouter);
+
+// 错误中间件 当token失效时 返回信息
+app.use((err, req, res, next) => {
+  // console.dir(err.code, ",---", err.stack);
+  if (err.code === "credentials_required") {
+    res.status(401).send({
+      code: 0,
+      data: null,
+      msg: "身份认证失败！",
+    });
+  }
+});
 
 // 获取飞机选座模型svg
 app.get("/setOthersUrlSvg", (req, res) => {
@@ -30,7 +73,8 @@ app.get("/setOthersUrlSvg", (req, res) => {
     fs.writeFile("./public/airport.svg", resl.data, (err) => {
       if (err) res.send(err);
       res.send({
-        message: "success write!",
+        code: 1,
+        msg: "success write!",
       });
     });
   });
@@ -44,8 +88,8 @@ app.get("/getOthersUrlSvg", (req, res) => {
   // // 将Buffer转换为字符串
   // const htmlString = buffer.toString();
   res.send({
-    code: 0,
-    message: "success",
+    code: 1,
+    msg: "success",
     data: {
       svg: svg.toString(),
     },
@@ -62,8 +106,8 @@ app.get("/getMoneySvg", (req, res) => {
     res.setHeader("Content-type", "text/html;charset=utf-8"); // 解决乱码
     // 不报错就返回html 文件
     res.send({
-      code: 0,
-      message: "success",
+      code: 1,
+      msg: "success",
       data: data.toString(),
     });
     // res.sendFile(__dirname + "/public/money.html");

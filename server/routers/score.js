@@ -15,13 +15,13 @@ router.get("/", (req, res) => {
       rows = rows.map((item) => camelCaseKeys(item));
       console.log("分数列表查询成功");
       res.send({
-        code: 0,
-        message: "success",
+        code: 1,
+        msg: "success",
         data: rows,
       });
     });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.json({ success: false, msg: error.message, code: 0 });
   }
 });
 
@@ -54,8 +54,8 @@ router.post("/create", (req, res) => {
       if (results.affectedRows === 1) {
         console.log("插入数据成功!");
         res.send({
-          code: 0,
-          message: "success",
+          code: 1,
+          msg: "分数信息新增成功",
           data: null,
         });
         // 等分数表插入成功后再去改分数
@@ -65,8 +65,8 @@ router.post("/create", (req, res) => {
         //   if (results.affectedRows === 1) {
         //     console.log("用户信息表更新成功");
         //     res.send({
-        //       code: 0,
-        //       message: "success",
+        //       code: 1,
+        //       msg: "success",
         //       data: null,
         //     });
         //   }
@@ -96,8 +96,8 @@ router.post("/edit", (req, res) => {
       if (results.affectedRows === 1) {
         console.log("分数更新成功");
         res.send({
-          code: 0,
-          message: "success",
+          code: 1,
+          msg: "success",
           data: null,
         });
       }
@@ -114,8 +114,8 @@ router.post("/delete", (req, res) => {
     if (results.affectedRows === 1) {
       console.log("删除数据成功");
       res.send({
-        code: 0,
-        message: "删除数据成功",
+        code: 1,
+        msg: "删除数据成功",
         data: null,
       });
     }
@@ -132,8 +132,8 @@ router.post("/details", (req, res) => {
     console.log("查询明细数据成功");
     rows = rows.map((item) => camelCaseKeys(item));
     res.send({
-      code: 0,
-      message: "查询明细数据成功",
+      code: 1,
+      msg: "查询分数明细数据成功",
       data: rows,
     });
   });

@@ -7,11 +7,12 @@ import type {
   InternalAxiosRequestConfig,
 } from "axios";
 import { message as Message ,notification} from "antd";
+import {history} from "umi";
 
 /* 服务器返回数据的的类型，根据接口文档确定 */
 export interface Result<T = any> {
   code: number;
-  message: string;
+  msg: string;
   data: T;
 }
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
@@ -31,9 +32,11 @@ const instance: AxiosInstance = axios.create({
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     //  伪代码
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    let loginInfo = JSON.parse(localStorage.getItem("login-info")||`{}`);
+    let token = loginInfo?.token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     // 如果还需要在请求头内添加其他内容可以自己添加 "[]" 内为自定义的字段名 "=" 后的内容为字段名对应的内容
     // config.headers['自定义键'] = '自定义内容'
     // 如果此时觉得某些参数不合理，你可以删除它，删除后将不会发送给服务器
@@ -66,19 +69,19 @@ const openNotification = (desc:string,type:NotificationType,msg?:string) => {
 };
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
-    const { code, message, data } = response.data;
+    const { code, msg, data } = response.data;
     // 根据自定义错误码判断请求是否成功
-    if (code === 0) {
+    if (code === 1) {
       // 将组件用的数据返回
       if(!data){//暂时操作类不会返回data信息，返回的null
-        openNotification(message,"success");
+        openNotification(msg,"success");
       }
       return data;
     } else {
       // 处理业务错误。
-      // Message.error(message);
-      openNotification(message,"error","错误信息");
-      return Promise.reject(new Error(message));
+      // Message.error(msg);
+      openNotification(msg,"error","错误信息");
+      return Promise.reject(new Error(msg));
     }
   },
   (error: AxiosError) => {
@@ -89,10 +92,12 @@ instance.interceptors.response.use(
     switch (status) {
       case 401:
         message = "token 失效，请重新登录";
+        history.push("/login");
         // 这里可以触发退出的 action
         break;
       case 403:
         message = "拒绝访问";
+        history.push("/exception/403");
         break;
       case 404:
         message = "请求地址错误";

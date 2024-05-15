@@ -10,8 +10,8 @@ router.get("/getEditorHtml", async (req, res) => {
     // 查询数据失败
     if (err) {
       res.send({
-        code: 1,
-        message: err.message,
+        code: 0,
+        msg: err.message,
         data: null,
       });
       return console.log(err.message);
@@ -19,8 +19,8 @@ router.get("/getEditorHtml", async (req, res) => {
     // 查询数据成功
     rows = rows.map((item) => camelCaseKeys(item));
     res.send({
-      code: 0,
-      message: "编辑信息查询成功！",
+      code: 1,
+      msg: "编辑信息查询成功！",
       data: rows,
     });
   });
@@ -35,8 +35,8 @@ router.post("/setEditorHtml", (req, res) => {
   db.query(sqlStr, [editor.editorContent, editor.editorId], (err, results) => {
     if (err) {
       res.send({
-        code: 1,
-        message: err.message,
+        code: 0,
+        msg: err.message,
         data: null,
       });
       return console.log(err.message);
@@ -44,8 +44,8 @@ router.post("/setEditorHtml", (req, res) => {
     if (results.affectedRows === 1) {
       console.log("插入数据成功!", results);
       res.send({
-        code: 0,
-        message: "保存成功！",
+        code: 1,
+        msg: "保存成功！",
         data: null,
       });
     }
