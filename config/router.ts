@@ -28,6 +28,11 @@ export const routes = [
     layout: false,
   },
   {
+    path: "/register",
+    component: "@/pages/login/register", // 加载login登录页面
+    layout: false,
+  },
+  {
     path: "/tv",
     component: "@/pages/bgTv", // 加载tv开机动画
     layout: false,

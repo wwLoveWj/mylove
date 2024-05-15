@@ -8,12 +8,15 @@ import { Button } from "antd";
 import _ from "lodash";
 import { createWebSocket, closeWebSocket, websocket } from "./websocket";
 
+interface EditorTxtType {
+  editorContent: string;
+}
 function MyEditor() {
   // editor 实例
   const [editor, setEditor] = useState<IDomEditor | null>(null);
 
   // 编辑器内容
-  const [html, setHtml] = useState("<p>hello</p>");
+  const [html, setHtml] = useState("");
 
   // 工具栏配置
   const toolbarConfig: Partial<IToolbarConfig> = {};
@@ -43,7 +46,7 @@ function MyEditor() {
   //   获取编辑器信息
   useRequest(() => getEditorHtmlAPI({}), {
     debounceWait: 100,
-    onSuccess: (res) => {
+    onSuccess: (res: EditorTxtType[]) => {
       // editor.restoreSelection(); //恢复选区
       setHtml(res[res.length - 1]?.editorContent);
     },
