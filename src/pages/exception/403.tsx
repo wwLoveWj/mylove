@@ -1,4 +1,5 @@
 import Exception from "@/components/Exception";
+import React from "react";
 import { Link } from "umi";
 
 const Exception403 = () => {
@@ -6,7 +7,7 @@ const Exception403 = () => {
     <Exception
       type="403"
       linkElement={Link}
-      redirect="/good-manage/good-quantity"
+      redirect="/user-integral/integral-table"
     />
   );
 };

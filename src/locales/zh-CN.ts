@@ -4,4 +4,10 @@ export default {
   chinese: "中文",
   "pages.docs.955138-0": "你真的是这样的人？",
   "pages.docs.955138-1": "我不信你是",
+  "router.integrals": "积分管理",
+  "router.integralDetails": "积分明细",
+  "router.integralTable": "积分列表",
+  "router.users": "用户管理",
+  "router.rules": "规则管理",
+  "router.echarts": "图表管理",
 };

@@ -40,86 +40,86 @@ export const routes = [
       {
         path: "/",
         exact: true,
-        redirect: "/good-manage/good-quantity",
+        redirect: "/user-integral/integral-table",
       },
       // 菜单的配置项，用于动态渲染 key:	唯一标志 title: 菜单项值 path：用于路由跳转
       {
         key: "user-integral",
-        title: "积分管理",
+        title: "router.integrals",
         path: "/user-integral",
         icon: NotificationOutlined,
         routes: [
           {
             key: "integral-table",
-            title: "积分列表",
+            title: "router.integralTable",
             path: "/user-integral/integral-table",
             component: "./integral/index",
           },
           {
             key: "integral-details",
-            title: "积分明细",
+            title: "router.integralDetails",
             path: "/user-integral/integral-details",
             component: "./integral/Details",
             hidden: true,
           },
         ],
       },
-      {
-        key: "good-manage",
-        title: "商品管理",
-        path: "/good-manage",
-        icon: LaptopOutlined,
-        routes: [
-          // {
-          //   path: "/good-manage",
-          //   exact: true,
-          //   redirect: "/good-manage/good-quantity",
-          // },
-          {
-            key: "good-quantity",
-            title: "商品数量",
-            path: "/good-manage/good-quantity",
-            component: "docs",
-          },
-          {
-            key: "good-quality",
-            title: "商品质量",
-            path: "/good-manage/good-quality",
-            component: "index",
-          },
-        ],
-      },
-      {
-        key: "address-manage",
-        title: "地址管理",
-        icon: HomeOutlined,
-        routes: [
-          {
-            key: "my-address",
-            title: "我的地址",
-            path: "/address-manage/my-address",
-          },
-        ],
-      },
+      // {
+      //   key: "good-manage",
+      //   title: "商品管理",
+      //   path: "/good-manage",
+      //   icon: LaptopOutlined,
+      //   routes: [
+      //     // {
+      //     //   path: "/good-manage",
+      //     //   exact: true,
+      //     //   redirect: "/good-manage/good-quantity",
+      //     // },
+      //     {
+      //       key: "good-quantity",
+      //       title: "商品数量",
+      //       path: "/good-manage/good-quantity",
+      //       component: "docs",
+      //     },
+      //     {
+      //       key: "good-quality",
+      //       title: "商品质量",
+      //       path: "/good-manage/good-quality",
+      //       component: "index",
+      //     },
+      //   ],
+      // },
+      // {
+      //   key: "address-manage",
+      //   title: "地址管理",
+      //   icon: HomeOutlined,
+      //   routes: [
+      //     {
+      //       key: "my-address",
+      //       title: "我的地址",
+      //       path: "/address-manage/my-address",
+      //     },
+      //   ],
+      // },
       {
         key: "user-rules",
-        title: "规则管理",
+        title: "router.rules",
         path: "/user-rules",
         component: "./rules/index.tsx",
       },
       {
         key: "user-manage",
-        title: "用户管理",
+        title: "router.users",
         path: "/user-manage",
         wrappers: ["@/wrappers/auth"],
         component: "./users/index.tsx",
       },
-      { key: "collect-manage", title: "收藏管理", path: "/collect-manage" },
+      // { key: "collect-manage", title: "收藏管理", path: "/collect-manage" },
       {
         key: "echarts",
         path: "/echarts",
         component: "./charts/Airport",
-        title: "图表管理",
+        title: "router.echarts",
       },
     ],
   },

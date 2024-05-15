@@ -17,7 +17,7 @@ const Exception: FC<ExceptionProps> = (props) => {
     desc,
     img,
     actions,
-    redirect = "/users",
+    redirect = "/",
     ...rest
   } = props;
   const pageType = type in config ? type : "404";

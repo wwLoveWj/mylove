@@ -1,5 +1,5 @@
-import { Outlet, useLocation, history } from "umi";
-import React from "react";
+import { Outlet, useLocation, history, useIntl } from "umi";
+import React, { useState, useEffect } from "react";
 import {
   LaptopOutlined,
   NotificationOutlined,
@@ -10,7 +10,6 @@ import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, theme, Avatar, Badge, Dropdown } from "antd";
 import { routes } from "../../config/router"; // 配置的菜单项
 import _ from "lodash"; // 引入JS工具库
-import { useState, useEffect } from "react";
 // import { TransitionGroup, CSSTransition } from "react-transition-group";
 import LangChgIndex from "./components/LangChgIndex";
 import SideBarRender from "./components/menu";
@@ -25,34 +24,12 @@ const menus =
     ?.find((route) => route.path === "/")
     ?.routes?.filter((item: any) => !item.redirect) || [];
 
-const items1: MenuProps["items"] = ["1", "2", "3"].map((key) => ({
+const items1: MenuProps["items"] = ["vip", "svip", "super"].map((key) => ({
   key,
-  label: `nav ${key}`,
+  label: `${key}`,
 }));
 
-const items2: MenuProps["items"] = [
-  UserOutlined,
-  LaptopOutlined,
-  NotificationOutlined,
-].map((icon, index) => {
-  const key = String(index + 1);
-
-  return {
-    key: `sub${key}`,
-    icon: React.createElement(icon),
-    label: `subnav ${key}`,
-
-    items: new Array(4).fill(null).map((_, j) => {
-      const subKey = index * 4 + j + 1;
-      return {
-        key: subKey,
-        label: `option${subKey}`,
-      };
-    }),
-  };
-});
-
-const App: React.FC = (props) => {
+const App: React.FC = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -64,7 +41,10 @@ const App: React.FC = (props) => {
   const [themeColor, setThemeColor] = useState("#001629"); //切换headers主题
   const [themeColorLang, setThemeColorLang] = useState("#fff");
   const locationUrl = useLocation();
-
+  // 国际化配置
+  const intl = useIntl();
+  const lang = intl.locale;
+  const t = (id: string) => intl.formatMessage({ id });
   // 切换主题
   const handleChange = (e: any) => {
     if (e.target.checked) {
@@ -108,14 +88,14 @@ const App: React.FC = (props) => {
             path: currentKeyPath[index],
             title: (
               <>
-                <UserOutlined />
-                <span>{titleObj?.title}</span>
+                <LaptopOutlined />
+                <span>{t(titleObj?.title || "")}</span>
               </>
             ),
           }
         : {
             path: currentKeyPath[index],
-            title: titleObj?.title,
+            title: t(titleObj?.title || ""),
             className: "disabled-breadcrumb-item",
           };
     });
@@ -131,7 +111,7 @@ const App: React.FC = (props) => {
     let result = locationUrl.pathname.split("/");
     result.shift();
     keyPathMenu(result);
-  }, [locationUrl.pathname]);
+  }, [locationUrl.pathname, lang]);
 
   const avatarItems: MenuProps["items"] = [
     {
@@ -175,7 +155,7 @@ const App: React.FC = (props) => {
           theme={themeMenu}
           mode="horizontal"
           style={{ background: themeColor, flex: 1, minWidth: 0 }}
-          defaultSelectedKeys={["2"]}
+          defaultSelectedKeys={["vip"]}
           items={items1}
         />
         <LangChgIndex themeColor={themeColorLang} />

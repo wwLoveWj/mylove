@@ -1,4 +1,4 @@
-import yayJpg from "../assets/yay.jpg";
+import React from "react";
 import { history, useIntl } from "umi";
 import "./style.less";
 
