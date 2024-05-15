@@ -89,13 +89,13 @@ const App: React.FC = () => {
             title: (
               <>
                 <LaptopOutlined />
-                <span>{t(titleObj?.title || "")}</span>
+                <span>{t(titleObj?.title || "router.integrals")}</span>
               </>
             ),
           }
         : {
             path: currentKeyPath[index],
-            title: t(titleObj?.title || ""),
+            title: t(titleObj?.title || "router.integralTable"),
             className: "disabled-breadcrumb-item",
           };
     });

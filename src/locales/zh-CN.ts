@@ -10,4 +10,5 @@ export default {
   "router.users": "用户管理",
   "router.rules": "规则管理",
   "router.echarts": "图表管理",
+  "router.articles": "文章管理",
 };

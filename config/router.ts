@@ -121,6 +121,12 @@ export const routes = [
         component: "./charts/Airport",
         title: "router.echarts",
       },
+      {
+        key: "article",
+        path: "/article",
+        component: "./article/index.tsx",
+        title: "router.articles",
+      },
     ],
   },
   {

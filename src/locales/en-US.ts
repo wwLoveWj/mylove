@@ -10,4 +10,5 @@ export default {
   "router.users": "users-manage",
   "router.rules": "rules-manage",
   "router.echarts": "echarts-manage",
+  "router.articles": "articles-manage",
 };
