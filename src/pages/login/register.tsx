@@ -19,7 +19,7 @@ const Login = () => {
       debounceWait: 100,
       manual: true,
       onSuccess: () => {
-        history.push("/login");
+        history.push({ pathname: "/login" }, { username });
       },
     }
   );
@@ -38,7 +38,6 @@ const Login = () => {
                 name=""
                 required
                 onChange={(e) => {
-                  console.log(e.target.value, "name");
                   setUsername(e.target.value);
                 }}
               />
@@ -51,7 +50,6 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => {
-                  console.log(e.target.value, "password");
                   setPwd(e.target.value);
                 }}
               />

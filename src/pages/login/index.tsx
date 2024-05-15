@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { history } from "umi";
+import React, { useEffect, useState } from "react";
+import { history, useLocation } from "umi";
 import md5 from "md5";
 import { useRequest } from "ahooks";
-import {loginUserAPI} from "@/utils/request/api/login";
+import { loginUserAPI } from "@/utils/request/api/login";
 import styles from "./style.less";
 import "./style.less";
 
@@ -13,24 +13,26 @@ interface LoginInfoType {
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPwd] = useState("");
+  const detailsData = (useLocation() as any).state; //注册成功后传递过来的用户名
 
   /**
    * 注册用户接口
    */
-  const registerUserAPIRun = useRequest(
-    (params: any) => loginUserAPI(params),
-    {
-      debounceWait: 100,
-      manual: true,
-      onSuccess: (res: LoginInfoType) => {
-        localStorage.setItem("login-info", JSON.stringify(res));
-        history.push("/");
-      }
-    }
-  );
+  const registerUserAPIRun = useRequest((params: any) => loginUserAPI(params), {
+    debounceWait: 100,
+    manual: true,
+    onSuccess: (res: LoginInfoType) => {
+      localStorage.setItem("login-info", JSON.stringify(res));
+      history.push("/");
+    },
+  });
   const handleLogin = () => {
-    registerUserAPIRun.run({ username, password:md5(password) });
+    registerUserAPIRun.run({ username, password: md5(password) });
   };
+
+  useEffect(() => {
+    setUsername(detailsData?.username);
+  }, []);
   return (
     <div className={styles.login}>
       <div className={styles.showImg}>9999</div>
@@ -42,8 +44,8 @@ const Login = () => {
                 type="text"
                 name=""
                 required
+                value={username}
                 onChange={(e) => {
-                  console.log(e.target.value, "name");
                   setUsername(e.target.value);
                 }}
               />
@@ -56,7 +58,6 @@ const Login = () => {
                 required
                 value={password}
                 onChange={(e) => {
-                  console.log(e.target.value, "password");
                   setPwd(e.target.value);
                 }}
               />
