@@ -4,9 +4,9 @@ const camelCaseKeys = require("../utils");
 
 const router = express.Router();
 // ==============================编辑器内容的读取和设置================================
-router.get("/getEditorHtml", async (req, res) => {
+router.get("/getEditorHtml", (req, res) => {
   const sqlStr = "select * from editor_info";
-  await db.query(sqlStr, (err, rows) => {
+  db.query(sqlStr, (err, rows) => {
     // 查询数据失败
     if (err) {
       res.send({

@@ -74,7 +74,7 @@ router.post("/index", (req, res) => {
           expiresIn: config.expiresIn, //tonken 有效期
         }
       );
-      console.log(token, "token");
+      console.log("token返回成功！");
       res.send({ code: 1, msg: "登录成功", data: { username, token } });
       // 如果没有登录成功，则返回登录失败
     } else {

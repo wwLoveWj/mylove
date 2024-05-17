@@ -24,3 +24,16 @@ CREATE TABLE `login_info` (
     username VARCHAR(255) COMMENT '用户姓名',
     password VARCHAR(255) COMMENT '用户密码'
 ) COMMENT '用户信息';
+
+CREATE TABLE `user_info` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `username` varchar(100) DEFAULT NULL COMMENT '名字',
+    `age` int DEFAULT NULL COMMENT '年龄',
+    `weight` varchar(200) DEFAULT NULL COMMENT '体重',
+    `score` int DEFAULT NULL COMMENT '总分',
+    `status` varchar(10) DEFAULT NULL COMMENT '状态',
+    `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `user_id` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '用户唯一ID',
+    `description` varchar(255) DEFAULT NULL COMMENT '描述',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 15 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表';

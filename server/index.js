@@ -55,12 +55,18 @@ app.use("/login", loginRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
-  // console.dir(err.code, ",---", err.stack);
+  console.dir(err.code, "401", err);
   if (err.code === "credentials_required") {
     res.status(401).send({
       code: 0,
       data: null,
       msg: "身份认证失败！",
+    });
+  } else if (err.code === "invalid_token") {
+    res.status(401).send({
+      code: 0,
+      data: null,
+      msg: "登录过期，请重新登录！",
     });
   }
 });

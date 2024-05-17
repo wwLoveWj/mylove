@@ -3,5 +3,5 @@ module.exports = {
   // 加密和解密 token 的密钥
   jwtSecretKey: "itheima No1. ^_^",
   // token 有效期
-  expiresIn: "1h",
+  expiresIn: "3d",
 };

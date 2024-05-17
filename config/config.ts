@@ -7,7 +7,7 @@ const PROJECT_CONFIG = {
   NAME: Package.name,
 };
 export default defineConfig({
-  history: { type: "hash" },
+  // history: { type: "hash" },
   // initialState: {},
   // model: {}, // 使用useModel需要这个配置
   routes,

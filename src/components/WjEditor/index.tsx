@@ -4,23 +4,37 @@ import { Editor, Toolbar } from "@wangeditor/editor-for-react";
 import { IDomEditor, IEditorConfig, IToolbarConfig } from "@wangeditor/editor";
 import { useRequest } from "ahooks";
 import { setEditorHtmlAPI, getEditorHtmlAPI } from "@/utils/request/api/editor";
-import { Button } from "antd";
+import { Button, Affix, Tooltip } from "antd";
 import _ from "lodash";
 import { createWebSocket, closeWebSocket, websocket } from "./websocket";
+import styles from "./style.less";
+import {
+  generateTableOfContents,
+  addAnchorLinks,
+  handleItemClick,
+  getAllHtagList,
+} from "./catalogue";
+import "./style.less";
 
 interface EditorTxtType {
   editorContent: string;
 }
+interface catalogueType {
+  level: number;
+  id: string;
+  text: string | null;
+  index: number;
+}
 function MyEditor() {
   // editor 实例
   const [editor, setEditor] = useState<IDomEditor | null>(null);
-
   // 编辑器内容
   const [html, setHtml] = useState("");
-
+  // 左侧锚点集合
+  const [tableOfContents, setTableOfContents] = useState<catalogueType[]>([]); //目录结构集合
+  const [activeIndex, setActiveIndex] = useState<number>(0); //设置当前选中的index
   // 工具栏配置
   const toolbarConfig: Partial<IToolbarConfig> = {};
-
   // 编辑器配置
   const editorConfig: Partial<IEditorConfig> = {
     placeholder: "请输入内容...",
@@ -30,7 +44,7 @@ function MyEditor() {
     (params: any) => setEditorHtmlAPI(params),
     {
       debounceWait: 100,
-      manual: true, //若设置了这个参数,则不会默认触发,需要通过run触发
+      manual: true,
     }
   );
 
@@ -49,8 +63,11 @@ function MyEditor() {
     onSuccess: (res: EditorTxtType[]) => {
       // editor.restoreSelection(); //恢复选区
       setHtml(res[res.length - 1]?.editorContent);
+      editorConfig.readOnly = true;
+      editor.focus(true);
     },
   });
+
   // 及时销毁 editor ，重要！
   useEffect(() => {
     return () => {
@@ -62,39 +79,122 @@ function MyEditor() {
 
   useEffect(() => {
     createWebSocket("ws://localhost:8080");
+    // window.addEventListener("scroll", handleScroll);
     return () => {
       closeWebSocket();
+      // window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  const handleScroll = () => {
+    debugger;
+    requestAnimationFrame(() => {
+      const sections = getAllHtagList();
+      const scrollY = window.scrollY || window.pageYOffset;
+      let currentIndex = 0;
+      debugger;
+      for (let i = 0; i < sections.length; i++) {
+        const sectionTop = (sections[i] as HTMLElement).offsetTop;
+        if (scrollY >= sectionTop) {
+          currentIndex = i;
+        }
+      }
+
+      // 检查当前视图中是否有标题元素，如果有，将其索引赋给 currentIndex
+      const visibleSections = Array.from(sections).filter((section) => {
+        const sectionTop = (section as HTMLElement).offsetTop;
+        const sectionBottom =
+          sectionTop + (section as HTMLElement).offsetHeight;
+        return scrollY >= sectionTop && scrollY <= sectionBottom;
+      });
+      if (visibleSections.length > 0) {
+        currentIndex = Array.from(sections).indexOf(
+          visibleSections[visibleSections.length - 1]
+        );
+      }
+      setActiveIndex(currentIndex);
+      // 滚动目录以确保当前高亮的目录项可见
+      const activeItem = document.querySelector(
+        ".table-of-contents .active"
+      ) as HTMLElement;
+      if (activeItem) {
+        const container = document.querySelector(".table-of-contents");
+        const containerRect = container?.getBoundingClientRect();
+        const activeRect = activeItem.getBoundingClientRect();
+        const scrollTop =
+          activeItem.offsetTop -
+          containerRect!.height / 2 +
+          activeRect.height / 2;
+        container!.scrollTop = scrollTop;
+      }
+    });
+  };
+
   return (
     <>
       <Button type="primary" onClick={changeEditor}>
         保存
       </Button>
-      <div style={{ border: "1px solid #ccc", zIndex: 100, marginTop: "12px" }}>
-        <Toolbar
-          editor={editor}
-          defaultConfig={toolbarConfig}
-          mode="default"
-          style={{ borderBottom: "1px solid #ccc" }}
-        />
-        <Editor
-          defaultConfig={editorConfig}
-          value={html}
-          onCreated={setEditor}
-          onChange={(editor) => {
-            //   changeEditorDB(editor);
-            if (websocket.readyState === WebSocket.OPEN) {
-              websocket && websocket?.send(editor.getHtml());
-            } else {
-              console.error("websocket 断开了......");
-            }
-          }}
-          mode="default"
-          style={{ height: "500px", overflowY: "hidden" }}
-        />
+      <div className={styles.allInfo}>
+        {/* =============编辑器部分================== */}
+        <div
+          style={{ border: "1px solid #ccc", zIndex: 100 }}
+          className="content"
+        >
+          <Toolbar
+            editor={editor}
+            defaultConfig={toolbarConfig}
+            mode="default"
+            style={{ borderBottom: "1px solid #ccc" }}
+          />
+          <Editor
+            defaultConfig={editorConfig}
+            value={html}
+            onCreated={setEditor}
+            onChange={(editor) => {
+              // 定义好所有的锚点结构
+              setTableOfContents(generateTableOfContents());
+              addAnchorLinks();
+              if (websocket.readyState === WebSocket.OPEN) {
+                websocket && websocket?.send(editor.getHtml());
+              } else {
+                console.error("websocket 断开了......");
+              }
+            }}
+            mode="default"
+            style={{ height: "500px", overflowY: "hidden" }}
+          />
+        </div>
+        {/* =============右侧目录部分================ */}
+        <Affix offsetTop={180} className={styles.catalogue}>
+          <div className="table-of-title">
+            <span>目录</span>
+          </div>
+          <ul className="table-of-contents">
+            {tableOfContents.map((item, index) => {
+              return (
+                <li
+                  key={item.id}
+                  style={{ paddingLeft: item.level * 20 + "px" }}
+                >
+                  <a
+                    className={activeIndex === index ? "active" : ""}
+                    href={`#${item.id}`}
+                    onClick={() => {
+                      setActiveIndex(index);
+                      handleItemClick(index);
+                    }}
+                  >
+                    <Tooltip title={item.text} color="lime" placement="leftTop">
+                      {item.text}
+                    </Tooltip>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </Affix>
       </div>
-      {/* <div style={{ marginTop: "15px" }}>{html}</div> */}
     </>
   );
 }
