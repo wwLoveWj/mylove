@@ -129,8 +129,24 @@ export const routes = [
       {
         key: "article",
         path: "/article",
-        component: "./article/index.tsx",
+        // component: "./article/index.tsx",
         title: "router.articles",
+        icon: NotificationOutlined,
+        routes: [
+          {
+            key: "table",
+            path: "/article/table",
+            component: "./article/index.tsx",
+            title: "router.articles.table",
+          },
+          {
+            key: "edit",
+            title: "router.articles.edit",
+            path: "/article/edit",
+            component: "./article/EditArticle.tsx",
+            hidden: true,
+          },
+        ],
       },
     ],
   },

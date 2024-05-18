@@ -6,6 +6,7 @@ import { useRequest } from "ahooks";
 import { setEditorHtmlAPI, getEditorHtmlAPI } from "@/utils/request/api/editor";
 import { Button, Affix, Tooltip } from "antd";
 import _ from "lodash";
+import { guid } from "@/utils";
 import { createWebSocket, closeWebSocket, websocket } from "./websocket";
 import styles from "./style.less";
 import {
@@ -18,6 +19,8 @@ import "./style.less";
 
 interface EditorTxtType {
   editorContent: string;
+  title: string;
+  editorId: string;
 }
 interface catalogueType {
   level: number;
@@ -25,11 +28,15 @@ interface catalogueType {
   text: string | null;
   index: number;
 }
-function MyEditor() {
-  // editor 实例
-  const [editor, setEditor] = useState<IDomEditor | null>(null);
-  // 编辑器内容
-  const [html, setHtml] = useState("");
+interface Iprops {
+  editorId: string;
+  isRealTimeediting: boolean; //是否开启websocket监听消息
+  action: string; //A为新增、E为编辑
+}
+function MyEditor({ editorId, isRealTimeediting = true, action }: Iprops) {
+  const [editor, setEditor] = useState<IDomEditor | null>(null); // editor 实例
+  const [html, setHtml] = useState(""); // 编辑器内容
+  const [title, setTitle] = useState(""); //文章标题
   // 左侧锚点集合
   const [tableOfContents, setTableOfContents] = useState<catalogueType[]>([]); //目录结构集合
   const [activeIndex, setActiveIndex] = useState<number>(0); //设置当前选中的index
@@ -52,39 +59,24 @@ function MyEditor() {
     setHtml(editor.getHtml());
     AddEditorHtmlAPIRun.run({
       editorContent: editor.getHtml(),
+      editorId: action === "A" ? guid() : editorId,
+      title,
     });
   };
 
   const changeEditorDB = _.debounce(changeEditor, 10000);
 
   //   获取编辑器信息
-  useRequest(() => getEditorHtmlAPI({}), {
+  useRequest(() => getEditorHtmlAPI({ editorId }), {
     debounceWait: 100,
     onSuccess: (res: EditorTxtType[]) => {
       // editor.restoreSelection(); //恢复选区
-      setHtml(res[res.length - 1]?.editorContent);
+      setHtml(res[0]?.editorContent);
+      setTitle(res[0]?.title);
       editorConfig.readOnly = true;
       editor.focus(true);
     },
   });
-
-  // 及时销毁 editor ，重要！
-  useEffect(() => {
-    return () => {
-      if (editor == null) return;
-      editor.destroy();
-      setEditor(null);
-    };
-  }, [editor]);
-
-  useEffect(() => {
-    createWebSocket("ws://localhost:8080");
-    // window.addEventListener("scroll", handleScroll);
-    return () => {
-      closeWebSocket();
-      // window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   const handleScroll = () => {
     debugger;
@@ -130,11 +122,44 @@ function MyEditor() {
     });
   };
 
+  // 及时销毁 editor ，重要！
+  useEffect(() => {
+    return () => {
+      if (editor == null) return;
+      editor.destroy();
+      setEditor(null);
+    };
+  }, [editor]);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    if (isRealTimeediting) {
+      createWebSocket("ws://localhost:8080");
+    }
+    return () => {
+      if (isRealTimeediting) {
+        closeWebSocket();
+      }
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <>
       <Button type="primary" onClick={changeEditor}>
         保存
       </Button>
+      {/* =================文章标题================== */}
+      <div className="user-box">
+        <input
+          type="text"
+          required
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+          }}
+        />
+      </div>
       <div className={styles.allInfo}>
         {/* =============编辑器部分================== */}
         <div
@@ -155,10 +180,19 @@ function MyEditor() {
               // 定义好所有的锚点结构
               setTableOfContents(generateTableOfContents());
               addAnchorLinks();
-              if (websocket.readyState === WebSocket.OPEN) {
-                websocket && websocket?.send(editor.getHtml());
-              } else {
-                console.error("websocket 断开了......");
+              if (isRealTimeediting) {
+                if (websocket.readyState === WebSocket.OPEN) {
+                  websocket &&
+                    websocket?.send(
+                      JSON.stringify({
+                        editorContent: editor.getHtml(),
+                        editorId: action === "A" ? guid() : editorId,
+                        title,
+                      })
+                    );
+                } else {
+                  console.error("websocket 断开了......");
+                }
               }
             }}
             mode="default"

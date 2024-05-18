@@ -7,8 +7,11 @@ const wss = new WebSocket.Server({ port: 8080 });
 
 // 更新数据
 const updateData = (data, ws) => {
-  const sqlStr = "update editor_info set editor_content=?";
-  db.query(sqlStr, [data], (err, results) => {
+  const { editorContent, editorId, title } = JSON.parse(data);
+  console.log(editorContent, editorId, title, "ws编辑文章信息------------");
+  const sqlStr =
+    "update editor_info set editor_content=?, title=? where editor_id=?";
+  db.query(sqlStr, [editorContent, title, editorId], (err, results) => {
     if (err) {
       return console.log(err.message);
     }
@@ -20,9 +23,11 @@ const updateData = (data, ws) => {
 };
 // 插入数据
 const addData = (data, ws) => {
+  const { editorContent, editorId, title } = JSON.parse(data);
   // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
-  const sqlStr = "insert into editor_info (editor_content) values (?)";
-  db.query(sqlStr, [data], (err, results) => {
+  const sqlStr =
+    "insert into editor_info (editor_content,editor_id,title) values (?,?,?)";
+  db.query(sqlStr, [editorContent, editorId, title], (err, results) => {
     if (err) {
       return console.log(err.message);
     }
