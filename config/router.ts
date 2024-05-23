@@ -146,6 +146,13 @@ export const routes = [
             component: "./article/EditArticle.tsx",
             hidden: true,
           },
+          {
+            key: "add",
+            title: "router.articles.add",
+            path: "/article/add",
+            component: "./article/EditArticle.tsx",
+            hidden: true,
+          },
         ],
       },
     ],

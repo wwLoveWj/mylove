@@ -13,4 +13,5 @@ export default {
   "router.articles": "文章管理",
   "router.articles.table": "文章列表",
   "router.articles.edit": "文章编辑",
+  "router.articles.add": "文章新增",
 };

@@ -7,7 +7,7 @@ const wss = new WebSocket.Server({ port: 8080 });
 
 // 更新数据
 const updateData = (data, ws) => {
-  const { editorContent, editorId, title } = JSON.parse(data);
+  const { editorContent, editorId, title } = data;
   console.log(editorContent, editorId, title, "ws编辑文章信息------------");
   const sqlStr =
     "update editor_info set editor_content=?, title=? where editor_id=?";
@@ -23,7 +23,7 @@ const updateData = (data, ws) => {
 };
 // 插入数据
 const addData = (data, ws) => {
-  const { editorContent, editorId, title } = JSON.parse(data);
+  const { editorContent, editorId, title } = data;
   // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
   const sqlStr =
     "insert into editor_info (editor_content,editor_id,title) values (?,?,?)";
@@ -48,20 +48,26 @@ wss.on("connection", function connection(ws) {
       ws.send(data.toString());
       return;
     }
-    // 查询editor_info中的数据
-    db.query("select editor_content from editor_info", [data], (err, rows) => {
-      if (err) {
-        return console.log(err.message);
-      }
-      //   判断查询到的数据存不存在，有就更新，没有就创建
-      rows = rows.map((item) => camelCaseKeys(item));
-      //   console.log(rows, "数据库中的内容");
-      if (!rows?.length) {
-        addData(data, ws);
-      } else {
-        updateData(data, ws);
-      }
-    });
+    const allInfo = JSON.parse(data);
+    if (allInfo?.action === "A") {
+      addData(allInfo, ws);
+    } else {
+      updateData(allInfo, ws);
+    }
+    // // 查询editor_info中的数据
+    // db.query("select editor_content from editor_info", [data], (err, rows) => {
+    //   if (err) {
+    //     return console.log(err.message);
+    //   }
+    //   //   判断查询到的数据存不存在，有就更新，没有就创建
+    //   rows = rows.map((item) => camelCaseKeys(item));
+    //   //   console.log(rows, "数据库中的内容");
+    //   if (!rows?.length) {
+    //     addData(data, ws);
+    //   } else {
+    //     updateData(data, ws);
+    //   }
+    // });
   });
 });
 

@@ -76,7 +76,12 @@ const Index: React.FC<{
               label="年龄"
               rules={[{ required: true, message: "请输入您的年龄" }]}
             >
-              <InputNumber placeholder="请输入您的年龄" min={0} max={1000} />
+              <InputNumber
+                placeholder="请输入您的年龄"
+                min={0}
+                max={1000}
+                style={{ width: "100%" }}
+              />
             </Form.Item>
           </Col>
         </Row>
@@ -100,6 +105,7 @@ const Index: React.FC<{
                 placeholder="请输入您的初始分数"
                 min={0}
                 max={1000}
+                style={{ width: "100%" }}
               />
             </Form.Item>
           </Col>

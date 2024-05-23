@@ -5,6 +5,7 @@ import { IDomEditor, IEditorConfig, IToolbarConfig } from "@wangeditor/editor";
 import { useRequest } from "ahooks";
 import { setEditorHtmlAPI, getEditorHtmlAPI } from "@/utils/request/api/editor";
 import { Button, Affix, Tooltip } from "antd";
+import { useLocation } from "umi";
 import _ from "lodash";
 import { guid } from "@/utils";
 import { createWebSocket, closeWebSocket, websocket } from "./websocket";
@@ -33,7 +34,7 @@ interface Iprops {
   isRealTimeediting: boolean; //是否开启websocket监听消息
   action: string; //A为新增、E为编辑
 }
-function MyEditor({ editorId, isRealTimeediting = true, action }: Iprops) {
+function MyEditor() {
   const [editor, setEditor] = useState<IDomEditor | null>(null); // editor 实例
   const [html, setHtml] = useState(""); // 编辑器内容
   const [title, setTitle] = useState(""); //文章标题
@@ -46,6 +47,12 @@ function MyEditor({ editorId, isRealTimeediting = true, action }: Iprops) {
   const editorConfig: Partial<IEditorConfig> = {
     placeholder: "请输入内容...",
   };
+  const detailsData = (useLocation() as any).state;
+  const { editorId, isRealTimeediting, action }: Iprops = detailsData || {
+    editorId: "",
+    isRealTimeediting: true,
+    action: "A",
+  };
   //   存储编辑器内容接口
   const AddEditorHtmlAPIRun = useRequest(
     (params: any) => setEditorHtmlAPI(params),
@@ -54,7 +61,7 @@ function MyEditor({ editorId, isRealTimeediting = true, action }: Iprops) {
       manual: true,
     }
   );
-
+  // 编辑器的数据保存提交事件
   const changeEditor = () => {
     setHtml(editor.getHtml());
     AddEditorHtmlAPIRun.run({
@@ -65,10 +72,27 @@ function MyEditor({ editorId, isRealTimeediting = true, action }: Iprops) {
   };
 
   const changeEditorDB = _.debounce(changeEditor, 10000);
-
+  // 标题的输入事件
+  const changeEditorTitle = () => {
+    if (websocket.readyState === WebSocket.OPEN) {
+      websocket &&
+        websocket?.send(
+          JSON.stringify({
+            editorContent: editor.getHtml(),
+            editorId: action === "A" ? guid() : editorId,
+            title,
+            action,
+          })
+        );
+    } else {
+      console.error("websocket 断开了......");
+    }
+  };
+  const changeEditorTitleWs = _.debounce(changeEditorTitle, 6000);
   //   获取编辑器信息
-  useRequest(() => getEditorHtmlAPI({ editorId }), {
+  const searchEditorTxtApi = useRequest(() => getEditorHtmlAPI({ editorId }), {
     debounceWait: 100,
+    manual: true,
     onSuccess: (res: EditorTxtType[]) => {
       // editor.restoreSelection(); //恢复选区
       setHtml(res[0]?.editorContent);
@@ -132,6 +156,9 @@ function MyEditor({ editorId, isRealTimeediting = true, action }: Iprops) {
   }, [editor]);
 
   useEffect(() => {
+    if (action === "E") {
+      searchEditorTxtApi.run();
+    }
     window.addEventListener("scroll", handleScroll);
     if (isRealTimeediting) {
       createWebSocket("ws://localhost:8080");
@@ -157,6 +184,7 @@ function MyEditor({ editorId, isRealTimeediting = true, action }: Iprops) {
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
+            changeEditorTitleWs();
           }}
         />
       </div>
@@ -188,6 +216,7 @@ function MyEditor({ editorId, isRealTimeediting = true, action }: Iprops) {
                         editorContent: editor.getHtml(),
                         editorId: action === "A" ? guid() : editorId,
                         title,
+                        action,
                       })
                     );
                 } else {

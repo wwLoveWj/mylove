@@ -6,7 +6,7 @@ const Index = () => {
   const detailsData = (useLocation() as any).state;
   return (
     <div>
-      <WjEditor editorId={detailsData?.editorId} />
+      <WjEditor />
     </div>
   );
 };
