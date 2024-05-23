@@ -7,6 +7,7 @@ const path = require("path");
 const expressJWT = require("express-jwt");
 // 导入全局配置文件（里面有token的密钥）
 const config = require("./utils/config");
+const singleThreadOCR = require("./singleThread_js/singleThread");
 
 // 自定义router模块
 const scoreRouter = require("./routers/score.js");
@@ -38,6 +39,7 @@ app.use(
       path: [
         "/login/index",
         "/login/register",
+        "/imgOCR",
         {
           url: /^\/public\/.*/,
           methods: ["GET", "POST"],
@@ -117,6 +119,30 @@ app.get("/getMoneySvg", (req, res) => {
       data: data.toString(),
     });
     // res.sendFile(__dirname + "/public/money.html");
+  });
+});
+
+// 通过ocr技术识别图片文字
+app.get("/imgOCR", async (req, res) => {
+  const { imgUrl } = req.query;
+  console.log(req.query, "------url参数------");
+  const filePath = await singleThreadOCR({
+    targetPhotoDir: path.join(
+      __dirname,
+      "./singleThread_js/images/taobaoShop6.png"
+    ),
+    // targetPhotoDir: imgUrl,
+    languages: "chi_sim+eng",
+    targetPath: path.join(__dirname, "./output/"),
+  });
+  console.log(filePath, "-------生成的文件路径--------");
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) throw err;
+    res.send({
+      code: 1,
+      msg: "success",
+      data,
+    });
   });
 });
 

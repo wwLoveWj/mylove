@@ -40,6 +40,8 @@
     "svg-sprite-loader": "6.0.11",
     "svgo": "2.8.0",
     "svgo-loader": "3.0.0",
+    "tesseract.js": "^5.1.0",
+    "tesseract.js-core": "^5.1.0",
     "umi": "^4.1.10",
     "ws": "^8.17.0"
   },
