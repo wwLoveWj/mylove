@@ -46,6 +46,17 @@ const Index = ({
       if (res.status === 200) {
         setImgUrl(res.data.url);
         srcList = [].concat(res.data.url);
+
+        axios({
+          url: "http://localhost:3007/imgOCR",
+          method: "post",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: { imgUrl: res.data.url },
+        }).then((res) => {
+          console.log(res, "识别的文字----------");
+        });
       }
     });
   };

@@ -129,14 +129,14 @@ app.get("/getMoneySvg", (req, res) => {
 });
 
 // 通过ocr技术识别图片文字
-app.get("/imgOCR", async (req, res) => {
-  const { imgUrl } = req.query;
-  console.log(req.query?.imgUrl, "------url参数------");
+app.post("/imgOCR", async (req, res) => {
+  const { imgUrl } = req.body;
+  console.log(req.body?.imgUrl, "------url参数------");
   const filePath = await singleThreadOCR({
-    targetPhotoDir: path.join(__dirname, "./singleThread_js/images/ocr.png"),
-    // targetPhotoDir: imgUrl,
+    // targetPhotoDir: path.join(__dirname, "./singleThread_js/images/ocr.png"),
+    targetPhotoDir: imgUrl,
     languages: "chi_sim+eng",
-    targetPath: path.join(__dirname, "./output/"),
+    targetPath: path.join(__dirname, "./upload/"),
   });
   console.log(filePath, "-------生成的文件路径--------");
   fs.readFile(filePath, "utf8", (err, data) => {
