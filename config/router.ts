@@ -169,6 +169,12 @@ export const routes = [
           },
         ],
       },
+      {
+        key: "mails",
+        path: "/mails",
+        component: "./mails/index",
+        title: "router.mails",
+      },
     ],
   },
   {

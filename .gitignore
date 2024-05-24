@@ -7,3 +7,6 @@
 /src/.umi-test
 /dist
 .swc
+
+/server/main/*
+/server/output/*

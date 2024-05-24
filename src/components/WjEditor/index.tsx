@@ -102,6 +102,25 @@ function MyEditor() {
     },
   });
 
+  // const handleScroll = () => {
+  //   debugger;
+  //   requestAnimationFrame(() => {
+  //     const sections = getAllHtagList();
+  //     const rects = Array.from(sections)?.map((title) =>
+  //       title.getBoundingClientRect()
+  //     );
+  //     const topRang = 300;
+  //     for (let i = 0; i < sections.length; i++) {
+  //       const title = sections[i] as HTMLElement; //标题的dom
+  //       const rect = rects[i];
+  //       debugger;
+  //       if (rect.top >= 0 && rect.top < topRang) {
+  //         setActiveIndex(i);
+  //       }
+  //     }
+  //   });
+  // };
+  // const handleScroll = _.debounce(handleScrollTitle, 3000);
   const handleScroll = () => {
     debugger;
     requestAnimationFrame(() => {

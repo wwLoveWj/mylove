@@ -16,4 +16,5 @@ export default {
   "router.articles.add": "文章新增",
   "router.files": "文件管理",
   "router.files.upload": "文件上传",
+  "router.mails": "邮箱管理",
 };

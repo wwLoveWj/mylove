@@ -4,13 +4,15 @@ const camelCaseKeys = require("../utils");
 const fs = require("fs"); //文件
 const multer = require("multer"); //上传文件中间件
 const md5 = require("md5");
+const path = require("path");
 
 const router = express.Router();
+const uploadFolder = path.resolve(__dirname, "../upload/"); //文件按照日期分割创建文件夹
 // 使用硬盘存储模式设置存放接收到的文件的路径以及文件名
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     // 接收到文件后输出的保存路径（若不存在则需要创建）
-    cb(null, "upload/");
+    cb(null, uploadFolder);
   },
   filename: function (req, file, cb) {
     // 将保存文件名设置为 时间戳 + 文件原始名，比如 151342376785-123.jpg
@@ -36,7 +38,6 @@ const createFolder = function (folder) {
   }
 };
 
-const uploadFolder = "./upload/"; //文件按照日期分割创建文件夹
 createFolder(uploadFolder);
 // 创建 multer 对象
 const upload = multer({ storage });
@@ -49,7 +50,7 @@ router.post("/upload", upload.single("file"), function (req, res, next) {
   console.log("保存路径：%s", file.path);
 
   // 接收文件成功后返回数据给前端
-  res.send({ ...file, url: `http://localhost:8899/${file.filename}` });
+  res.send({ ...file, url: `http://localhost:3007/${file.filename}` });
   // 由于我们设置了app.use(express.static(path.join(__dirname, 'upload')))，这是我们在app.js托管的静态资源，访问时路径要去掉upload
 });
 module.exports = router;

@@ -25,7 +25,7 @@ const transport = nodemailer.createTransport({
   },
 });
 router.post("/send", (req, res) => {
-  let { to, text, subject } = req.body;
+  let { to, text, subject, attachments } = req.body;
   console.log(to, text, subject, "to, text, subject");
   let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
   transport.sendMail(
@@ -42,17 +42,20 @@ router.post("/send", (req, res) => {
         //   filename: "package.json",
         //   path: path.resolve(__dirname, "package.json"),
         // },
-        {
-          filename: "666.png",
-          path: path.resolve(
-            __dirname,
-            "../../upload/5604a827d4ba51cbcb8c87599411c274.png"
-          ),
-        },
+        // {
+        //   filename: "666.png",
+        //   path: path.resolve(
+        //     __dirname,
+        //     "../upload/5604a827d4ba51cbcb8c87599411c274.png"
+        //   ),
+        // },
         // {
         //   filename: "room.zip",
         //   path: path.resolve(__dirname, "room.zip"),
         // },
+        {
+          ...attachments,
+        },
       ],
     },
     (error, info) => {
