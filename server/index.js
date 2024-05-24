@@ -14,6 +14,8 @@ const scoreRouter = require("./routers/score.js");
 const userRouter = require("./routers/user.js");
 const editorRouter = require("./routers/editor.js");
 const loginRouter = require("./routers/login.js");
+const mailRouter = require("./routers/mail.js");
+const fileRouter = require("./routers/file.js");
 
 const app = express();
 
@@ -40,6 +42,7 @@ app.use(
         "/login/index",
         "/login/register",
         "/imgOCR",
+        "/mail/send",
         {
           url: /^\/public\/.*/,
           methods: ["GET", "POST"],
@@ -54,6 +57,8 @@ app.use("/userInfo", userRouter);
 app.use("/scoreInfo", scoreRouter);
 app.use("/editor", editorRouter);
 app.use("/login", loginRouter);
+app.use("/mail", mailRouter);
+app.use("/file", fileRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
@@ -125,12 +130,9 @@ app.get("/getMoneySvg", (req, res) => {
 // 通过ocr技术识别图片文字
 app.get("/imgOCR", async (req, res) => {
   const { imgUrl } = req.query;
-  console.log(req.query, "------url参数------");
+  console.log(req.query?.imgUrl, "------url参数------");
   const filePath = await singleThreadOCR({
-    targetPhotoDir: path.join(
-      __dirname,
-      "./singleThread_js/images/taobaoShop6.png"
-    ),
+    targetPhotoDir: path.join(__dirname, "./singleThread_js/images/ocr.png"),
     // targetPhotoDir: imgUrl,
     languages: "chi_sim+eng",
     targetPath: path.join(__dirname, "./output/"),

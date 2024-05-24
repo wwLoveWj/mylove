@@ -14,4 +14,6 @@ export default {
   "router.articles.table": "文章列表",
   "router.articles.edit": "文章编辑",
   "router.articles.add": "文章新增",
+  "router.files": "文件管理",
+  "router.files.upload": "文件上传",
 };

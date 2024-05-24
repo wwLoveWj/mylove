@@ -14,4 +14,6 @@ export default {
   "router.articles.table": "articles-table",
   "router.articles.edit": "articles-edit",
   "router.articles.add": "articles-add",
+  "router.files": "files-manage",
+  "router.files.upload": "files-upload",
 };

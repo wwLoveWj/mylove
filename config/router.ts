@@ -155,6 +155,20 @@ export const routes = [
           },
         ],
       },
+      {
+        key: "files",
+        path: "/files",
+        title: "router.files",
+        icon: NotificationOutlined,
+        routes: [
+          {
+            key: "upload",
+            path: "/files/upload",
+            component: "./files/Upload",
+            title: "router.files.upload",
+          },
+        ],
+      },
     ],
   },
   {
