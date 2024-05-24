@@ -63,12 +63,14 @@ function MyEditor() {
   );
   // 编辑器的数据保存提交事件
   const changeEditor = () => {
-    setHtml(editor.getHtml());
-    AddEditorHtmlAPIRun.run({
-      editorContent: editor.getHtml(),
-      editorId: action === "A" ? guid() : editorId,
-      title,
-    });
+    if (editor) {
+      setHtml(editor.getHtml());
+      AddEditorHtmlAPIRun.run({
+        editorContent: editor.getHtml(),
+        editorId: action === "A" ? guid() : editorId,
+        title,
+      });
+    }
   };
 
   const changeEditorDB = _.debounce(changeEditor, 10000);
@@ -76,6 +78,7 @@ function MyEditor() {
   const changeEditorTitle = () => {
     if (websocket.readyState === WebSocket.OPEN) {
       websocket &&
+        editor &&
         websocket?.send(
           JSON.stringify({
             editorContent: editor.getHtml(),
@@ -98,7 +101,7 @@ function MyEditor() {
       setHtml(res[0]?.editorContent);
       setTitle(res[0]?.title);
       editorConfig.readOnly = true;
-      editor.focus(true);
+      editor && editor.focus(true);
     },
   });
 
