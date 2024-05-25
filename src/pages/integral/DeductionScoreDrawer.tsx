@@ -55,7 +55,8 @@ const Index: React.FC<{
   return (
     <Drawer
       title={action === "A" ? "扣分" : "编辑"}
-      width={520}
+      // width={520}
+      width={"60%"}
       onClose={onClose}
       open={open}
       styles={{

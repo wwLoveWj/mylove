@@ -114,6 +114,8 @@ const Index: React.FC = () => {
         columns={columns}
         dataSource={tableData}
         rowKey="editorId"
+        // sticky
+        // scroll={{ y: "max-content" }}
         size="small"
       />
     </>

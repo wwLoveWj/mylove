@@ -38,7 +38,7 @@ const Index: React.FC<{
   return (
     <Drawer
       title={action === "A" ? "新增" : "编辑"}
-      width={520}
+      width={"60%"}
       onClose={onClose}
       open={open}
       styles={{
@@ -127,6 +127,15 @@ const Index: React.FC<{
           <Col span={12}>
             <Form.Item name="description" label="备注">
               <TextArea showCount maxLength={100} placeholder="其它" />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="email"
+              label="邮箱"
+              rules={[{ required: true, message: "请输入您的邮箱" }]}
+            >
+              <Input placeholder="请输入您的邮箱" />
             </Form.Item>
           </Col>
         </Row>

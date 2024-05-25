@@ -1,22 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Col, Form, Input, Row, Select, Space } from "antd";
+import { useRequest } from "ahooks";
 import { MailInfoSendAPI } from "@/utils/request/api/mail";
+import { UserInfo } from "@/utils/request/api/user";
 import Upload from "../files/Upload";
 
 const { TextArea } = Input;
 
-const receiverList = [
-  {
-    username: "ww",
-    mail: "xxxx@163.com",
-  },
-  {
-    username: "wj",
-    mail: "xxx@qq.com",
-  },
-];
 const Index = () => {
+  const [receiverList, setReceiverList] = useState([]);
   const [form] = Form.useForm();
+  const filterOption = (
+    input: string,
+    option?: { username: string; email: string }
+  ) => (option?.username ?? "").toLowerCase().includes(input.toLowerCase());
+  /**
+   * 查询用户信息接口
+   */
+  useRequest(() => UserInfo(), {
+    debounceWait: 100,
+    onSuccess: (res: any) => {
+      setReceiverList(res);
+    },
+  });
   return (
     <Form
       labelAlign="right"
@@ -49,9 +55,12 @@ const Index = () => {
             rules={[{ required: true, message: "请选择收件人" }]}
           >
             <Select
+              mode="multiple"
+              allowClear
               placeholder="请选择收件人"
               options={receiverList}
-              fieldNames={{ label: "username", value: "mail" }}
+              filterOption={filterOption}
+              fieldNames={{ label: "username", value: "email" }}
             />
           </Form.Item>
         </Col>

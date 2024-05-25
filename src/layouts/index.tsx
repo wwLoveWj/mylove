@@ -1,4 +1,12 @@
-import { Outlet, useLocation, history, useIntl } from "umi";
+import {
+  Outlet,
+  useLocation,
+  history,
+  useIntl,
+  useRouteProps,
+  KeepAlive,
+} from "umi";
+// import { KeepAlive } from "umi-plugin-keep-alive";
 import React, { useState, useEffect } from "react";
 import {
   LaptopOutlined,
@@ -14,6 +22,7 @@ import _ from "lodash"; // 引入JS工具库
 import LangChgIndex from "./components/LangChgIndex";
 import SideBarRender from "./components/menu";
 import SwitchTheme from "@/components/switchTheme";
+import PageTabs from "./components/PageTabs";
 import "./index.less";
 import { RouterItem, MenuType } from "./type";
 
@@ -33,6 +42,7 @@ const App: React.FC = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+  const { originPath, title } = useRouteProps();
   const [breadcrumbItems, setBreadcrumbItems] = useState<
     { title: string; path: string }[]
   >([]); //面包屑的配置项
@@ -182,6 +192,7 @@ const App: React.FC = () => {
             style={{ padding: "6px 12px", background: "#fff" }}
             items={breadcrumbItems}
           />
+          <PageTabs />
           <Layout style={{ padding: 12 }}>
             <Content
               style={{
@@ -195,7 +206,9 @@ const App: React.FC = () => {
                 overflow: "auto",
               }}
             >
-              <Outlet />
+              <KeepAlive id={originPath} name={originPath} tabName={title}>
+                <Outlet />
+              </KeepAlive>
             </Content>
           </Layout>
         </Layout>

@@ -16,7 +16,7 @@ export default defineConfig({
     "@utils": "/src/utils",
     "@assets": "/src/assets",
   },
-  plugins: ["@umijs/plugins/dist/locale"],
+  plugins: ["@umijs/plugins/dist/locale", "umi-plugin-keep-alive"],
   locale: {},
   theme, //如果想要定制不同主题，可通过theme配置主题样式变量，变量为less变量
 

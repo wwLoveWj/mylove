@@ -39,6 +39,7 @@
     "nodemailer": "^6.9.13",
     "nodemon": "^3.1.0",
     "qiankun": "^2.10.16",
+    "react-activation": "^0.12.4",
     "react-transition-group": "^4.4.5",
     "svg-sprite-loader": "6.0.11",
     "svgo": "2.8.0",
@@ -46,6 +47,7 @@
     "tesseract.js": "^5.1.0",
     "tesseract.js-core": "^5.1.0",
     "umi": "^4.1.10",
+    "umi-plugin-keep-alive": "^0.0.1-beta.35",
     "ws": "^8.17.0"
   },
   "devDependencies": {

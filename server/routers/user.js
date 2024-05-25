@@ -45,7 +45,7 @@ router.post("/create", (req, res) => {
   let params = req.body;
   // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
   const sqlStr =
-    "insert into user_info (user_id,username, age,weight,score,status,description) values (?, ?,?,?,?,?,?)";
+    "insert into user_info (user_id,username, age,weight,score,status,description,email) values (?, ?,?,?,?,?,?,?)";
   // 执行 SQL 语句，使用数组的形式，依次为 ? 占位符指定具体的值
   db.query(
     sqlStr,
@@ -57,6 +57,7 @@ router.post("/create", (req, res) => {
       params.score,
       params.status,
       params.description,
+      params.email,
     ],
     (err, results) => {
       if (err) {
@@ -87,7 +88,7 @@ router.post("/create", (req, res) => {
 router.post("/edit", (req, res) => {
   let params = req.body;
   const sqlUser =
-    "update user_info set username=?, age=?, weight=?, score=?, status=?, description=? where user_id=?";
+    "update user_info set username=?, age=?, weight=?, score=?, status=?, description=?, email=? where user_id=?";
   db.query(
     sqlUser,
     [
@@ -98,6 +99,7 @@ router.post("/edit", (req, res) => {
       params.status,
       params.description,
       params.userId,
+      params.email,
     ],
     (err, results) => {
       if (err) {

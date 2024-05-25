@@ -2,8 +2,7 @@ import type { MenuProps } from "antd";
 import { Menu } from "antd";
 import _ from "lodash"; // 引入JS工具库
 import React, { useState, useEffect } from "react";
-import { Link, useLocation,useIntl } from "umi";
-import "./style.less";
+import { Link, useLocation, useIntl } from "umi";
 import { RouterItem, MenuType } from "../type";
 
 const { SubMenu } = Menu; // 子菜单
@@ -21,7 +20,7 @@ function sideBarRender({
   const location = useLocation();
   // 国际化配置
   const intl = useIntl();
-  const t = (id: string) => intl.formatMessage({ id }); 
+  const t = (id: string) => intl.formatMessage({ id });
 
   /**
    * 获取左侧菜单项

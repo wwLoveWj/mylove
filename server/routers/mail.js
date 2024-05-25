@@ -27,7 +27,7 @@ const transport = nodemailer.createTransport({
 router.post("/send", (req, res) => {
   let { to, text, subject, attachments } = req.body;
   console.log(to, text, subject, "to, text, subject");
-  let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
+  // let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
   transport.sendMail(
     {
       to,
@@ -35,28 +35,30 @@ router.post("/send", (req, res) => {
       subject, //主题
       text,
       // html内容
-      html: "<b>发送时间:" + sendTime + "</b>",
+      // html: "<b>发送时间:" + sendTime + "</b>",
       // 附件内容 是一个列表, 可以是package.json文件, 头像, zip包
-      attachments: [
-        // {
-        //   filename: "package.json",
-        //   path: path.resolve(__dirname, "package.json"),
-        // },
-        // {
-        //   filename: "666.png",
-        //   path: path.resolve(
-        //     __dirname,
-        //     "../upload/5604a827d4ba51cbcb8c87599411c274.png"
-        //   ),
-        // },
-        // {
-        //   filename: "room.zip",
-        //   path: path.resolve(__dirname, "room.zip"),
-        // },
-        {
-          ...attachments,
-        },
-      ],
+      attachments: attachments
+        ? [
+            // {
+            //   filename: "package.json",
+            //   path: path.resolve(__dirname, "package.json"),
+            // },
+            // {
+            //   filename: "666.png",
+            //   path: path.resolve(
+            //     __dirname,
+            //     "../upload/5604a827d4ba51cbcb8c87599411c274.png"
+            //   ),
+            // },
+            // {
+            //   filename: "room.zip",
+            //   path: path.resolve(__dirname, "room.zip"),
+            // },
+            {
+              ...attachments,
+            },
+          ]
+        : null,
     },
     (error, info) => {
       if (error) {

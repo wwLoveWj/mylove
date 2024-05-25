@@ -6,8 +6,8 @@ import type {
   // AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from "axios";
-import { message as Message ,notification} from "antd";
-import {history} from "umi";
+import { message as Message, notification } from "antd";
+import { history } from "umi";
 
 /* 服务器返回数据的的类型，根据接口文档确定 */
 export interface Result<T = any> {
@@ -15,13 +15,13 @@ export interface Result<T = any> {
   msg: string;
   data: T;
 }
-type NotificationType = 'success' | 'info' | 'warning' | 'error';
+type NotificationType = "success" | "info" | "warning" | "error";
 
 const instance: AxiosInstance = axios.create({
-  baseURL: "http://localhost:3007/",
+  baseURL: "http://9206rr8050.goho.co", //"http://localhost:3007/",
   // `timeout` 指定请求超时的毫秒数(0 表示无超时时间)
   // 如果请求话费了超过 `timeout` 的时间，请求将被中断
-  timeout: 60000,
+  timeout: 3000,
   // `withCredentials` 表示跨域请求时是否需要使用凭证
   withCredentials: false, // default
   headers: { "X-Custom-Header": "foobar" },
@@ -32,7 +32,7 @@ const instance: AxiosInstance = axios.create({
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     //  伪代码
-    let loginInfo = JSON.parse(localStorage.getItem("login-info")||`{}`);
+    let loginInfo = JSON.parse(localStorage.getItem("login-info") || `{}`);
     let token = loginInfo?.token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -60,11 +60,15 @@ instance.interceptors.request.use(
  * 如果网络错误，则进入第二个回调函数中，根据不同的状态码设置不同的提示消息进行提示
  */
 // 接口请求的通知信息
-const openNotification = (desc:string,type:NotificationType,msg?:string) => {
+const openNotification = (
+  desc: string,
+  type: NotificationType,
+  msg?: string
+) => {
   notification[type]({
     message: msg || "成功",
-    description:desc,
-   duration:1.5
+    description: desc,
+    duration: 1.5,
   });
 };
 instance.interceptors.response.use(
@@ -73,14 +77,15 @@ instance.interceptors.response.use(
     // 根据自定义错误码判断请求是否成功
     if (code === 1) {
       // 将组件用的数据返回
-      if(!data){//暂时操作类不会返回data信息，返回的null
-        openNotification(msg,"success");
+      if (!data) {
+        //暂时操作类不会返回data信息，返回的null
+        openNotification(msg, "success");
       }
       return data;
     } else {
       // 处理业务错误。
       // Message.error(msg);
-      openNotification(msg,"error","错误信息");
+      openNotification(msg, "error", "错误信息");
       return Promise.reject(new Error(msg));
     }
   },
@@ -110,7 +115,7 @@ instance.interceptors.response.use(
     }
 
     // Message.error(message);
-    openNotification(message,"error","错误信息");
+    openNotification(message, "error", "错误信息");
     return Promise.reject(error);
   }
 );
