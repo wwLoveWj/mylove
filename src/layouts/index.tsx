@@ -42,7 +42,7 @@ const App: React.FC = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-  const { originPath, title } = useRouteProps();
+  const { path, title, id } = useRouteProps();
   const [breadcrumbItems, setBreadcrumbItems] = useState<
     { title: string; path: string }[]
   >([]); //面包屑的配置项
@@ -202,11 +202,11 @@ const App: React.FC = () => {
                 // background: colorBgContainer,
                 borderRadius: borderRadiusLG,
                 background: "#fff",
-                height: "calc(100vh - 122px)",
+                height: "calc(100vh - 152px)",
                 overflow: "auto",
               }}
             >
-              <KeepAlive id={originPath} name={originPath} tabName={title}>
+              <KeepAlive id={id} name={path} tabName={t(title)}>
                 <Outlet />
               </KeepAlive>
             </Content>
