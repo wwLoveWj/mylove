@@ -8,7 +8,7 @@ import { history, useLocation, useIntl } from "umi";
 import { pathTxt } from "./constant";
 import style from "./style.less";
 import type { TabTypes, TagTypes } from "./type";
-import LabelDropdown from "./CloseTabs";
+// import LabelDropdown from "./CloseTabs";
 
 const { confirm } = Modal;
 
@@ -130,19 +130,19 @@ const PageTabs = () => {
 
   return (
     <div className={style["user-page-tabs"]}>
-      {/* //   <Tabs
-    //     size="small"
-    //     type="editable-card"
-    //     tabPosition={"top"}
-    //     hideAdd
-    //     style={{ height: 220 }}
-    //     onChange={onChange}
-    //     activeKey={activeKey}
-    //     onEdit={handleRemove}
-    //     items={tabList}
-    //   /> */}
+      <Tabs
+        size="small"
+        type="editable-card"
+        tabPosition={"top"}
+        hideAdd
+        style={{ height: 220 }}
+        onChange={onChange}
+        activeKey={activeKey}
+        onEdit={handleRemove}
+        items={tabList}
+      />
       {/* 两者择其一 */}
-      <LabelDropdown />
+      {/* <LabelDropdown /> */}
     </div>
   );
 };
