@@ -5,6 +5,18 @@ const loadingModel = () => {
     // ...options
     dockedPosition: "right",
     models: [
+      {
+        path: "https://registry.npmmirror.com/oml2d-models/latest/files/models/Senko_Normals/senko.model3.json",
+        position: [-10, 20],
+      },
+      {
+        path: "https://registry.npmmirror.com/oml2d-models/latest/files/models/Pio/model.json",
+        scale: 0.4,
+        position: [0, 50],
+        stageStyle: {
+          height: 300,
+        },
+      },
       // {
       //   path: "https://model.oml2d.com/Senko_Normals/senko.model3.json",
       //   position: [-10, 20],
@@ -17,22 +29,22 @@ const loadingModel = () => {
       //     height: 300,
       //   },
       // },
-      {
-        path: "https://model.oml2d.com/cat-black/model.json",
-        scale: 0.15,
-        position: [0, 20],
-        stageStyle: {
-          height: 350,
-        },
-      },
-      {
-        path: "https://model.oml2d.com/HK416-1-normal/model.json",
-        position: [0, 60],
-        scale: 0.08,
-        stageStyle: {
-          height: 450,
-        },
-      },
+      //   {
+      //     path: "https://model.oml2d.com/cat-black/model.json",
+      //     scale: 0.15,
+      //     position: [0, 20],
+      //     stageStyle: {
+      //       height: 350,
+      //     },
+      //   },
+      //   {
+      //     path: "https://model.oml2d.com/HK416-1-normal/model.json",
+      //     position: [0, 60],
+      //     scale: 0.08,
+      //     stageStyle: {
+      //       height: 450,
+      //     },
+      //   },
     ],
     statusBar: {
       loadingIcon: "icon-loading",

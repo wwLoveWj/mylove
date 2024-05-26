@@ -17,4 +17,5 @@ export default {
   "router.files": "files-manage",
   "router.files.upload": "files-upload",
   "router.mails": "mails-manage",
+  "router.ai": "Ai-editor",
 };

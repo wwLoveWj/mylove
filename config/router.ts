@@ -160,12 +160,14 @@ export const routes = [
         path: "/files",
         title: "router.files",
         icon: NotificationOutlined,
+        hidden: true,
         routes: [
           {
             key: "upload",
             path: "/files/upload",
             component: "./files/Upload",
             title: "router.files.upload",
+            hidden: true,
           },
         ],
       },
@@ -174,6 +176,13 @@ export const routes = [
         path: "/mails",
         component: "./mails/index",
         title: "router.mails",
+      },
+      {
+        key: "ai",
+        path: "/ai",
+        component: "./AiEditor/index",
+        title: "router.ai",
+        hidden: true,
       },
     ],
   },

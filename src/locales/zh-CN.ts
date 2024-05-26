@@ -17,4 +17,5 @@ export default {
   "router.files": "文件管理",
   "router.files.upload": "文件上传",
   "router.mails": "邮箱管理",
+  "router.ai": "Ai编辑器",
 };

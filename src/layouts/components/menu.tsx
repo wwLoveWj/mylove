@@ -33,14 +33,16 @@ function sideBarRender({
       if (route.routes) {
         // 有多级菜单时
         return (
-          <SubMenu
-            key={route.key}
-            title={t(route.title || "")}
-            icon={React.createElement(route.icon || "")}
-          >
-            {/*  重复调用函数渲染出子级菜单 */}
-            {getMenuItem(route.routes)}
-          </SubMenu>
+          !route.hidden && (
+            <SubMenu
+              key={route.key}
+              title={t(route.title || "")}
+              icon={React.createElement(route.icon || "")}
+            >
+              {/*  重复调用函数渲染出子级菜单 */}
+              {getMenuItem(route.routes)}
+            </SubMenu>
+          )
         );
       }
       return (
