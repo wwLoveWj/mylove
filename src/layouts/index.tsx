@@ -91,6 +91,7 @@ const App: React.FC = () => {
             <span>{t(pathTitle)}</span>
           </>
         ),
+        className: "disabled-breadcrumb-item",
       });
     }
     const pathTitle1 = getTagTitle(path, routes);
