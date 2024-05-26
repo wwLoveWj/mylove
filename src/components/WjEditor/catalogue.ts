@@ -8,13 +8,13 @@ interface catalogueType {
 // 获取所有的h1-h6节点集合
 export const getAllHtagList = () => {
   let content = document.querySelector(".content") as HTMLElement;
-  return content.querySelectorAll("h1,h2,h3,h4,h5,h6");
+  return content?.querySelectorAll("h1,h2,h3,h4,h5,h6");
 };
 
 // 添加锚点
 export const addAnchorLinks = () => {
   const headings = getAllHtagList();
-  headings.forEach((heading, index) => {
+  headings?.forEach((heading, index) => {
     const anchorLink = document.createElement("a");
     anchorLink.setAttribute("href", `#section-${index + 1}`);
     // anchorLink.textContent = heading.textContent; // 设置锚点文本为标题文本
@@ -29,7 +29,7 @@ export const addAnchorLinks = () => {
 export const generateTableOfContents = () => {
   const headings = getAllHtagList();
   const toc: catalogueType[] = [];
-  headings.forEach((heading, index) => {
+  headings?.forEach((heading, index) => {
     const id = `section-${index + 1}`;
     const level =
       heading.tagName === "H1" ? 1 : heading.tagName === "H2" ? 2 : 3; // 根据标题等级设置目录项的缩进

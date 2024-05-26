@@ -25,7 +25,8 @@ import SwitchTheme from "@/components/switchTheme";
 import PageTabs from "./components/PageTabs";
 import "./index.less";
 import { RouterItem, MenuType } from "./type";
-import { loadOml2d } from "oh-my-live2d";
+import loadingModel from "./config";
+import { getAllNodes, getTagTitle } from "@/utils/index";
 
 const { Header, Content, Sider } = Layout;
 // 获取到所有的菜单数据进行处理
@@ -45,13 +46,13 @@ const App: React.FC = () => {
   } = theme.useToken();
   const { path, title, id } = useRouteProps();
   const [breadcrumbItems, setBreadcrumbItems] = useState<
-    { title: string; path: string }[]
+    { title: any; path: string; className?: string }[]
   >([]); //面包屑的配置项
   const [themeMenu, setThemeMenu] = useState<MenuType>("dark");
   const [checkedTheme, setCheckedTheme] = useState(true); //是否切换主题
   const [themeColor, setThemeColor] = useState("#001629"); //切换headers主题
   const [themeColorLang, setThemeColorLang] = useState("#fff");
-  const locationUrl = useLocation();
+  const { pathname } = useLocation();
   // 国际化配置
   const intl = useIntl();
   const lang = intl.locale;
@@ -72,43 +73,31 @@ const App: React.FC = () => {
       setCheckedTheme(false);
     }
   };
-  /**
-   * 获取面包屑的配置数据
-   */
-  const keyPathMenu = (currentKeyPath: string[]) => {
-    let arr: any = [];
-    let brr: any = [];
-    const getAllMenu = (result: RouterItem[]) => {
-      (result || [])?.map((val) => {
-        if (val.routes && val.routes?.length > 0) {
-          getAllMenu(val.routes);
-        }
-        // 遍历routes配置，并且得到扁平化数组
-        brr.push(val);
+  // 路由变化设置选择项
+  const initSetTabs = (path: string) => {
+    const newAllRoutes = getAllNodes(routes);
+    // 拿到当前路由对象信息
+    let routeItem: any = newAllRoutes.find(
+      (val: RouterItem) => val.key === path.split("/")[1]
+    );
+    let arr = [];
+    if (routeItem?.routes?.length > 0) {
+      const pathTitle = getTagTitle("/" + path.split("/")[1], routes);
+      arr.push({
+        path,
+        title: (
+          <>
+            <LaptopOutlined />
+            <span>{t(pathTitle)}</span>
+          </>
+        ),
       });
-    };
-    getAllMenu(menus);
-    // 拿到当前选中项的path路径进行组装面包屑配置
-    currentKeyPath.map((item: any, index: number) => {
-      // 找到与当前path匹配的router
-      let titleObj: RouterItem = brr.find(
-        (val: RouterItem) => val.key === currentKeyPath[index]
-      );
-      arr[index] = titleObj?.routes
-        ? {
-            path: currentKeyPath[index],
-            title: (
-              <>
-                <LaptopOutlined />
-                <span>{t(titleObj?.title || "router.integrals")}</span>
-              </>
-            ),
-          }
-        : {
-            path: currentKeyPath[index],
-            title: t(titleObj?.title || "router.integralTable"),
-            className: "disabled-breadcrumb-item",
-          };
+    }
+    const pathTitle1 = getTagTitle(path, routes);
+    arr.push({
+      path,
+      title: t(pathTitle1),
+      className: "disabled-breadcrumb-item",
     });
     setBreadcrumbItems([
       {
@@ -118,78 +107,13 @@ const App: React.FC = () => {
       ...arr,
     ]);
   };
-  useEffect(() => {
-    let result = locationUrl.pathname.split("/");
-    result.shift();
-    keyPathMenu(result);
-  }, [locationUrl.pathname, lang]);
 
   useEffect(() => {
-    loadOml2d({
-      // ...options
-      dockedPosition: "right",
-      models: [
-        // {
-        //   path: "https://model.oml2d.com/Senko_Normals/senko.model3.json",
-        //   position: [-10, 20],
-        // },
-        // {
-        //   path: "https://model.oml2d.com/Pio/model.json",
-        //   scale: 0.4,
-        //   position: [0, 50],
-        //   stageStyle: {
-        //     height: 300,
-        //   },
-        // },
-        {
-          path: "https://model.oml2d.com/cat-black/model.json",
-          scale: 0.15,
-          position: [0, 20],
-          stageStyle: {
-            height: 350,
-          },
-        },
-        {
-          path: "https://model.oml2d.com/HK416-1-normal/model.json",
-          position: [0, 60],
-          scale: 0.08,
-          stageStyle: {
-            height: 450,
-          },
-        },
-      ],
-      statusBar: {
-        loadingIcon: "icon-loading",
-      },
-      menus: {
-        items: [
-          {
-            id: "Rest",
-            icon: "icon-rest",
-            title: "休息",
-            onClick(oml2d): void {
-              // actions ...
-              oml2d.stageSlideOut().then(() => {
-                console.log(oml2d.options, "我要滑出去了");
-                oml2d.statusBarOpen();
-                oml2d.setStatusBarClickEvent(() => oml2d.stageSlideIn());
-              });
-            },
-          },
-          {
-            id: "SwitchModel",
-            icon: "icon-switch",
-            title: "切换模型",
-            onClick(oml2d): void {
-              // 加载下一个模型
-              oml2d.loadNextModel().then(() => {
-                console.log("切换成功");
-              });
-            },
-          },
-        ],
-      },
-    });
+    initSetTabs(pathname);
+  }, [pathname, lang]);
+
+  useEffect(() => {
+    loadingModel();
   }, []);
   const avatarItems: MenuProps["items"] = [
     {

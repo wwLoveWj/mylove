@@ -8,6 +8,7 @@ import { history, useLocation, useIntl } from "umi";
 import { pathTxt } from "./constant";
 import style from "./style.less";
 import type { TabTypes, TagTypes } from "./type";
+import { getTagTitle } from "@/utils/index";
 // import LabelDropdown from "./CloseTabs";
 
 const { confirm } = Modal;
@@ -29,34 +30,6 @@ const PageTabs = () => {
   // 国际化配置
   const intl = useIntl();
   const t = (id: string) => intl.formatMessage({ id });
-  // 获取所有路由节点
-  const getAllNodes = (data: any) => {
-    const nodes: TagTypes[] = [];
-    function traverseTree(node: TagTypes) {
-      if (Array.isArray(node)) {
-        node.forEach(traverseTree);
-      } else {
-        nodes.push(node);
-        if (node?.routes) {
-          traverseTree(node.routes);
-        }
-      }
-    }
-    traverseTree(data); // 从根节点开始遍历整个树形结构
-    return nodes;
-  };
-
-  // 获取path路由的title
-  const getTagTitle = (path: string) => {
-    let newTitle: string = "";
-    const newAllRoutes = getAllNodes(routes);
-    newAllRoutes?.map((routeItem: TagTypes) => {
-      if (routeItem?.path === path) {
-        newTitle = t(routeItem?.title);
-      }
-    });
-    return newTitle;
-  };
 
   // 关闭页签
   const closeTab = (targetKey: any) => {
@@ -118,8 +91,8 @@ const PageTabs = () => {
     });
     // 判断当前路由是否在页签里，不在就加入页签
     if (!pathList.includes(path) && path !== "/") {
-      const pathTitle = getTagTitle(path);
-      setTabList([...tabList, { label: pathTitle, key: path }]);
+      const pathTitle = getTagTitle(path, routes);
+      setTabList([...tabList, { label: t(pathTitle), key: path }]);
     }
     setActiveKey(path);
   };

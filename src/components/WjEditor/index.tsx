@@ -131,7 +131,7 @@ function MyEditor() {
       const scrollY = window.scrollY || window.pageYOffset;
       let currentIndex = 0;
       debugger;
-      for (let i = 0; i < sections.length; i++) {
+      for (let i = 0; i < sections?.length; i++) {
         const sectionTop = (sections[i] as HTMLElement).offsetTop;
         if (scrollY >= sectionTop) {
           currentIndex = i;

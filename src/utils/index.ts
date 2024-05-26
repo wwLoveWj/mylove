@@ -1,3 +1,5 @@
+import { FunctionComponent, ComponentClass } from "react";
+
 export const guid = () => {
   return "xxxxxxxx-xxxx-6xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     var r = (Math.random() * 16) | 0,
@@ -38,4 +40,44 @@ export const uploadImage = (uploadApi: (params: any) => any) => {
     uploadApi(formData);
   };
   input.remove();
+};
+
+export interface TagTypes {
+  title?: string;
+  key?: string;
+  path?: string;
+  icon?: string | FunctionComponent<any> | ComponentClass<any, any>;
+  routes?: TagTypes[];
+  component?: any;
+  exact?: boolean;
+  redirect?: string;
+  hidden?: boolean;
+}
+// 获取所有路由节点
+export const getAllNodes = (data: any) => {
+  const nodes: TagTypes[] = [];
+  function traverseTree(node: TagTypes | TagTypes[]) {
+    if (Array.isArray(node)) {
+      node.forEach(traverseTree);
+    } else {
+      nodes.push(node);
+      if (node?.routes) {
+        traverseTree(node.routes);
+      }
+    }
+  }
+  traverseTree(data); // 从根节点开始遍历整个树形结构
+  return nodes;
+};
+
+// 获取path路由的title
+export const getTagTitle = (path: string, routes: TagTypes[]) => {
+  let newTitle: string = "";
+  const newAllRoutes = getAllNodes(routes);
+  newAllRoutes?.map((routeItem: TagTypes) => {
+    if (routeItem?.path === path) {
+      newTitle = routeItem?.title || "";
+    }
+  });
+  return newTitle;
 };
