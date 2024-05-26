@@ -82,7 +82,14 @@ router.post("/delete", (req, res) => {
   let params = req.body;
   const sqlStr = "delete from editor_info where editor_id=?";
   db.query(sqlStr, params.editorId, (err, results) => {
-    if (err) return console.log(err.message);
+    if (err) {
+      res.send({
+        code: 0,
+        msg: err.message,
+        data: null,
+      });
+      return console.log(err.message);
+    }
     if (results.affectedRows === 1) {
       console.log("删除文章列表数据成功");
       res.send({

@@ -75,7 +75,7 @@ const Index: React.FC = () => {
           </a>
           <DelPopconfirm
             onConfirm={() => {
-              EditorInfoDeleteAPIRun.run({ userId: record?.editorId });
+              EditorInfoDeleteAPIRun.run({ editorId: record?.editorId });
             }}
             title={`确定要删除【${record?.title}】的用户信息吗?`}
           />
