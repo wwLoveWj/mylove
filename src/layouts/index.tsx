@@ -136,7 +136,9 @@ const App: React.FC = () => {
         <a
           target="_blank"
           rel="noopener noreferrer"
-          href="https://www.aliyun.com"
+          onClick={() => {
+            history.push("/center");
+          }}
         >
           个人中心
         </a>

@@ -8,7 +8,7 @@ main.table {
 }
 
 .header {
-  width: 100%;
+  width: calc(100% - 80px);
   height: 10%;
   background-color: #fff4;
   padding: 0 40px;
@@ -18,7 +18,7 @@ main.table {
 }
 
 .header .input-group {
-  width: 35%;
+  width: 20%;
   height: 50%;
   background-color: #fff5;
   padding: 0 20px;
@@ -26,11 +26,11 @@ main.table {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: 0.2s;
+  transition: 0.5s;
 }
 
 .header .input-group:hover {
-  width: 45%;
+  width: 30%;
   background-color: #fff8;
   box-shadow: 0 5px 40px #0002;
 }
@@ -103,6 +103,7 @@ tbody tr:hover {
   padding: 5px 0;
   border-radius: 40px;
   text-align: center;
+  cursor: pointer;
 }
 
 tr:nth-child(4n) .button {
