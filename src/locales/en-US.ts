@@ -18,4 +18,6 @@ export default {
   "router.files.upload": "files-upload",
   "router.mails": "mails-manage",
   "router.ai": "Ai-editor",
+  "router.excel": "excel-manage",
+  "router.center": "person-center",
 };

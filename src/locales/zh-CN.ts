@@ -18,4 +18,6 @@ export default {
   "router.files.upload": "文件上传",
   "router.mails": "邮箱管理",
   "router.ai": "Ai编辑器",
+  "router.excel": "excel管理",
+  "router.center": "个人中心",
 };

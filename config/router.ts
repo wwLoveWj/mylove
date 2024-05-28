@@ -184,7 +184,21 @@ export const routes = [
         title: "router.ai",
         hidden: true,
       },
+      {
+        key: "excel",
+        path: "/excel",
+        component: "./excel/index",
+        title: "router.excel",
+        hidden: true,
+      },
     ],
+  },
+  {
+    key: "center",
+    path: "/center",
+    component: "./PersonCenter/index",
+    title: "router.center",
+    layout: false,
   },
   {
     path: "*",

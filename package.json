@@ -51,7 +51,8 @@
     "umi": "^4.1.10",
     "umi-plugin-keep-alive": "^0.0.1-beta.35",
     "vite-plugin-oh-my-live2d": "^0.19.3",
-    "ws": "^8.17.0"
+    "ws": "^8.17.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.0.33",

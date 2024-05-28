@@ -5,11 +5,25 @@
   margin: 0;
   padding: 0;
 }
+body {
+  min-height: 100vh;
+  background: url(@/assets/imgs/bg.png) center / cover;
+}
 a {
   text-decoration: none;
 }
 ul {
   list-style: none;
+}
+.umi-project-ant-menu-item-only-child {
+  .umi-project-ant-menu-title-content {
+    margin-left: 24px;
+  }
+}
+.umi-project-ant-menu-submenu {
+  .umi-project-ant-menu-title-content {
+    margin-left: 0px;
+  }
 }
 /* ---滚动条默认显示样式-- */
 ::-webkit-scrollbar {
