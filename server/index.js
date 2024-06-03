@@ -3,6 +3,8 @@ const cors = require("cors");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const db = require("./mysql");
+const camelCaseKeys = require("./utils");
 //token解析中间件 一定要在路由之前配置解析 Token 的中间件
 const expressJWT = require("express-jwt");
 // 导入全局配置文件（里面有token的密钥）
@@ -44,6 +46,7 @@ app.use(
         "/login/register",
         "/imgOCR",
         "/mail/send",
+        "/api/getModelInfo",
         {
           url: /^\/public\/.*/,
           methods: ["GET", "POST"],
@@ -149,6 +152,25 @@ app.post("/imgOCR", async (req, res) => {
   });
 });
 
+// 获取讯飞星火大模型的签名url
+app.get("/api/getModelInfo", (req, res) => {
+  // 查询 users 表中所有的数据
+  const sqlStr = "select * from api_info";
+  db.query(sqlStr, (err, rows) => {
+    if (err) return console.log(err.message);
+    rows = rows.map((item) => camelCaseKeys(item));
+    const { apiKey, apiSecret, appId } = rows.rows;
+    res.send({
+      code: 1,
+      msg: "success",
+      data: {
+        APIKey: apiKey,
+        APISecret: apiSecret,
+        APPID: appId,
+      },
+    });
+  });
+});
 app.listen(3007, () => {
   console.log("服务开启在3007端口");
 });

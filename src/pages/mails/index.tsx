@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button, Col, Form, Input, Row, Select, Space } from "antd";
 import { useRequest } from "ahooks";
 import { MailInfoSendAPI } from "@/utils/request/api/mail";
 import { UserInfo } from "@/utils/request/api/user";
 import Upload from "../files/Upload";
-import particlesJS from "particles.js";
 const { TextArea } = Input;
 
 const Index = () => {
@@ -24,92 +23,83 @@ const Index = () => {
     },
   });
 
-  useEffect(() => {
-    particlesJS.load("particles-js", "assets/particles.json", function () {
-      debugger;
-      console.log("callback - particles.js config loaded");
-    });
-  }, []);
-
   return (
-    <div id="particles-js">
-      <Form
-        labelAlign="right"
-        labelCol={{ span: 3 }}
-        form={form}
-        onFinish={(value) => {
-          const { receiver, content, title, attachments } = value;
-          MailInfoSendAPI({
-            to: receiver,
-            subject: title,
-            text: content,
-            attachments,
-          });
-        }}
-      >
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="title"
-              label="主题"
-              rules={[{ required: true, message: "请输入邮件主题名" }]}
-            >
-              <Input placeholder="请输入邮件主题名" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name="receiver"
-              label="收件人"
-              rules={[{ required: true, message: "请选择收件人" }]}
-            >
-              <Select
-                mode="multiple"
-                allowClear
-                placeholder="请选择收件人"
-                options={receiverList}
-                filterOption={filterOption}
-                fieldNames={{ label: "username", value: "email" }}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item name="content" label="正文">
-              <TextArea
-                showCount
-                maxLength={100}
-                placeholder="请输入你想说的话"
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item name="attachments" label="附件">
-              <Upload
-                getImgUrl={({
-                  data,
-                }: {
-                  data: { filename: string; path: string };
-                }) => {
-                  // 获取到上传图片后得到的响应信息
-                  let param = {
-                    filename: data?.filename,
-                    path: data?.path,
-                  };
-                  form.setFieldValue("attachments", param);
-                }}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Space>
-          <Button htmlType="submit" type="primary">
-            Send
-          </Button>
-        </Space>
-      </Form>
-    </div>
+    <Form
+      labelAlign="right"
+      labelCol={{ span: 3 }}
+      form={form}
+      onFinish={(value) => {
+        const { receiver, content, title, attachments } = value;
+        MailInfoSendAPI({
+          to: receiver,
+          subject: title,
+          text: content,
+          attachments,
+        });
+      }}
+    >
+      <Row gutter={16}>
+        <Col span={12}>
+          <Form.Item
+            name="title"
+            label="主题"
+            rules={[{ required: true, message: "请输入邮件主题名" }]}
+          >
+            <Input placeholder="请输入邮件主题名" />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item
+            name="receiver"
+            label="收件人"
+            rules={[{ required: true, message: "请选择收件人" }]}
+          >
+            <Select
+              mode="multiple"
+              allowClear
+              placeholder="请选择收件人"
+              options={receiverList}
+              filterOption={filterOption}
+              fieldNames={{ label: "username", value: "email" }}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row gutter={16}>
+        <Col span={12}>
+          <Form.Item name="content" label="正文">
+            <TextArea
+              showCount
+              maxLength={100}
+              placeholder="请输入你想说的话"
+            />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item name="attachments" label="附件">
+            <Upload
+              getImgUrl={({
+                data,
+              }: {
+                data: { filename: string; path: string };
+              }) => {
+                // 获取到上传图片后得到的响应信息
+                let param = {
+                  filename: data?.filename,
+                  path: data?.path,
+                };
+                form.setFieldValue("attachments", param);
+              }}
+            />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Space>
+        <Button htmlType="submit" type="primary">
+          Send
+        </Button>
+      </Space>
+    </Form>
   );
 };
 

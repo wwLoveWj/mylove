@@ -110,12 +110,12 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    initSetTabs(pathname);
+    pathname !== "/" && initSetTabs(pathname);
   }, [pathname, lang]);
 
-  useEffect(() => {
-    loadingModel();
-  }, []);
+  // useEffect(() => {
+  //   loadingModel();
+  // }, []);
   const avatarItems: MenuProps["items"] = [
     {
       key: "1",
@@ -201,7 +201,11 @@ const App: React.FC = () => {
                 overflow: "auto",
               }}
             >
-              <KeepAlive id={id} name={path} tabName={t(title)}>
+              <KeepAlive
+                id={id}
+                name={path}
+                tabName={t(title || "router.integralTable")}
+              >
                 <Outlet />
               </KeepAlive>
             </Content>
