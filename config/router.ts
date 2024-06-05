@@ -180,9 +180,22 @@ export const routes = [
       {
         key: "ai",
         path: "/ai",
-        component: "./AiEditor/index",
         title: "router.ai",
-        hidden: true,
+        icon: NotificationOutlined,
+        routes: [
+          {
+            key: "editor",
+            path: "/ai/editor",
+            component: "./AiEditor/index",
+            title: "router.ai.editor",
+          },
+          {
+            key: "question",
+            path: "/ai/question",
+            component: "./AiEditor/xinghuo/index",
+            title: "router.ai.question",
+          },
+        ],
       },
       {
         key: "excel",
@@ -190,6 +203,12 @@ export const routes = [
         component: "./excel/index",
         title: "router.excel",
         hidden: true,
+      },
+      {
+        key: "chronicle",
+        path: "/chronicle",
+        component: "./HistoricalStories/index",
+        title: "router.chronicle",
       },
     ],
   },

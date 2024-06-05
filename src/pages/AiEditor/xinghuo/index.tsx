@@ -31,8 +31,10 @@ const Index = () => {
     要使Textarea中的内容换行，可以使用&#13;或者&#10;来进行换行。
     &#13;表示回车符；&#10;表示换行符；
 */
-  const addMsgToTextarea = (text: string) => {
-    (resultRef.current as any).innerHTML = text;
+  const addMsgToTextarea = (words: string) => {
+    const result = document.getElementById("result") as Element;
+    result.innerHTML = words;
+    // (resultRef.current as any).innerHTML = text;
   };
   // 发送消息
   const sendMsg = async () => {
@@ -132,9 +134,9 @@ const Index = () => {
   };
   return (
     <>
-      <h1>讯飞星火认知大模型接入网页成功</h1>
+      <h1>讯飞星火认知大模型</h1>
       <div id="results">
-        <textarea ref={resultRef} id="result"></textarea>
+        <div ref={resultRef} id="result"></div>
       </div>
       <div id="sendMsg">
         <input

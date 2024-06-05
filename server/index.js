@@ -159,7 +159,7 @@ app.get("/api/getModelInfo", (req, res) => {
   db.query(sqlStr, (err, rows) => {
     if (err) return console.log(err.message);
     rows = rows.map((item) => camelCaseKeys(item));
-    const { apiKey, apiSecret, appId } = rows.rows;
+    const { apiKey, apiSecret, appId } = rows[0];
     res.send({
       code: 1,
       msg: "success",

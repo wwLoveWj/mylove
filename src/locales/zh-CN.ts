@@ -17,7 +17,10 @@ export default {
   "router.files": "文件管理",
   "router.files.upload": "文件上传",
   "router.mails": "邮箱管理",
-  "router.ai": "Ai编辑器",
+  "router.ai": "Ai管理",
+  "router.ai.editor": "Ai编辑器",
+  "router.ai.question": "Ai问答",
   "router.excel": "excel管理",
   "router.center": "个人中心",
+  "router.chronicle": "历史故事",
 };
