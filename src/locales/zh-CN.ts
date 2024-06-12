@@ -25,4 +25,5 @@ export default {
   "router.chronicle": "历史故事",
   "router.mails.send": "发送邮件",
   "router.mails.settings": "邮箱设置",
+  "router.taichi": "太极",
 };

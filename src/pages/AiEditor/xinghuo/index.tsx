@@ -115,7 +115,7 @@ const Index = () => {
       let url = "wss://spark-api.xf-yun.com/v1.1/chat";
       let host = "spark-api.xf-yun.com";
       let apiKeyName = "api_key";
-      let date = new Date().toGMTString();
+      let date = (new Date() as any).toGMTString();
       let algorithm = "hmac-sha256";
       let headers = "host date request-line";
       let signatureOrigin = `host: ${host}\ndate: ${date}\nGET /v1.1/chat HTTP/1.1`;

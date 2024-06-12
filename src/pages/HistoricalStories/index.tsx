@@ -29,6 +29,14 @@ const Index = () => {
       honor: "荣誉",
       lifeAndDeath: "生平",
       desc: "这段历史的描述",
+      tag: [
+        "安史之乱",
+        "天可汗",
+        "武则天",
+        "马嵬坡之变",
+        "永乐大典",
+        "万国来朝",
+      ],
     },
     {
       id: 1,
@@ -36,6 +44,14 @@ const Index = () => {
       honor: "荣誉",
       lifeAndDeath: "生平",
       desc: "这段历史的描述",
+      tag: [
+        "黄袍加身",
+        "靖康耻，犹未雪",
+        "崇文抑武",
+        "澶渊之盟",
+        "联蒙灭金",
+        "经济最强",
+      ],
     },
     {
       id: 2,
@@ -43,11 +59,29 @@ const Index = () => {
       honor: "荣誉",
       lifeAndDeath: "生平",
       desc: "这段历史的描述",
+      tag: ["上帝之鞭", "成吉思汗", "忽必烈", "版图最大"],
+    },
+    {
+      id: 3,
+      title: "明",
+      honor: "荣誉",
+      lifeAndDeath: "生平",
+      desc: "这段历史的描述",
+      tag: [
+        "天子守国门",
+        "瓦剌留学生",
+        "土木堡之变",
+        "靖难之役",
+        "永乐盛世",
+        "锦衣卫",
+        "东厂",
+        "郑和下西洋",
+      ],
     },
   ];
   return (
     <Row gutter={16}>
-      {dynastyList.map((item) => {
+      {historyList.map((item) => {
         return (
           <Col span={8} key={item.id}>
             <HistoryCard historyDetails={item} />

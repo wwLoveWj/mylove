@@ -21,7 +21,7 @@ const instance: AxiosInstance = axios.create({
   baseURL: "http://localhost:3007/", //"http://9206rr8050.goho.co",
   // `timeout` 指定请求超时的毫秒数(0 表示无超时时间)
   // 如果请求话费了超过 `timeout` 的时间，请求将被中断
-  timeout: 3000,
+  timeout: 60000,
   // `withCredentials` 表示跨域请求时是否需要使用凭证
   withCredentials: false, // default
   headers: { "X-Custom-Header": "foobar" },

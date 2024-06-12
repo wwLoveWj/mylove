@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Progress } from "antd";
 import { uploadImage } from "@/utils/index";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import styles from "./style.less";
 
 const Index = ({
@@ -12,7 +12,7 @@ const Index = ({
 }) => {
   const [upLoadProgress, setupLoadProgress] = useState(0);
   const [imageUrl, setImgUrl] = useState("");
-
+  const [displayClear, setDisplayClear] = useState(false);
   const getStrokeColor = () => {
     return upLoadProgress > 50 ? "green" : "red";
   };
@@ -46,7 +46,7 @@ const Index = ({
       if (res.status === 200) {
         setImgUrl(res.data.url);
         srcList = [].concat(res.data.url);
-
+        setDisplayClear(true);
         axios({
           url: "http://localhost:3007/imgOCR",
           method: "post",
@@ -73,6 +73,18 @@ const Index = ({
         ) : (
           <img src={imageUrl} alt="文件上传图片" />
         )}
+        <span
+          style={{ display: displayClear ? "block" : "none" }}
+          className={styles.clearImg}
+          onClick={(e) => {
+            e.preventDefault();
+            setImgUrl("");
+            setDisplayClear(false);
+            setupLoadProgress(0);
+          }}
+        >
+          <CloseCircleOutlined />
+        </span>
       </div>
       <p>上传进度:{upLoadProgress}</p>
       <Progress

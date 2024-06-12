@@ -234,6 +234,13 @@ export const routes = [
     layout: false,
   },
   {
+    key: "taichi",
+    path: "/taichi",
+    component: "./SupremePole/index",
+    title: "router.taichi",
+    layout: false,
+  },
+  {
     path: "*",
     component: "./exception/404",
     redirect: "/exception/404",

@@ -1,8 +1,10 @@
 .allCardInfo {
   border: 1px solid #ccc;
-  height: 200px;
+  min-height: 200px;
   width: 100%;
   padding: 20px;
+  margin-bottom: 15px;
+  cursor: pointer;
   //   box-shadow: ;
   .title {
     height: 50px;
@@ -13,6 +15,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+  .desc {
+    margin-top: 10px;
+  }
+  .tag {
+    margin: 8px 0;
+    display: flex;
+    flex-wrap: wrap;
+    .tagVal {
+      margin-bottom: 5px;
+    }
   }
 }
 .carouselBox {

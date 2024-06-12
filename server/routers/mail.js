@@ -4,6 +4,7 @@ const yaml = require("js-yaml");
 const path = require("path");
 // const http = require("node:http");
 const fs = require("node:fs");
+const _ = require("lodash");
 // const dayjs = require("dayjs");
 // const url = require("node:url");
 // const db = require("../mysql");
@@ -11,7 +12,7 @@ const fs = require("node:fs");
 const mailInfo = yaml.load(
   fs.readFileSync(path.join(__dirname, "../mail/mail.yaml"), "utf-8")
 );
-
+console.log(mailInfo, "pp0-------");
 const router = express.Router();
 // 首先初始化一下邮件服务
 const transport = nodemailer.createTransport({
@@ -76,7 +77,9 @@ router.post("/send", (req, res) => {
 
 router.post("/settings", (req, res) => {
   let { pass, user } = req.body;
-  const yamlStr = yaml.dump({ pass, user }); //转为yaml字符串
+  _.defaultsDeep(mailInfo, { [user]: { pass, user }, key: user }); //合并对象
+  console.log(mailInfo, "llo---------");
+  const yamlStr = yaml.dump({ ...mailInfo }); //转为yaml字符串
   console.log(yamlStr, "yamlStr----------------");
   fs.writeFile(path.join(__dirname, "../mail/mail.yaml"), yamlStr, (err) => {
     if (err) throw err;

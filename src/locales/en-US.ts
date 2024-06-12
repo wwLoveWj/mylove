@@ -25,4 +25,5 @@ export default {
   "router.chronicle": "chronicle-story",
   "router.mails.send": "mails-send",
   "router.mails.settings": "mails-settings",
+  "router.taichi": "Tai Chi",
 };

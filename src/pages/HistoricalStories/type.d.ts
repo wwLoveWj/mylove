@@ -4,4 +4,5 @@ export interface historicalFigureInfoType {
   id: number;
   lifeAndDeath?: string;
   honor?: string;
+  tag?: string[];
 }
