@@ -154,7 +154,6 @@ app.post("/imgOCR", async (req, res) => {
 
 // 获取讯飞星火大模型的签名url
 app.get("/api/getModelInfo", (req, res) => {
-  // 查询 users 表中所有的数据
   const sqlStr = "select * from api_info";
   db.query(sqlStr, (err, rows) => {
     if (err) return console.log(err.message);

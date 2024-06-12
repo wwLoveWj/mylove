@@ -23,4 +23,6 @@ export default {
   "router.excel": "excel管理",
   "router.center": "个人中心",
   "router.chronicle": "历史故事",
+  "router.mails.send": "发送邮件",
+  "router.mails.settings": "邮箱设置",
 };

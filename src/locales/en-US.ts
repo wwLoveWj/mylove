@@ -23,4 +23,6 @@ export default {
   "router.excel": "excel-manage",
   "router.center": "person-center",
   "router.chronicle": "chronicle-story",
+  "router.mails.send": "mails-send",
+  "router.mails.settings": "mails-settings",
 };

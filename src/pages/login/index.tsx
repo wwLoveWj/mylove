@@ -35,7 +35,6 @@ const Login = () => {
   }, []);
   return (
     <div className={styles.login}>
-      <div className={styles.showImg}>9999</div>
       <div className={styles.userInfo}>
         <div className="login-box">
           <form>

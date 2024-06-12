@@ -4,7 +4,7 @@ const yaml = require("js-yaml");
 const path = require("path");
 // const http = require("node:http");
 const fs = require("node:fs");
-const dayjs = require("dayjs");
+// const dayjs = require("dayjs");
 // const url = require("node:url");
 // const db = require("../mysql");
 // const camelCaseKeys = require("../utils");
@@ -74,4 +74,17 @@ router.post("/send", (req, res) => {
   );
 });
 
+router.post("/settings", (req, res) => {
+  let { pass, user } = req.body;
+  const yamlStr = yaml.dump({ pass, user }); //转为yaml字符串
+  console.log(yamlStr, "yamlStr----------------");
+  fs.writeFile(path.join(__dirname, "../mail/mail.yaml"), yamlStr, (err) => {
+    if (err) throw err;
+    res.send({
+      code: 1,
+      msg: "授权成功",
+      data: null,
+    });
+  });
+});
 module.exports = router;

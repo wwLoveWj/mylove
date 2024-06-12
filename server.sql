@@ -37,3 +37,10 @@ CREATE TABLE `user_info` (
     `description` varchar(255) DEFAULT NULL COMMENT '描述',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 15 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表';
+
+CREATE TABLE `mail_info` (
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
+    create_time DATETIME COMMENT 'Create Time',
+    pass VARCHAR(255) COMMENT "用户授权码",
+    user VARCHAR(255) COMMENT "用户邮箱"
+) COMMENT '用户设置信息';

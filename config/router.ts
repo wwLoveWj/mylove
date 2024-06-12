@@ -174,8 +174,22 @@ export const routes = [
       {
         key: "mails",
         path: "/mails",
-        component: "./mails/index",
         title: "router.mails",
+        icon: NotificationOutlined,
+        routes: [
+          {
+            key: "send",
+            path: "/mails/send",
+            component: "./mails/index",
+            title: "router.mails.send",
+          },
+          {
+            key: "settings",
+            path: "/mails/settings",
+            component: "./mails/settings/index",
+            title: "router.mails.settings",
+          },
+        ],
       },
       {
         key: "ai",
