@@ -35,6 +35,7 @@ const Index = () => {
           subject: title,
           text: content,
           attachments,
+          currentUser: "wjw",
         });
       }}
     >

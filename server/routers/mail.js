@@ -10,27 +10,12 @@ const router = express.Router();
 const mailInfo = yaml.load(
   fs.readFileSync(path.join(__dirname, "../mail/setting.yaml"), "utf-8")
 );
-console.log(mailInfo, "ppo0-------------邮件设置");
-// 首先初始化一下邮件服务
-const transporter = nodemailer.createTransport({
-  //node_modules/nodemailer/lib/well-known/services.json  查看相关的配置，如果使用qq邮箱，就查看qq邮箱的相关配置
-  // service: "qq", //服务商
-  host: "smtp.163.com", //qq的为"smtp.qq.com"
-  port: 465,
-  secure: true, //是否开启https // true for 465, false for other ports
-  //pass 不是邮箱账户的密码而是stmp的授权码（必须是相应邮箱的stmp授权码）
-  //邮箱---设置--账户--POP3/SMTP服务---开启---获取stmp授权码
-  auth: {
-    user: mailInfo.user, //邮箱
-    pass: mailInfo.pass, //密码|授权码
-  },
-});
-function sendMailFn(options, res) {
+function sendMailFn(options, res, transporter) {
   transporter.sendMail(options, (error, info) => {
     if (error) {
       res.send({
         code: 0,
-        msg: err.message,
+        msg: error.message,
         data: null,
       });
       return console.log(error);
@@ -44,12 +29,15 @@ function sendMailFn(options, res) {
   });
 }
 router.post("/send", (req, res) => {
-  let { to, text, subject, attachments } = req.body;
-  console.log(to, text, subject, "to, text, subject");
+  let { to, text, subject, attachments, currentUser } = req.body;
+  console.log(to, text, subject, "to, text, subject", currentUser);
   // let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
+
+  const userInfo = mailInfo.find((item) => item.current === currentUser);
+  console.log(userInfo, "mm---------用户信息", mailInfo);
   const options = {
     to,
-    from: mailInfo.user,
+    from: userInfo.user,
     subject, //主题
     text,
     // html: "<b>发送时间:" + sendTime + "</b>",
@@ -61,7 +49,21 @@ router.post("/send", (req, res) => {
         ]
       : null,
   };
-  sendMailFn(options, res);
+  // 首先初始化一下邮件服务
+  const transporter = nodemailer.createTransport({
+    //node_modules/nodemailer/lib/well-known/services.json  查看相关的配置，如果使用qq邮箱，就查看qq邮箱的相关配置
+    // service: "qq", //服务商
+    host: "smtp.163.com", //qq的为"smtp.qq.com"
+    port: 465,
+    secure: true, //是否开启https // true for 465, false for other ports
+    //pass 不是邮箱账户的密码而是stmp的授权码（必须是相应邮箱的stmp授权码）
+    //邮箱---设置--账户--POP3/SMTP服务---开启---获取stmp授权码
+    auth: {
+      user: userInfo.user, //邮箱
+      pass: userInfo.pass, //密码|授权码
+    },
+  });
+  sendMailFn(options, res, transporter);
 });
 
 router.post("/settings", (req, res) => {
