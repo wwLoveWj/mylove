@@ -1,87 +1,77 @@
 const express = require("express");
-const nodemailer = require("nodemailer");
 const yaml = require("js-yaml");
 const path = require("path");
-// const http = require("node:http");
 const fs = require("node:fs");
 const _ = require("lodash");
-// const dayjs = require("dayjs");
-// const url = require("node:url");
-// const db = require("../mysql");
-// const camelCaseKeys = require("../utils");
-const mailInfo = yaml.load(
-  fs.readFileSync(path.join(__dirname, "../mail/mail.yaml"), "utf-8")
-);
-console.log(mailInfo, "pp0-------");
+
+const nodemailer = require("nodemailer");
+// const { mailInfo, sendMailFn } = require("../utils/mailConfig");
 const router = express.Router();
+const mailInfo = yaml.load(
+  fs.readFileSync(path.join(__dirname, "../mail/setting.yaml"), "utf-8")
+);
+console.log(mailInfo, "ppo0-------------邮件设置");
 // 首先初始化一下邮件服务
-const transport = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
+  //node_modules/nodemailer/lib/well-known/services.json  查看相关的配置，如果使用qq邮箱，就查看qq邮箱的相关配置
   // service: "qq", //服务商
   host: "smtp.163.com", //qq的为"smtp.qq.com"
   port: 465,
-  secure: true, //是否开启https
+  secure: true, //是否开启https // true for 465, false for other ports
+  //pass 不是邮箱账户的密码而是stmp的授权码（必须是相应邮箱的stmp授权码）
+  //邮箱---设置--账户--POP3/SMTP服务---开启---获取stmp授权码
   auth: {
     user: mailInfo.user, //邮箱
     pass: mailInfo.pass, //密码|授权码
   },
 });
+function sendMailFn(options, res) {
+  transporter.sendMail(options, (error, info) => {
+    if (error) {
+      res.send({
+        code: 0,
+        msg: err.message,
+        data: null,
+      });
+      return console.log(error);
+    }
+    console.log("邮件发送成功~", info.response);
+    res.send({
+      code: 1,
+      msg: "邮件发送成功~",
+      data: null,
+    });
+  });
+}
 router.post("/send", (req, res) => {
   let { to, text, subject, attachments } = req.body;
   console.log(to, text, subject, "to, text, subject");
   // let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
-  transport.sendMail(
-    {
-      to,
-      from: mailInfo.user,
-      subject, //主题
-      text,
-      // html内容
-      // html: "<b>发送时间:" + sendTime + "</b>",
-      // 附件内容 是一个列表, 可以是package.json文件, 头像, zip包
-      attachments: attachments
-        ? [
-            // {
-            //   filename: "package.json",
-            //   path: path.resolve(__dirname, "package.json"),
-            // },
-            // {
-            //   filename: "666.png",
-            //   path: path.resolve(
-            //     __dirname,
-            //     "../upload/5604a827d4ba51cbcb8c87599411c274.png"
-            //   ),
-            // },
-            // {
-            //   filename: "room.zip",
-            //   path: path.resolve(__dirname, "room.zip"),
-            // },
-            {
-              ...attachments,
-            },
-          ]
-        : null,
-    },
-    (error, info) => {
-      if (error) {
-        return console.log(error);
-      }
-      console.log("邮件发送成功~", info);
-      res.send({
-        code: 1,
-        msg: "邮件发送成功~",
-        data: null,
-      });
-    }
-  );
+  const options = {
+    to,
+    from: mailInfo.user,
+    subject, //主题
+    text,
+    // html: "<b>发送时间:" + sendTime + "</b>",
+    attachments: attachments
+      ? [
+          {
+            ...attachments,
+          },
+        ]
+      : null,
+  };
+  sendMailFn(options, res);
 });
 
 router.post("/settings", (req, res) => {
   let { pass, user } = req.body;
-  _.defaultsDeep(mailInfo, { [user]: { pass, user }, key: user }); //合并对象
-  console.log(mailInfo, "llo---------");
-  const yamlStr = yaml.dump({ ...mailInfo }); //转为yaml字符串
+  const config = [{ pass, user, current: "blww" }];
+  // _.defaultsDeep(mailInfo, config); //合并对象
+  // console.log(mailInfo, "llo---------");
+  const yamlStr = yaml.dump([...config]); //转为yaml字符串
   console.log(yamlStr, "yamlStr----------------");
-  fs.writeFile(path.join(__dirname, "../mail/mail.yaml"), yamlStr, (err) => {
+  fs.writeFile(path.join(__dirname, "../mail/setting.yaml"), yamlStr, (err) => {
     if (err) throw err;
     res.send({
       code: 1,

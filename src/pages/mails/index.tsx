@@ -31,7 +31,7 @@ const Index = () => {
       onFinish={(value) => {
         const { receiver, content, title, attachments } = value;
         MailInfoSendAPI({
-          to: receiver,
+          to: receiver.join(""),
           subject: title,
           text: content,
           attachments,

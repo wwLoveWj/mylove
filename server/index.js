@@ -18,7 +18,7 @@ const editorRouter = require("./routers/editor.js");
 const loginRouter = require("./routers/login.js");
 const mailRouter = require("./routers/mail.js");
 const fileRouter = require("./routers/file.js");
-
+const registerRouter = require("./routers/register.js");
 const app = express();
 
 app.use(cors());
@@ -47,6 +47,7 @@ app.use(
         "/imgOCR",
         "/mail/send",
         "/api/getModelInfo",
+        "/code/send",
         {
           url: /^\/public\/.*/,
           methods: ["GET", "POST"],
@@ -63,6 +64,7 @@ app.use("/editor", editorRouter);
 app.use("/login", loginRouter);
 app.use("/mail", mailRouter);
 app.use("/file", fileRouter);
+app.use("/code", registerRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {

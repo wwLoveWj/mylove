@@ -62,6 +62,13 @@ const Login = () => {
               />
               <label>Password</label>
             </div>
+            <a
+              onClick={() => {
+                history.push("/register");
+              }}
+            >
+              去注册
+            </a>
             <center>
               <a onClick={handleLogin}>
                 SEND
