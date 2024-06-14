@@ -165,6 +165,12 @@ const App: React.FC = () => {
         />
         <LangChgIndex themeColor={themeColorLang} />
         <SwitchTheme handleChange={handleChange} checkedTheme={checkedTheme} />
+        <div
+          style={{ color: "#fff", marginLeft: "12px" }}
+          className="avatar-name"
+        >
+          {JSON.parse(localStorage.getItem("login-info") || `{}`)?.username}
+        </div>
         <Dropdown menu={{ items: avatarItems }} placement="bottomRight" arrow>
           <Badge count={1}>
             <Avatar

@@ -52,9 +52,9 @@ router.post("/send", (req, res) => {
   // 首先初始化一下邮件服务
   const transporter = nodemailer.createTransport({
     //node_modules/nodemailer/lib/well-known/services.json  查看相关的配置，如果使用qq邮箱，就查看qq邮箱的相关配置
-    // service: "qq", //服务商
-    host: "smtp.163.com", //qq的为"smtp.qq.com"
-    port: 465,
+    // service: "qq", //服务商，可以不写
+    host: userInfo.host, //qq的为"smtp.qq.com"
+    port: 465, //587或者465
     secure: true, //是否开启https // true for 465, false for other ports
     //pass 不是邮箱账户的密码而是stmp的授权码（必须是相应邮箱的stmp授权码）
     //邮箱---设置--账户--POP3/SMTP服务---开启---获取stmp授权码
@@ -67,8 +67,8 @@ router.post("/send", (req, res) => {
 });
 
 router.post("/settings", (req, res) => {
-  let { pass, user } = req.body;
-  const config = [{ pass, user, current: "blww" }];
+  let { pass, user, host, current } = req.body;
+  const config = [{ pass, user, host, current }];
   // _.defaultsDeep(mailInfo, config); //合并对象
   // console.log(mailInfo, "llo---------");
   const yamlStr = yaml.dump([...config]); //转为yaml字符串
@@ -77,7 +77,7 @@ router.post("/settings", (req, res) => {
     if (err) throw err;
     res.send({
       code: 1,
-      msg: "授权成功",
+      msg: "授权成功~",
       data: null,
     });
   });

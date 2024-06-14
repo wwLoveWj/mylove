@@ -23,7 +23,7 @@ const transport = nodemailer.createTransport({
 async function sendMail(text, html) {
   let info = await transport.sendMail({
     from: `亲爱的老公<${mailInfo.user}>`, // sender address
-    to: `亲爱的老婆<${mailInfo.to}>`, // list of receivers
+    to: `亲爱的老婆<${mailInfo.current}>`, // list of receivers
     subject: "亲爱的老婆", // Subject line
     text: text, // plain text body
     html,
@@ -35,7 +35,7 @@ async function sendMail(text, html) {
 // sendMail("你好呀，我的宝贝老婆！");
 
 //每天下午5点21分发送
-schedule.scheduleJob({ hour: 14, minute: 10 }, function () {
+schedule.scheduleJob({ hour: 14, minute: 30 }, function () {
   console.log("启动任务:" + new Date());
   let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
   sendMail(

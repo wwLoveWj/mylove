@@ -38,7 +38,7 @@ router.post("/send", function (req, res) {
   sendMailFn(mailOptions, res);
   //存入redis
   client.set(mail, code).then((res) => {
-    console.log(mail, code);
+    console.log(mail, code, "redis-------------");
     //设置成功发送邮件
     sendMailFn(mailOptions, res);
     res.send(successTip());
