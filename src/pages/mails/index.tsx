@@ -35,7 +35,8 @@ const Index = () => {
           subject: title,
           text: content,
           attachments,
-          currentUser: "wjw",
+          currentUser: JSON.parse(localStorage.getItem("login-info") || `{}`)
+            ?.username,
         });
       }}
     >

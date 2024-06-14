@@ -10,6 +10,7 @@ const {
   failMsg,
   successTip,
 } = require("../utils/mailConfig");
+const client = require("./redisStore");
 
 const router = express.Router();
 

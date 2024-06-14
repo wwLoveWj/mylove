@@ -35,7 +35,7 @@ async function sendMail(text, html) {
 // sendMail("你好呀，我的宝贝老婆！");
 
 //每天下午5点21分发送
-schedule.scheduleJob({ hour: 15, minute: 35 }, function () {
+schedule.scheduleJob({ hour: 14, minute: 10 }, function () {
   console.log("启动任务:" + new Date());
   let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
   sendMail(

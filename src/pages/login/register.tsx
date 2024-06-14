@@ -95,6 +95,13 @@ const Login = () => {
                 {code}
               </Button>
             </div>
+            <a
+              onClick={() => {
+                history.push("/login");
+              }}
+            >
+              去登录
+            </a>
             <center>
               <a onClick={handleLogin}>
                 注册
