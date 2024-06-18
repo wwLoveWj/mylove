@@ -1,4 +1,4 @@
-const { transporter } = require("./config");
+const { getTransporter } = require("./config");
 
 /**
  * 处理数据库中短横线转换小驼峰命名
@@ -190,7 +190,8 @@ function failMsg(msg, res) {
  * @param res 接口响应配置
  * @param msg 接口响应成功的提示语
  */
-function sendMailFn(options, res, msg = "邮件发送成功~") {
+function sendMailFn(options, res, current, msg = "邮件发送成功~") {
+  const transporter = getTransporter(current);
   transporter.sendMail(options, (error, info) => {
     if (error) {
       failMsg(error.message, res);

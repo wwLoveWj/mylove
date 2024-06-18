@@ -32,23 +32,24 @@ async function sendMail(text, html) {
   console.log("发送成功", info);
 }
 
-//测试一下
-// sendMail("你好呀，我的宝贝老婆！");
 // { hour: 15, minute: 31 }
 // "*/5 * * * * *"
 //每天下午5点21分发送
-schedule.scheduleJob({ hour: 14, minute: 30 }, function () {
+schedule.scheduleJob("*/100 * * * * *", function () {
   notifier.notify({
     title: "待办通知",
     message: "已向老婆发送读书通知",
+    sound: "Submarine",
+    closeLabel: "CANCEL",
+    actions: "OK",
   });
-  console.log("启动任务:" + new Date());
   let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
-  sendMail(
-    "你好呀，我的宝贝老婆！",
-    "<h1>系统邮件，请勿回复</h1><p>今天你看书了嘛？不看等下回来挨打</p>" +
-      "<b>发送时间:" +
-      sendTime +
-      "</b>"
-  );
+  console.log(`✅任务创建成功，执行频率5s，` + sendTime);
+  // sendMail(
+  //   "你好呀，我的宝贝老婆！",
+  //   "<h1>系统邮件，请勿回复</h1><p>今天你看书了嘛？不看等下回来挨打</p>" +
+  //     "<b>发送时间:" +
+  //     sendTime +
+  //     "</b>"
+  // );
 });

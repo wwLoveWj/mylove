@@ -6,7 +6,7 @@ const {
   failMsg,
   successTip,
 } = require("../../utils");
-const { mailInfo } = require("../../utils/config");
+const { mailInfoFn } = require("../../utils/config");
 const client = require("../../utils/redis");
 
 const router = express.Router();
@@ -16,12 +16,12 @@ router.post("/send", function (req, res) {
   const mail = req.body.mail; //请求携带的邮件
   console.log(mail, "mail---------------code", code);
   let mailOptions = {
-    from: `发送方<${mailInfo.user}>`, // 发送方
+    from: `发送方<${mailInfoFn(mail).user}>`, // 发送方
     to: `接收方<${mail}>`, //接收者邮箱，多个邮箱用逗号间隔
     subject: `欢迎登录,你的验证码${code}`, // 标题
     html: htmlCode(code),
   };
-  sendMailFn(mailOptions, res);
+  sendMailFn(mailOptions, res, mail);
   //存入redis
   client.set(mail, code).then((info) => {
     console.log(mail, code, "info-----", info);

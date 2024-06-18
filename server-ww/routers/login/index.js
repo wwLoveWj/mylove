@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const md5 = require("md5");
 // 导入 bcryptjs 加密包
 // const bcrypt = require("bcryptjs");
-const db = require("../mysql");
+const db = require("../../utils/mysql");
 // 导入全局配置文件（里面有token的密钥）
 const { jwtConfig } = require("../../utils/config");
 
