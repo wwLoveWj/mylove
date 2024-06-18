@@ -18,6 +18,7 @@ const editorRouter = require("./routers/editor.js");
 const loginRouter = require("./routers/login.js");
 const mailRouter = require("./routers/mail.js");
 const fileRouter = require("./routers/file.js");
+const linkRouter = require("./routers/link.js");
 const registerRouter = require("./routers/register.js");
 const app = express();
 
@@ -64,6 +65,7 @@ app.use("/editor", editorRouter);
 app.use("/login", loginRouter);
 app.use("/mail", mailRouter);
 app.use("/file", fileRouter);
+app.use("/link", linkRouter);
 app.use("/code", registerRouter);
 
 // 错误中间件 当token失效时 返回信息

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { history } from "umi";
 import md5 from "md5";
-import { Button } from "antd";
+import { Button, notification } from "antd";
 import { useRequest } from "ahooks";
 import { registerUserAPI, sendMailCodeAPI } from "@/utils/request/api/login";
 import styles from "./style.less";
@@ -10,6 +10,7 @@ import "./style.less";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPwd] = useState("");
+  const [verifyCode, setVerifyCode] = useState("");
   const [disable, setDisabled] = useState(false);
   const [code, setCode] = useState("发送验证码");
   const [count, setCount] = useState(60);
@@ -28,7 +29,11 @@ const Login = () => {
     }
   );
   const handleLogin = () => {
-    registerUserAPIRun.run({ username, password: md5(password) });
+    if (username && password) {
+      registerUserAPIRun.run({ username, password: md5(password), verifyCode });
+    } else {
+      notification.error({ message: "用户名和密码必填！" });
+    }
   };
   //获取验证码
   const getVerCode = () => {
@@ -46,7 +51,7 @@ const Login = () => {
           setDisabled(true);
           setCount((count) => {
             setCode(count + "秒后重发");
-            console.log(112222222, count);
+            // console.log(112222222, count);
             countRef.current = count;
             return count - 1;
           });
@@ -85,7 +90,19 @@ const Login = () => {
               />
               <label>Password</label>
             </div>
-            <div>
+            <div
+              className="user-box"
+              style={{ display: "flex", marginBottom: 0 }}
+            >
+              <input
+                type="text"
+                name=""
+                required
+                style={{ width: "70%" }}
+                onChange={(e) => {
+                  setVerifyCode(e.target.value);
+                }}
+              />
               <Button
                 type="primary"
                 disabled={disable}
@@ -95,13 +112,14 @@ const Login = () => {
                 {code}
               </Button>
             </div>
-            <a
+            <p
+              style={{ cursor: "pointer" }}
               onClick={() => {
                 history.push("/login");
               }}
             >
               去登录
-            </a>
+            </p>
             <center>
               <a onClick={handleLogin}>
                 注册

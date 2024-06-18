@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Button } from "antd";
+import { Button, notification } from "antd";
 import { useRequest } from "ahooks";
 import { getModelInfoAPI } from "@/utils/request/api/aiEditor";
 import * as base64 from "base-64";
@@ -13,8 +13,9 @@ const Index = () => {
   const [allXinghuoModelInfo, setAllXinghuoModelInfo] = useState<
     Partial<{ APIKey: string; APISecret: string; APPID: string }>
   >({});
+  const chatWindow = document.getElementById("chatWindow") as Element;
   //   写入回答的容器
-  const resultRef = useRef(null);
+  const chatContainer = useRef(null);
   //   请求星火大模型相关权限数据的接口
   useRequest(() => getModelInfoAPI({}), {
     debounceWait: 100,
@@ -32,12 +33,33 @@ const Index = () => {
     &#13;表示回车符；&#10;表示换行符；
 */
   const addMsgToTextarea = (words: string) => {
-    const result = document.getElementById("result") as Element;
-    result.innerHTML = words;
-    // (resultRef.current as any).innerHTML = text;
+    chatWindow.innerHTML = words;
+    chatContainer.current!.scrollTop = "500px";
+    // (chatContainer.current as any).innerHTML = text;
   };
+  // 添加用户消息到窗口
+  function addUserMessage(message: string) {
+    var messageElement = (
+      <div className="row message-bubble">
+        <img
+          className="chat-icon"
+          src="
+      ../../../assets/yay.jpg"
+        />
+        <p className="message-text">{message}</p>
+      </div>
+    );
+    chatWindow.append(message);
+    setQuestion("");
+    // chatWindow.animate({ scrollTop: chatWindow.prop("scrollHeight") }, 500);
+  }
   // 发送消息
   const sendMsg = async () => {
+    if (!question) {
+      notification.error({ message: "请输入您的问题！" });
+      return;
+    }
+    addUserMessage(question); //添加问题到页面中
     // 获取请求地址
     const url: any = await getWebsocketUrl();
     // 每次发送问题 都是一个新的websocket请求
@@ -135,21 +157,20 @@ const Index = () => {
   return (
     <>
       <h1>讯飞星火认知大模型</h1>
-      <div id="results">
-        <div ref={resultRef} id="result"></div>
-      </div>
-      <div id="sendMsg">
-        <input
-          type="text"
-          id="question"
-          value={question}
-          onChange={(e) => {
-            setQuestion(e.target.value);
-          }}
-        />
-        <Button id="btn" onClick={sendMsg}>
-          发送信息
-        </Button>
+      <div id="answer">
+        <div id="chatWindow" ref={chatContainer}></div>
+        <div className="ipt">
+          <textarea
+            id="chatInput"
+            value={question}
+            onChange={(e) => {
+              setQuestion(e.target.value);
+            }}
+          ></textarea>
+          <Button id="btn" onClick={sendMsg}>
+            发送信息
+          </Button>
+        </div>
       </div>
     </>
   );

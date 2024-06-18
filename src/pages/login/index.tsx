@@ -5,6 +5,7 @@ import { useRequest } from "ahooks";
 import { loginUserAPI } from "@/utils/request/api/login";
 import styles from "./style.less";
 import "./style.less";
+import { startSakura } from "./sakura";
 
 interface LoginInfoType {
   username: string;
@@ -31,6 +32,7 @@ const Login = () => {
   };
 
   useEffect(() => {
+    startSakura();
     setUsername(detailsData?.username);
   }, []);
   return (
@@ -62,13 +64,14 @@ const Login = () => {
               />
               <label>Password</label>
             </div>
-            <a
+            <p
+              style={{ cursor: "pointer" }}
               onClick={() => {
                 history.push("/register");
               }}
             >
               去注册
-            </a>
+            </p>
             <center>
               <a onClick={handleLogin}>
                 SEND

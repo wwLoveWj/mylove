@@ -182,7 +182,7 @@ function sendMailFn(options, res) {
     if (error) {
       res.send({
         code: 0,
-        msg: err.message,
+        msg: error.message,
         data: null,
       });
       return console.log(error);

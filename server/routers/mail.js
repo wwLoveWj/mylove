@@ -8,9 +8,10 @@ const nodemailer = require("nodemailer");
 // const { mailInfo, sendMailFn } = require("../utils/mailConfig");
 const router = express.Router();
 const mailInfo = yaml.load(
-  fs.readFileSync(path.join(__dirname, "../mail/setting.yaml"), "utf-8")
+  fs.readFileSync(path.join(__dirname, "../mail/mail.yaml"), "utf-8")
 );
 function sendMailFn(options, res, transporter) {
+  console.log(555, "kkl----------");
   transporter.sendMail(options, (error, info) => {
     if (error) {
       res.send({
@@ -30,10 +31,10 @@ function sendMailFn(options, res, transporter) {
 }
 router.post("/send", (req, res) => {
   let { to, text, subject, attachments, currentUser } = req.body;
-  console.log(to, text, subject, "to, text, subject", currentUser);
+  console.log(to, text, subject, "to, text, subject", currentUser, mailInfo);
   // let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
 
-  const userInfo = mailInfo.find((item) => item.current === currentUser);
+  const userInfo = [mailInfo].find((item) => item.current === currentUser);
   console.log(userInfo, "mm---------用户信息", mailInfo);
   const options = {
     to,
@@ -53,7 +54,7 @@ router.post("/send", (req, res) => {
   const transporter = nodemailer.createTransport({
     //node_modules/nodemailer/lib/well-known/services.json  查看相关的配置，如果使用qq邮箱，就查看qq邮箱的相关配置
     // service: "qq", //服务商，可以不写
-    host: userInfo.host, //qq的为"smtp.qq.com"
+    host: "smtp.163.com", //qq的为"smtp.qq.com"
     port: 465, //587或者465
     secure: true, //是否开启https // true for 465, false for other ports
     //pass 不是邮箱账户的密码而是stmp的授权码（必须是相应邮箱的stmp授权码）

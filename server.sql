@@ -44,3 +44,12 @@ CREATE TABLE `mail_info` (
     pass VARCHAR(255) COMMENT "用户授权码",
     user VARCHAR(255) COMMENT "用户邮箱"
 ) COMMENT '用户设置信息';
+
+CREATE TABLE `link_info` (
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+    name VARCHAR(255) COMMENT "网址名称",
+    link VARCHAR(512) COMMENT "网页链接",
+    avatar VARCHAR(512) COMMENT "网页头像",
+    description VARCHAR(255) COMMENT "网站描述"
+) COMMENT '创建网页卡片表';

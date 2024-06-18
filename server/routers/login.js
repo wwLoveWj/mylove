@@ -1,6 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const md5 = require("md5");
+const client = require("./redisStore");
 // 导入 bcryptjs 加密包
 // const bcrypt = require("bcryptjs");
 const db = require("../mysql");
@@ -14,7 +15,7 @@ const router = express.Router();
  * @param password  用户密码
  */
 router.post("/register", (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, verifyCode } = req.body;
   if (!username || !password) {
     res.send({
       code: 0,
@@ -22,29 +23,50 @@ router.post("/register", (req, res) => {
     });
     return;
   }
-  if (username && password) {
-    const searchSql = `SELECT * FROM login_info WHERE username=?`;
-    db.query(searchSql, [username], (err, results) => {
-      if (err) throw err;
-      if (results.length >= 1) {
-        //2、如果有相同用户名，则注册失败，用户名重复
-        res.send({ code: 0, msg: "注册失败，用户名重复" });
-      } else {
-        // 调用 bcrypt.hashSync() 对密码加密
-        // let pwd = bcrypt.hashSync(password, 10); // 参数2： 加密等级 填10即可
-        const sqlStr = "insert into login_info (username,password) values(?,?)";
-        db.query(sqlStr, [username, password], (err, results) => {
+  client.get(username).then((code) => {
+    console.log(typeof code, verifyCode);
+    if (!code) {
+      res.send({
+        code: 0,
+        msg: "验证码已过期，请重新验证！",
+      });
+    }
+
+    //从redis查询数据
+    if (verifyCode === Number(code)) {
+      if (username && password) {
+        const searchSql = `SELECT * FROM login_info WHERE username=?`;
+        db.query(searchSql, [username], (err, results) => {
           if (err) throw err;
-          if (results.affectedRows === 1) {
-            res.send({ code: 1, msg: "注册成功" });
+          if (results.length >= 1) {
+            //2、如果有相同用户名，则注册失败，用户名重复
+            res.send({ code: 0, msg: "注册失败，用户名重复" });
           } else {
-            res.send({ code: 0, msg: "注册失败" });
+            // 调用 bcrypt.hashSync() 对密码加密
+            // let pwd = bcrypt.hashSync(password, 10); // 参数2： 加密等级 填10即可
+            const sqlStr =
+              "insert into login_info (username,password) values(?,?)";
+            db.query(sqlStr, [username, password], (err, results) => {
+              if (err) throw err;
+              if (results.affectedRows === 1) {
+                res.send({ code: 1, msg: "注册成功" });
+              } else {
+                res.send({ code: 0, msg: "注册失败" });
+              }
+            });
           }
         });
       }
-    });
-  }
-  console.log("注册接收", req.body);
+      console.log("注册接收", req.body);
+    } else {
+      console.log("验证失败");
+      res.send({
+        code: 0,
+        msg: "验证码错误...",
+      });
+      return;
+    }
+  });
 });
 
 /**

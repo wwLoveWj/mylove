@@ -1,4 +1,5 @@
 const schedule = require("node-schedule");
+const notifier = require("node-notifier"); //在 Node.js 中发送跨平台通知的工具
 const nodemailer = require("nodemailer");
 const yaml = require("js-yaml");
 const path = require("path");
@@ -33,9 +34,14 @@ async function sendMail(text, html) {
 
 //测试一下
 // sendMail("你好呀，我的宝贝老婆！");
-
+// { hour: 15, minute: 31 }
+// "*/5 * * * * *"
 //每天下午5点21分发送
 schedule.scheduleJob({ hour: 14, minute: 30 }, function () {
+  notifier.notify({
+    title: "待办通知",
+    message: "已向老婆发送读书通知",
+  });
   console.log("启动任务:" + new Date());
   let sendTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
   sendMail(

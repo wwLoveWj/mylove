@@ -35,13 +35,12 @@ router.post("/send", function (req, res) {
     subject: `欢迎登录,你的验证码${code}`, // 标题
     html: htmlCode(code),
   };
-  sendMailFn(mailOptions, res);
+  //   sendMailFn(mailOptions, res);
   //存入redis
-  client.set(mail, code).then((res) => {
-    console.log(mail, code, "redis-------------");
+  client.set(mail, code).then((info) => {
+    console.log(mail, code, "redis-------------", info);
     //设置成功发送邮件
     sendMailFn(mailOptions, res);
-    res.send(successTip());
   });
   client.expire(mail, 60); //设置过期时间 60s 前端六十秒可以重新获取
 });
