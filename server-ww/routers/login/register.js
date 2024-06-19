@@ -16,18 +16,19 @@ router.post("/send", function (req, res) {
   const mail = req.body.mail; //请求携带的邮件
   console.log(mail, "mail---------------code", code);
   let mailOptions = {
-    from: `发送方<${mailInfoFn(mail).user}>`, // 发送方
+    // TODO:这里得考虑一下怎么处理
+    from: `发送方<${mailInfoFn("blww885@163.com").user}>`, // 发送方
     to: `接收方<${mail}>`, //接收者邮箱，多个邮箱用逗号间隔
     subject: `欢迎登录,你的验证码${code}`, // 标题
     html: htmlCode(code),
   };
-  sendMailFn(mailOptions, res, mail);
+
   //存入redis
   client.set(mail, code).then((info) => {
     console.log(mail, code, "info-----", info);
     //设置成功发送邮件
-    sendMailFn(mailOptions, res);
-    successTip("验证码发送成功~", res);
+    // TODO:第三个参数不能写死，待思考
+    sendMailFn(mailOptions, res, "blww885@163.com", "验证码发送成功~");
   });
   client.expire(mail, 60); //设置过期时间 60s 前端六十秒可以重新获取
 });

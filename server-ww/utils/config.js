@@ -16,7 +16,6 @@ const mailInfoFn = (currentUser) => {
 
 const getTransporter = (user) => {
   const mailInfo = mailInfoFn(user);
-  console.log(mailInfo, "读取的文件");
   // 首先初始化一下邮件服务
   const transporter = nodemailer.createTransport({
     //node_modules/nodemailer/lib/well-known/services.json  查看相关的配置，如果使用qq邮箱，就查看qq邮箱的相关配置
