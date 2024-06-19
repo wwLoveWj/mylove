@@ -8,11 +8,12 @@ const { jwtConfig } = require("./utils/config");
 
 // 将所有的路由接口按不同文件分类，自定义router模块
 // const scoreRouter = require("./routers/score.js");
-// const userRouter = require("./routers/user.js");
+const userRouter = require("./routers/users/index.js");
 // const editorRouter = require("./routers/editor.js");
 
-// const fileRouter = require("./routers/file.js");
+const fileRouter = require("./routers/file.js");
 const mailRouter = require("./routers/mails/index.js");
+const linkRouter = require("./routers/link.js");
 const loginRouter = require("./routers/login/index.js");
 const registerRouter = require("./routers/login/register.js");
 
@@ -55,14 +56,14 @@ app.use(
 );
 
 // 对路由进行分区划分
-// app.use("/userInfo", userRouter);
+app.use("/userInfo", userRouter);
 // app.use("/scoreInfo", scoreRouter);
 // app.use("/editor", editorRouter);
-// app.use("/file", fileRouter);
-
+app.use("/file", fileRouter);
 app.use("/mail", mailRouter);
 app.use("/login", loginRouter);
 app.use("/code", registerRouter);
+app.use("/link", linkRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {

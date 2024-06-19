@@ -1,4 +1,5 @@
 const { getTransporter } = require("./config");
+const db = require("./mysql");
 
 /**
  * 处理数据库中短横线转换小驼峰命名
@@ -127,7 +128,7 @@ function successTip(msg, res, total = null) {
   if (total) {
     res.send({
       code: 1,
-      data: res,
+      data: null,
       msg,
       total,
     });
@@ -135,7 +136,7 @@ function successTip(msg, res, total = null) {
     res.send({
       code: 1,
       msg,
-      data: res,
+      data: null,
     });
   }
 }
@@ -194,13 +195,49 @@ function sendMailFn(options, res, current, msg = "邮件发送成功~") {
   const transporter = getTransporter(current);
   transporter.sendMail(options, (error, info) => {
     if (error) {
-      failMsg(error.message, res);
+      if (res) {
+        failMsg(error.message, res);
+      }
       return console.log(error);
     }
     console.log("邮件发送成功~", info.response);
-    successTip(msg, res);
+    if (res) {
+      successTip(msg, res);
+    }
   });
 }
+const handleResposeFn = (err, results, res, msg) => {
+  if (err) {
+    res.send({
+      code: 0,
+      msg: err.message,
+      data: null,
+    });
+    return console.log(err.message);
+  }
+  if (results.affectedRows === 1) {
+    // 注意：执行了 update 语句之后，执行的结果，也是一个对象，可以通过 affectedRows 判断是否更新成功
+    console.log(msg);
+    res.send({
+      code: 1,
+      msg,
+      data: null,
+    });
+  }
+};
+/**
+ * 查询数据库的方法
+ * @param {*} sql 查询语句
+ * @param {*} param 查询语句参数
+ * @param {*} res 响应结果数据
+ * @param {*} msg 响应成功的提示
+ */
+const handleQueryDb = (sql, param, res, msg) => {
+  db.query(sql, param, (err, results) =>
+    handleResposeFn(err, results, res, msg)
+  );
+};
+
 module.exports = {
   camelCaseKeys,
   createCode,
@@ -208,4 +245,5 @@ module.exports = {
   successTip,
   failMsg,
   sendMailFn,
+  handleQueryDb,
 };
