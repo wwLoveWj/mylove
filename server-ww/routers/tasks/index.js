@@ -1,0 +1,60 @@
+const express = require("express");
+const db = require("../../utils/mysql");
+const { camelCaseKeys, handleQueryDb } = require("../../utils");
+
+const router = express.Router();
+//================================  获取所有任务信息  ===========================
+router.get("/query", (req, res) => {
+  const sqlStr = "select * from task_info";
+  db.query(sqlStr, (err, rows) => {
+    if (err) {
+      res.send({
+        code: 0,
+        msg: err.message,
+        data: null,
+      });
+      return console.log(err.message);
+    }
+    // 查询数据成功
+    rows = rows.map((item) => camelCaseKeys(item));
+    res.send({
+      code: 1,
+      msg: "任务信息查询成功！",
+      data: rows,
+    });
+  });
+});
+/**
+ * 创建任务接口
+ */
+router.post("/create", (req, res) => {
+  let params = req.body;
+  // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
+  const sqlStr = "insert into task_info (task_id,task, status) values (?, ?,?)";
+  // 执行 SQL 语句，使用数组的形式，依次为 ? 占位符指定具体的值
+  handleQueryDb(
+    sqlStr,
+    [params.taskId, params.task, params.status],
+    res,
+    "任务创建成功~"
+  );
+});
+/**
+ * 更新任务信息接口
+ */
+router.post("/edit", (req, res) => {
+  let params = req.body;
+  const sqlStr = "update task_info set task=? where task_id=?";
+  handleQueryDb(sqlStr, [params.task, params.taskId], res, "任务信息更新成功~");
+});
+/**
+ * 删除任务接口
+ */
+router.post("/delete", (req, res) => {
+  let params = req.body;
+  const sqlStr = "delete from task_info where task_id=?";
+  handleQueryDb(sqlStr, params.userId, res, "任务信息删除成功~");
+});
+
+// 5. 导出路由模块
+module.exports = router;

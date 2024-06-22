@@ -4,9 +4,10 @@ const path = require("path");
 const fs = require("node:fs");
 const _ = require("lodash");
 const { sendMailFn } = require("../../utils");
-const router = express.Router();
-const mailYamlPath = path.join(__dirname, "../../utils/mail/setting.yaml");
 const { mailInfoFn } = require("../../utils/config");
+const router = express.Router();
+
+const mailYamlPath = path.join(__dirname, "../../utils/mail/setting.yaml");
 
 // 邮件发送接口
 router.post("/send", (req, res) => {

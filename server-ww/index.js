@@ -10,7 +10,8 @@ const { jwtConfig } = require("./utils/config");
 // const scoreRouter = require("./routers/score.js");
 const userRouter = require("./routers/users/index.js");
 // const editorRouter = require("./routers/editor.js");
-
+const reminderRouter = require("./routers/reminderTasks/index.js");
+const tasksRouter = require("./routers/tasks/index.js");
 const fileRouter = require("./routers/file.js");
 const mailRouter = require("./routers/mails/index.js");
 const linkRouter = require("./routers/link.js");
@@ -59,6 +60,8 @@ app.use(
 app.use("/userInfo", userRouter);
 // app.use("/scoreInfo", scoreRouter);
 // app.use("/editor", editorRouter);
+app.use("/reminder", reminderRouter);
+app.use("/task", tasksRouter);
 app.use("/file", fileRouter);
 app.use("/mail", mailRouter);
 app.use("/login", loginRouter);

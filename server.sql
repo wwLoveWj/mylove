@@ -53,3 +53,13 @@ CREATE TABLE `link_info` (
     avatar VARCHAR(512) COMMENT "网页头像",
     description VARCHAR(255) COMMENT "网站描述"
 ) COMMENT '创建网页卡片表';
+
+CREATE TABLE `task_info` (
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Create Time',
+    complete_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '完成时间',
+    task_id VARCHAR(255) COMMENT "任务唯一ID",
+    task VARCHAR(512) COMMENT "任务",
+    status VARCHAR(512) COMMENT "任务状态",
+    reminder_time VARCHAR(255) COMMENT "提醒时间"
+) COMMENT '任务信息';
