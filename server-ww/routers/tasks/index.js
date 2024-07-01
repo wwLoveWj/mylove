@@ -53,7 +53,7 @@ router.post("/edit", (req, res) => {
 router.post("/delete", (req, res) => {
   let params = req.body;
   const sqlStr = "delete from task_info where task_id=?";
-  handleQueryDb(sqlStr, params.userId, res, "任务信息删除成功~");
+  handleQueryDb(sqlStr, params.taskId, res, "任务信息删除成功~");
 });
 
 // 5. 导出路由模块

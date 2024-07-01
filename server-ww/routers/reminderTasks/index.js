@@ -1,13 +1,12 @@
 const express = require("express");
 const schedule = require("node-schedule");
-const notifier = require("node-notifier"); //在 Node.js 中发送跨平台通知的工具
-const dayjs = require("dayjs");
-const { sendMailFn, camelCaseKeys, handleQueryDb } = require("../../utils");
+const { sendMailFn, handleQueryDb } = require("../../utils");
 const { mailInfoFn } = require("../../utils/config");
 
 const router = express.Router();
 // 发送邮件函数
-async function sendMail(mail, html, res) {
+function sendMail(mail, html, res, taskId) {
+  let sqlStr = "UPDATE task_info SET status = 1 WHERE task_id = ?";
   const userInfo = mailInfoFn("blww885@163.com");
   let options = {
     from: userInfo.user, // sender address
@@ -15,28 +14,29 @@ async function sendMail(mail, html, res) {
     subject: "待办事项提醒",
     html,
   };
-  await sendMailFn(options, res, userInfo.user);
-  notifier.notify({
-    title: "待办通知",
-    message: "已向xxxx发送读书通知",
-    sound: "Submarine",
-    closeLabel: "CANCEL",
-    actions: "OK",
+  sendMailFn(options, res, userInfo.user, "待办提醒发送成功~", {
+    sqlStr,
+    taskId,
   });
 }
-
+// 任务提醒时间接口
 router.post("/task", (req, res) => {
+  let { reminderTime, taskId } = req.body;
+  // 更新提醒的时间
+  let sqlStr =
+    "UPDATE task_info SET reminder_time = ?, status = 0 WHERE task_id = ?";
+  handleQueryDb(sqlStr, [reminderTime, taskId], res, "任务提醒时间设置成功~", {
+    data: req.body,
+  });
+});
+// 创建定时提醒任务
+router.post("/time", (req, res) => {
   let { userEmail, reminderContent, reminderTime, taskId } = req.body;
-
   // 定时任务：在提醒时间发送提醒邮件
-  schedule.scheduleJob(reminderTime, async () => {
+  schedule.scheduleJob(reminderTime, () => {
     try {
-      await sendMail(userEmail, reminderContent, res);
       // 更新提醒的状态为已提醒
-      let completeTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
-      let sqlStr =
-        "UPDATE task_info SET status = 1, complete_time = ? WHERE task_id = ?";
-      handleQueryDb(sqlStr, [completeTime, taskId], res, "✅任务提醒发送成功~");
+      sendMail(userEmail, reminderContent, res, taskId);
     } catch (error) {
       console.error("Send reminder email error:", error);
     }

@@ -1,5 +1,6 @@
 const { getTransporter } = require("./config");
 const db = require("./mysql");
+const notifier = require("node-notifier"); //在 Node.js 中发送跨平台通知的工具
 
 /**
  * 处理数据库中短横线转换小驼峰命名
@@ -191,7 +192,7 @@ function failMsg(msg, res) {
  * @param res 接口响应配置
  * @param msg 接口响应成功的提示语
  */
-function sendMailFn(options, res, current, msg = "邮件发送成功~") {
+function sendMailFn(options, res, current, msg = "邮件发送成功~", params) {
   const transporter = getTransporter(current);
   transporter.sendMail(options, (error, info) => {
     if (error) {
@@ -202,27 +203,44 @@ function sendMailFn(options, res, current, msg = "邮件发送成功~") {
     }
     console.log("邮件发送成功~", info.response);
     if (res) {
-      successTip(msg, res);
+      notifier.notify({
+        title: "邮件通知",
+        message: msg,
+        sound: "Submarine",
+        closeLabel: "CANCEL",
+        actions: "OK",
+      });
+      if (params) {
+        handleQueryDb(
+          params.sqlStr,
+          [params.taskId],
+          res,
+          "✅任务提醒发送成功~"
+        );
+      }
     }
   });
 }
-const handleResposeFn = (err, results, res, msg) => {
+const handleResposeFn = (err, results, res, msg, data) => {
   if (err) {
-    res.send({
-      code: 0,
-      msg: err.message,
-      data: null,
-    });
+    if (res) {
+      res.send({
+        code: 0,
+        msg: err.message,
+        data: null,
+      });
+    }
     return console.log(err.message);
   }
   if (results.affectedRows === 1) {
     // 注意：执行了 update 语句之后，执行的结果，也是一个对象，可以通过 affectedRows 判断是否更新成功
-    console.log(msg);
-    res.send({
-      code: 1,
-      msg,
-      data: null,
-    });
+    if (res) {
+      res.send({
+        code: 1,
+        msg,
+        data,
+      });
+    }
   }
 };
 /**
@@ -232,9 +250,9 @@ const handleResposeFn = (err, results, res, msg) => {
  * @param {*} res 响应结果数据
  * @param {*} msg 响应成功的提示
  */
-const handleQueryDb = (sql, param, res, msg) => {
+const handleQueryDb = (sql, param, res, msg, data = null) => {
   db.query(sql, param, (err, results) =>
-    handleResposeFn(err, results, res, msg)
+    handleResposeFn(err, results, res, msg, data)
   );
 };
 
