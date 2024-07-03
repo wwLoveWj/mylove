@@ -55,6 +55,32 @@ router.post("/delete", (req, res) => {
   const sqlStr = "delete from task_info where task_id=?";
   handleQueryDb(sqlStr, params.taskId, res, "任务信息删除成功~");
 });
-
+// 批量删除
+router.post("/batch/delete", (req, res) => {
+  let params = req.body;
+  const sqlStr = `delete from task_info where task_id in ("${params.taskIdList.join('","')}")`;
+  db.query(sqlStr, (err, results) => {
+    if (err) {
+      if (res) {
+        res.send({
+          code: 0,
+          msg: err.message,
+          data: null,
+        });
+      }
+      return console.log(err.message);
+    }
+    if (results.affectedRows > 0) {
+      // 注意：执行了 update 语句之后，执行的结果，也是一个对象，可以通过 affectedRows 判断是否更新成功
+      if (res) {
+        res.send({
+          code: 1,
+          msg: "任务信息批量删除成功~",
+          data: null,
+        });
+      }
+    }
+  });
+});
 // 5. 导出路由模块
 module.exports = router;
