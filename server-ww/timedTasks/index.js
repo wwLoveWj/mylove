@@ -14,6 +14,15 @@ schedule.scheduleJob("*/20 * * * * *", () => {
   })
     .then((res) => {
       console.log(res.data);
+      if (res.data?.err_no === 0) {
+        notifier.notify({
+          title: "掘金签到通知",
+          message: "恭喜你签到成功~",
+          sound: "Submarine",
+          closeLabel: "CANCEL",
+          actions: "OK",
+        });
+      }
       if (res.data?.err_no === 15001) {
         notifier.notify({
           title: "掘金签到通知",
