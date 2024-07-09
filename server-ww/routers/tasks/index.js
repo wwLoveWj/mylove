@@ -5,8 +5,10 @@ const { camelCaseKeys, handleQueryDb } = require("../../utils");
 const router = express.Router();
 //================================  获取所有任务信息  ===========================
 router.get("/query", (req, res) => {
-  const sqlStr = "select * from task_info";
-  db.query(sqlStr, (err, rows) => {
+  let params = req.query;
+  // const sqlStr = `select * from task_info where task like '%${params.taskName || ""}%' and status=?`;
+  const sql = `select * from task_info where task like '%${params.taskName || ""}%'`;
+  db.query(sql, params.taskStatus, (err, rows) => {
     if (err) {
       res.send({
         code: 0,
@@ -58,6 +60,17 @@ router.post("/delete", (req, res) => {
 // 批量删除
 router.post("/batch/delete", (req, res) => {
   let params = req.body;
+  // params.taskIdList = ["select  task_id from (select task_id from task_info"];
+  // if (`"${params.taskIdList.join('","')}"`.includes("task_info")) {
+  //   res.send({
+  //     code: 0,
+  //     msg: "存在sql注入漏洞，请及时修复~",
+  //     data: null,
+  //   });
+  //   return;
+  // }
+  // sql注入语句
+  // const sqlStr = `delete from task_info where task_id in (select  task_id from (select task_id from task_info) as temp_table)`;
   const sqlStr = `delete from task_info where task_id in ("${params.taskIdList.join('","')}")`;
   db.query(sqlStr, (err, results) => {
     if (err) {

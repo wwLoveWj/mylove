@@ -9,7 +9,7 @@ const { jwtConfig } = require("./utils/config");
 // 将所有的路由接口按不同文件分类，自定义router模块
 // const scoreRouter = require("./routers/score.js");
 const userRouter = require("./routers/users/index.js");
-// const editorRouter = require("./routers/editor.js");
+const articleRouter = require("./routers/article");
 const reminderRouter = require("./routers/reminderTasks/index.js");
 const tasksRouter = require("./routers/tasks/index.js");
 const fileRouter = require("./routers/file.js");
@@ -59,7 +59,7 @@ app.use(
 // 对路由进行分区划分
 app.use("/userInfo", userRouter);
 // app.use("/scoreInfo", scoreRouter);
-// app.use("/editor", editorRouter);
+app.use("/article", articleRouter);
 app.use("/reminder", reminderRouter);
 app.use("/task", tasksRouter);
 app.use("/file", fileRouter);

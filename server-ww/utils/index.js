@@ -203,25 +203,31 @@ function sendMailFn(options, res, current, msg = "邮件发送成功~", params) 
     }
     console.log("邮件发送成功~", info.response);
     if (res) {
-      notifier.notify({
-        title: "邮件通知",
-        message: msg,
-        sound: "Submarine",
-        closeLabel: "CANCEL",
-        actions: "OK",
-      });
       if (params) {
-        handleQueryDb(
-          params.sqlStr,
-          [params.taskId],
-          res,
-          "✅任务提醒发送成功~"
-        );
+        notifier.notify({
+          title: "邮件通知",
+          message: msg,
+          sound: "Submarine",
+          closeLabel: "CANCEL",
+          actions: "OK",
+        });
+        // handleQueryDb(
+        //   params.sqlStr,
+        //   [params.taskId],
+        //   res,
+        //   "✅任务提醒发送成功~"
+        // );
+      } else {
+        res.send({
+          code: 1,
+          msg: "邮件发送成功~",
+          data: null,
+        });
       }
     }
   });
 }
-const handleResposeFn = (err, results, res, msg, data) => {
+const handleResposeFn = (err, results, res, msg, data, callback) => {
   if (err) {
     if (res) {
       res.send({
@@ -233,6 +239,7 @@ const handleResposeFn = (err, results, res, msg, data) => {
     return console.log(err.message);
   }
   if (results.affectedRows === 1) {
+    console.log(msg, "%c 成功的信息");
     // 注意：执行了 update 语句之后，执行的结果，也是一个对象，可以通过 affectedRows 判断是否更新成功
     if (res) {
       res.send({
@@ -240,8 +247,10 @@ const handleResposeFn = (err, results, res, msg, data) => {
         msg,
         data,
       });
+      callback && callback();
     }
   }
+  return;
 };
 /**
  * 查询数据库的方法
@@ -249,10 +258,12 @@ const handleResposeFn = (err, results, res, msg, data) => {
  * @param {*} param 查询语句参数
  * @param {*} res 响应结果数据
  * @param {*} msg 响应成功的提示
+ * @param {*} data 响应成功后返回的数据
+ * @param {*} callback 响应成功后需要的操作
  */
-const handleQueryDb = (sql, param, res, msg, data = null) => {
+const handleQueryDb = (sql, param, res, msg, data = null, callback) => {
   db.query(sql, param, (err, results) =>
-    handleResposeFn(err, results, res, msg, data)
+    handleResposeFn(err, results, res, msg, data, callback)
   );
 };
 

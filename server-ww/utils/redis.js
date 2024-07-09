@@ -14,3 +14,24 @@ client.on("connect", () => {
 client.connect();
 
 module.exports = client;
+
+// // 存储文章
+// const storeArticle = (articleId, articleData) => {
+//   client.hmset(`article:${articleId}`, articleData, (err, reply) => {
+//     if (err) throw err;
+//     console.log(reply); // 输出: 'OK'
+//   });
+// };
+
+// // 检索文章
+// const fetchArticle = (articleId, callback) => {
+//   client.hgetall(`article:${articleId}`, (err, reply) => {
+//     if (err) throw err;
+//     callback(reply);
+//   });
+// };
+
+// // 销毁文章
+// function deleteArticle(articleId) {
+//   client.del(`article:${articleId}`);
+// }
