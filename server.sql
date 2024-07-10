@@ -63,3 +63,33 @@ CREATE TABLE `task_info` (
     status VARCHAR(512) COMMENT "任务状态",
     reminder_time VARCHAR(255) COMMENT "提醒时间"
 ) COMMENT '任务信息';
+
+DROP TABLE IF EXISTS `menus`;
+-- 插入用户菜单表
+CREATE TABLE `menus` (
+    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '唯一id',
+    `pid` int(11) NOT NULL COMMENT '上级父节点的id，即为parentId（注意，children字段是不用存储，children字段是递归时，添加进去的）',
+    `pids` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '上级节点的id数组转的字符串',
+    `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '树节点的名字',
+    `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '即为菜单的path',
+    `cUrl` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '当访问url时，前端路由需要读取并渲染的.vue文件的路径，一般是相对于views里的',
+    `type` int(255) NULL DEFAULT NULL COMMENT 'type为1是菜单，为2是按钮',
+    `icon` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '菜单的图标名',
+    `sort` int(255) NULL DEFAULT NULL COMMENT '菜单的上下排序',
+    `status` int(255) NULL DEFAULT NULL COMMENT '是否开启字段，1是开启，2是关闭',
+    `isHidden` int(255) NULL DEFAULT NULL COMMENT '是否隐藏菜单，1是显示，2是隐藏',
+    `isCache` int(255) NULL DEFAULT NULL COMMENT '是否缓存，1是缓存，2是不缓存',
+    `remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+    `isDel` int(255) NULL DEFAULT 1 COMMENT '删除标识，1代表未删除可用，2代表已删除不可用',
+    PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 105 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Compact;
+
+DROP TABLE IF EXISTS `roles`;
+-- 用户角色信息表
+CREATE TABLE `roles` (
+    `roleId` int(255) NOT NULL AUTO_INCREMENT COMMENT '每一个角色的id',
+    `roleName` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '每一个角色的name名字',
+    `roleRemark` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '角色的备注',
+    `menuIds` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '当前的这个角色能看到（勾选）的菜单的id（给角色赋予菜单）',
+    PRIMARY KEY (`roleId`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Compact;
