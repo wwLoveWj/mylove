@@ -93,3 +93,10 @@ CREATE TABLE `roles` (
     `menuIds` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL COMMENT '当前的这个角色能看到（勾选）的菜单的id（给角色赋予菜单）',
     PRIMARY KEY (`roleId`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 32 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Compact;
+
+CREATE TABLE `users_role` (
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
+    create_time DATETIME COMMENT 'Create Time',
+    role_id VARCHAR(255) COMMENT "角色列表的唯一标识",
+    user_id VARCHAR(255) COMMENT "用户列表的唯一标识"
+) COMMENT '角色表和用户表的映射关系';
