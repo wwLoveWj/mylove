@@ -4,6 +4,29 @@ const { camelCaseKeys, handleQueryDb } = require("../../utils");
 
 const router = express.Router();
 
+// 通过userId查到roleId，通过roleId查到menusId
+router.get("/menuIdsByroleIdByUserId", (req, res) => {
+  // 1. 接收前端传的参数
+  let userId = req.query.userId;
+  console.log("菜单对应ids权限查询参数", userId);
+  // 2. 拼接sql语句准备去数据库查询
+  let sqlStr = `SELECT roles.menuIds
+  FROM roles
+  JOIN users_role ON roles.role_id = users_role.role_id
+  WHERE users_role.user_id =?`;
+  db.query(sqlStr, userId, (err, rows) => {
+    // 查询数据失败
+    if (err) return console.log(err.message);
+    // 查询数据成功
+    rows = rows.map((item) => camelCaseKeys(item));
+    console.log("菜单对应ids权限值查询成功~", rows);
+    res.send({
+      code: 1,
+      msg: "success",
+      data: rows,
+    });
+  });
+});
 // 根据角色id查询能看到的菜单有哪些（前提是这些菜单是启用状态的）
 router.get("/roleMenuByMenuId", (req, res) => {
   // 1. 接收前端传的参数
@@ -47,6 +70,28 @@ router.get("/roleList", (req, res) => {
     });
   });
 });
+
+// 用户权限列表接口
+router.get("/usersAuthList", (req, res) => {
+  const sqlStr = "select * from users_role";
+  db.query(sqlStr, (err, rows) => {
+    // 查询数据失败
+    if (err) {
+      res.send({
+        code: 0,
+        msg: err.message,
+        data: null,
+      });
+      return console.log(err.message);
+    }
+    rows = rows.map((item) => camelCaseKeys(item));
+    res.send({
+      code: 1,
+      msg: "权限信息查询成功~",
+      data: rows,
+    });
+  });
+});
 /**
  * 用户授权接口
  */
@@ -74,25 +119,5 @@ router.post("/revokeAuthorization", (req, res) => {
   const sqlStr = "delete from users_role where id=?";
   handleQueryDb(sqlStr, params.id, res, "解除用户授权成功~");
 });
-// 用户权限列表接口
-router.get("/usersAuthList", (req, res) => {
-  const sqlStr = "select * from users_role";
-  db.query(sqlStr, (err, rows) => {
-    // 查询数据失败
-    if (err) {
-      res.send({
-        code: 0,
-        msg: err.message,
-        data: null,
-      });
-      return console.log(err.message);
-    }
-    rows = rows.map((item) => camelCaseKeys(item));
-    res.send({
-      code: 1,
-      msg: "权限信息查询成功~",
-      data: rows,
-    });
-  });
-});
+
 module.exports = router;

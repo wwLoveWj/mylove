@@ -203,27 +203,27 @@ function sendMailFn(options, res, current, msg = "邮件发送成功~", params) 
     }
     console.log("邮件发送成功~", info.response);
     if (res) {
-      if (params) {
-        notifier.notify({
-          title: "邮件通知",
-          message: msg,
-          sound: "Submarine",
-          closeLabel: "CANCEL",
-          actions: "OK",
-        });
-        // handleQueryDb(
-        //   params.sqlStr,
-        //   [params.taskId],
-        //   res,
-        //   "✅任务提醒发送成功~"
-        // );
-      } else {
-        res.send({
-          code: 1,
-          msg: "邮件发送成功~",
-          data: null,
-        });
-      }
+      // if (params) {
+      notifier.notify({
+        title: "邮件通知",
+        message: msg,
+        sound: "Submarine",
+        closeLabel: "CANCEL",
+        actions: "OK",
+      });
+      // handleQueryDb(
+      //   params.sqlStr,
+      //   [params.taskId],
+      //   res,
+      //   "✅任务提醒发送成功~"
+      // );
+      // } else {
+      //   res.send({
+      //     code: 1,
+      //     msg: "邮件发送成功~",
+      //     data: null,
+      //   });
+      // }
     }
   });
 }

@@ -5,6 +5,8 @@ const path = require("path");
 const expressJWT = require("express-jwt");
 // 导入全局配置文件（里面有token的密钥）
 const { jwtConfig } = require("./utils/config");
+const { camelCaseKeys } = require("./utils");
+const db = require("./utils/mysql");
 
 // 将所有的路由接口按不同文件分类，自定义router模块
 const scoreRouter = require("./routers/scores");
@@ -87,7 +89,24 @@ app.use((err, req, res, next) => {
     });
   }
 });
-
+// 获取讯飞星火大模型的签名url
+app.get("/api/getModelInfo", (req, res) => {
+  const sqlStr = "select * from api_info";
+  db.query(sqlStr, (err, rows) => {
+    if (err) return console.log(err.message);
+    rows = rows.map((item) => camelCaseKeys(item));
+    const { apiKey, apiSecret, appId } = rows[0];
+    res.send({
+      code: 1,
+      msg: "success",
+      data: {
+        APIKey: apiKey,
+        APISecret: apiSecret,
+        APPID: appId,
+      },
+    });
+  });
+});
 app.listen(3007, () => {
   console.log("服务开启在3007端口~");
 });

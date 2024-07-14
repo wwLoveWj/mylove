@@ -7,6 +7,7 @@ const client = require("../../utils/redis");
 const db = require("../../utils/mysql");
 // 导入全局配置文件（里面有token的密钥）
 const { jwtConfig } = require("../../utils/config");
+const { camelCaseKeys } = require("../../utils");
 
 const router = express.Router();
 /**
@@ -15,7 +16,7 @@ const router = express.Router();
  * @param password  用户密码
  */
 router.post("/register", (req, res) => {
-  const { username, password, verifyCode } = req.body;
+  const { username, password, verifyCode, email, userId } = req.body;
   if (!username || !password) {
     res.send({
       code: 0,
@@ -23,7 +24,7 @@ router.post("/register", (req, res) => {
     });
     return;
   }
-  client.get(username).then((code) => {
+  client.get(email).then((code) => {
     console.log(typeof code, verifyCode);
     if (!code) {
       res.send({
@@ -31,7 +32,6 @@ router.post("/register", (req, res) => {
         msg: "验证码已过期，请重新验证！",
       });
     }
-
     //从redis查询数据
     if (verifyCode === Number(code)) {
       if (username && password) {
@@ -45,15 +45,19 @@ router.post("/register", (req, res) => {
             // 调用 bcrypt.hashSync() 对密码加密
             // let pwd = bcrypt.hashSync(password, 10); // 参数2： 加密等级 填10即可
             const sqlStr =
-              "insert into login_info (username,password) values(?,?)";
-            db.query(sqlStr, [username, password], (err, results) => {
-              if (err) throw err;
-              if (results.affectedRows === 1) {
-                res.send({ code: 1, msg: "注册成功" });
-              } else {
-                res.send({ code: 0, msg: "注册失败" });
+              "insert into login_info (username,password,email,user_id) values(?,?,?,?)";
+            db.query(
+              sqlStr,
+              [username, password, email, userId],
+              (err, results) => {
+                if (err) throw err;
+                if (results.affectedRows === 1) {
+                  res.send({ code: 1, msg: "注册成功" });
+                } else {
+                  res.send({ code: 0, msg: "注册失败" });
+                }
               }
-            });
+            );
           }
         });
       }
@@ -73,23 +77,23 @@ router.post("/register", (req, res) => {
  * 登录接口
  */
 router.post("/index", (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
+  const { email, password } = req.body;
+  if (!email || !password) {
     res.send({
       code: 0,
-      msg: "用户名与密码为必传参数...",
+      msg: "邮箱与密码为必传参数...",
     });
     return;
   }
-  const sqlStr = "select * from login_info WHERE username=? And password=?";
-  db.query(sqlStr, [username, password], (err, result) => {
+  const sqlStr = "select * from login_info WHERE email=? And password=?";
+  db.query(sqlStr, [email, password], (err, result) => {
     if (err) throw err;
     if (result.length > 0) {
       // 生成token
       var token = jwt.sign(
         {
           identity: result[0].identity,
-          username: result[0].username,
+          email: result[0].email,
         },
         jwtConfig.jwtSecretKey,
         {
@@ -97,7 +101,9 @@ router.post("/index", (req, res) => {
         }
       );
       console.log("token返回成功！");
-      res.send({ code: 1, msg: "登录成功", data: { username, token } });
+      const rows = result.map((item) => camelCaseKeys(item));
+      const info = rows.find((item) => item.email === email);
+      res.send({ code: 1, msg: "登录成功", data: { ...info, token } });
       // 如果没有登录成功，则返回登录失败
     } else {
       //   let authorization = req.headers.authorization;
