@@ -47,6 +47,8 @@ router.get("/roleMenuByMenuId", (req, res) => {
     });
   });
 });
+
+// =====================================角色列表相关增删改查=================================
 // 查询角色列表所有信息
 router.get("/roleList", (req, res) => {
   const sqlStr = "select * from roles";
@@ -71,6 +73,35 @@ router.get("/roleList", (req, res) => {
   });
 });
 
+router.post("/create", (req, res) => {
+  let params = req.body;
+  const sqlStr =
+    "insert into roles (role_id,rolename,description) values (?,?,?)";
+  handleQueryDb(
+    sqlStr,
+    [params.roleId, params.rolename, params.description],
+    res,
+    "角色新增成功~"
+  );
+});
+
+router.post("/edit", (req, res) => {
+  let params = req.body;
+  const sqlStr = "update roles set rolename=? ,description=? where role_id=?";
+  handleQueryDb(
+    sqlStr,
+    [params.rolename, params.description, params.roleId],
+    res,
+    "角色信息更新成功~"
+  );
+});
+
+router.post("/delete", (req, res) => {
+  const { roleId } = req.body;
+  const sqlStr = "delete from roles where role_id=?";
+  handleQueryDb(sqlStr, roleId, res, "角色信息删除成功~");
+});
+// ======================================角色用户中间表相关查询===============================================
 // 用户权限列表接口
 router.get("/usersAuthList", (req, res) => {
   const sqlStr = "select * from users_role";
@@ -117,7 +148,22 @@ router.post("/userAuth", (req, res) => {
 router.post("/revokeAuthorization", (req, res) => {
   let params = req.body;
   const sqlStr = "delete from users_role where id=?";
-  handleQueryDb(sqlStr, params.id, res, "解除用户授权成功~");
+  const sql = "delete from login_info where user_id=?";
+  db.query(sqlStr, params.id, (err, results) => {
+    if (err) {
+      if (res) {
+        res.send({
+          code: 0,
+          msg: err.message,
+          data: null,
+        });
+      }
+      return console.log(err.message);
+    }
+    if (results.affectedRows === 1) {
+      handleQueryDb(sql, params.userId, res, "解除用户授权成功~");
+    }
+  });
 });
 
 module.exports = router;

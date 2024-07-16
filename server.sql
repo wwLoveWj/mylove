@@ -19,10 +19,14 @@ CREATE TABLE `editor_info` (
 ) COMMENT '编辑器信息表';
 
 CREATE TABLE `login_info` (
-    id int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
-    create_time DATETIME COMMENT 'Create Time',
-    username VARCHAR(255) COMMENT '用户姓名',
-    password VARCHAR(255) COMMENT '用户密码'
+    `id` int NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
+    `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Create Time',
+    `username` varchar(255) DEFAULT NULL COMMENT '用户姓名',
+    `password` varchar(255) DEFAULT NULL COMMENT '用户密码',
+    `user_id` varchar(255) NOT NULL COMMENT '用户唯一id',
+    `email` varchar(255) DEFAULT NULL COMMENT '用户邮箱',
+    `status` int DEFAULT '1' COMMENT '账户状态，1正常，0异常',
+    `update_time` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
 ) COMMENT '用户信息';
 
 CREATE TABLE `user_info` (

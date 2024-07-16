@@ -7,9 +7,86 @@ const client = require("../../utils/redis");
 const db = require("../../utils/mysql");
 // 导入全局配置文件（里面有token的密钥）
 const { jwtConfig } = require("../../utils/config");
-const { camelCaseKeys } = require("../../utils");
+const { camelCaseKeys, handleQueryDb } = require("../../utils");
 
 const router = express.Router();
+// ========================================系统用户的增删改查=======================================
+// 查询系统登录用户
+router.get("/tableList", (req, res) => {
+  const sqlStr =
+    "select username,email,user_id,create_time,status from login_info";
+  db.query(sqlStr, (err, rows) => {
+    // 查询数据失败
+    if (err) {
+      res.send({
+        code: 0,
+        msg: err.message,
+        data: null,
+      });
+      return console.log(err.message);
+    }
+    // 查询数据成功
+    rows = rows.map((item) => camelCaseKeys(item));
+    res.send({
+      code: 1,
+      msg: "系统登录用户列表查询成功~",
+      data: rows,
+    });
+  });
+});
+/**
+ * 创建系统登录用户接口
+ */
+router.post("/createSystemUsers", (req, res) => {
+  let params = req.body;
+  const sqlStr =
+    "insert into login_info (username,password,email,user_id) values(?,?,?,?)";
+  const sql =
+    "insert into users_role (username,rolename,description,role_id,user_id) values(?,?,?,?,?)";
+  db.query(
+    sqlStr,
+    [params.username, params.password, params.email, params.userId],
+    (err, results) => {
+      if (err) {
+        if (res) {
+          res.send({
+            code: 0,
+            msg: err.message,
+            data: null,
+          });
+        }
+        return console.log(err.message);
+      }
+      if (results.affectedRows === 1) {
+        console.log(params, "%c 成功的信息");
+        // 注意：执行了 update 语句之后，执行的结果，也是一个对象，可以通过 affectedRows 判断是否更新成功
+        handleQueryDb(
+          sql,
+          [
+            params.username,
+            params.rolename,
+            params.description,
+            params.roleId,
+            params.userId,
+          ],
+          res,
+          "登录用户创建成功~"
+        );
+      }
+    }
+  );
+});
+router.post("/chgPwd", (req, res) => {
+  let params = req.body;
+  const sqlStr = "update login_info set password=? where user_id=?";
+  handleQueryDb(
+    sqlStr,
+    [params.password, params.userId],
+    res,
+    "用户密码更新成功~"
+  );
+});
+// ========================================系统用户的登录注册=======================================
 /**
  * POST 用户注册
  * @param username  用户名
@@ -77,51 +154,70 @@ router.post("/register", (req, res) => {
  * 登录接口
  */
 router.post("/index", (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    res.send({
-      code: 0,
-      msg: "邮箱与密码为必传参数...",
-    });
-    return;
-  }
-  const sqlStr = "select * from login_info WHERE email=? And password=?";
-  db.query(sqlStr, [email, password], (err, result) => {
-    if (err) throw err;
-    if (result.length > 0) {
-      // 生成token
-      var token = jwt.sign(
-        {
-          identity: result[0].identity,
-          email: result[0].email,
-        },
-        jwtConfig.jwtSecretKey,
-        {
-          expiresIn: jwtConfig.expiresIn, //tonken 有效期
-        }
-      );
-      console.log("token返回成功！");
-      const rows = result.map((item) => camelCaseKeys(item));
-      const info = rows.find((item) => item.email === email);
-      res.send({ code: 1, msg: "登录成功", data: { ...info, token } });
-      // 如果没有登录成功，则返回登录失败
-    } else {
-      //   let authorization = req.headers.authorization;
-      //   // 判断token
-      //   if (!authorization) {
-      //     res.send({ code: 0, msg: "未登录" });
-      //   } else {
-      //     console.log(authorization, "authorization---------登陆校验");
-      //     let token = authorization.split(" ")[1]; // 获取token
-      //     console.log(token, "authorization---------过期了？");
-      //     jwt.verify(token, "secret", (err, decode) => {
-      //       if (err) {
-      //         res.send({ code: 0, msg: "登录过期，请重新登录！" });
-      //       }
-      //     });
-      //   }
-      res.send({ code: 0, msg: "用户名或密码错误！" });
+  const { email, password, username } = req.body;
+  if (!email) {
+    if (!username || !password) {
+      res.send({
+        code: 0,
+        msg: "用户名与密码为必传参数...",
+      });
+      return;
     }
-  });
+  }
+  if (!username) {
+    if (!email || !password) {
+      res.send({
+        code: 0,
+        msg: "邮箱与密码为必传参数...",
+      });
+      return;
+    }
+  }
+  const sqlStr = username
+    ? "select * from login_info WHERE username=? And password=?"
+    : "select * from login_info WHERE email=? And password=?";
+  db.query(
+    sqlStr,
+    username ? [username, password] : [email, password],
+    (err, result) => {
+      if (err) throw err;
+      if (result.length > 0) {
+        // 生成token
+        var token = jwt.sign(
+          {
+            identity: result[0].identity,
+            email: username ? result[0].username : result[0].email,
+          },
+          jwtConfig.jwtSecretKey,
+          {
+            expiresIn: jwtConfig.expiresIn, //tonken 有效期
+          }
+        );
+        console.log("token返回成功！");
+        const rows = result.map((item) => camelCaseKeys(item));
+        const info = rows.find(
+          (item) => item.email === email || item.username === username
+        );
+        res.send({ code: 1, msg: "登录成功", data: { ...info, token } });
+        // 如果没有登录成功，则返回登录失败
+      } else {
+        //   let authorization = req.headers.authorization;
+        //   // 判断token
+        //   if (!authorization) {
+        //     res.send({ code: 0, msg: "未登录" });
+        //   } else {
+        //     console.log(authorization, "authorization---------登陆校验");
+        //     let token = authorization.split(" ")[1]; // 获取token
+        //     console.log(token, "authorization---------过期了？");
+        //     jwt.verify(token, "secret", (err, decode) => {
+        //       if (err) {
+        //         res.send({ code: 0, msg: "登录过期，请重新登录！" });
+        //       }
+        //     });
+        //   }
+        res.send({ code: 0, msg: "用户名或密码错误！" });
+      }
+    }
+  );
 });
 module.exports = router;

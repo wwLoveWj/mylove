@@ -203,7 +203,6 @@ function sendMailFn(options, res, current, msg = "邮件发送成功~", params) 
     }
     console.log("邮件发送成功~", info.response);
     if (res) {
-      // if (params) {
       notifier.notify({
         title: "邮件通知",
         message: msg,
@@ -211,19 +210,14 @@ function sendMailFn(options, res, current, msg = "邮件发送成功~", params) 
         closeLabel: "CANCEL",
         actions: "OK",
       });
-      // handleQueryDb(
-      //   params.sqlStr,
-      //   [params.taskId],
-      //   res,
-      //   "✅任务提醒发送成功~"
-      // );
-      // } else {
-      //   res.send({
-      //     code: 1,
-      //     msg: "邮件发送成功~",
-      //     data: null,
-      //   });
-      // }
+      if (params && params?.reminderPattern !== "intervalTime") {
+        handleQueryDb(
+          params.sqlStr,
+          [params.taskId],
+          null,
+          "✅任务提醒发送成功~"
+        );
+      }
     }
   });
 }
@@ -250,7 +244,6 @@ const handleResposeFn = (err, results, res, msg, data, callback) => {
       callback && callback();
     }
   }
-  return;
 };
 /**
  * 查询数据库的方法
