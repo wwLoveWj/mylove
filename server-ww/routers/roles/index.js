@@ -47,7 +47,17 @@ router.get("/roleMenuByMenuId", (req, res) => {
     });
   });
 });
-
+// 分配角色权限接口
+router.post("/roleMenuAddMenuId", (req, res) => {
+  let params = req.body;
+  const sqlStr = "update roles set menuIds=? where role_id=?";
+  handleQueryDb(
+    sqlStr,
+    [params.menuIds, params.roleId],
+    res,
+    "角色权限变更成功~"
+  );
+});
 // =====================================角色列表相关增删改查=================================
 // 查询角色列表所有信息
 router.get("/roleList", (req, res) => {
