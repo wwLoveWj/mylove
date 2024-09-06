@@ -12,11 +12,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Start MySQL Service
-          run: |
-            sudo systemctl start mysql
-            sudo systemctl status mysql
-
       - name: Backup Database
         run: |
           mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' userInfo > database.sql
