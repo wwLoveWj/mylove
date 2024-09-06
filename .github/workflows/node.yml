@@ -1,32 +1,28 @@
-name: Deploy Database to GitHub
+name: Backup Local MySQL Database
 
 on:
   push:
     branches: [main] # 触发此工作流的分支
 
 jobs:
-  deploy:
+  backup:
     runs-on: ubuntu-latest
-    env:
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASS: ${{ secrets.DB_PASS }}
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Setup environment variables
+      - name: Backup Database
         run: |
-          echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
-          echo "DB_PASS=${{ secrets.DB_PASS }}" >> $GITHUB_ENV
+          mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' userInfo > database.sql
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
 
-      - name: Create database dump
+      - name: Add and Commit Changes
         run: |
-          ssh 192.168.206.1 "mysqldump -u ${{ env.DB_USER }} -p'${{ env.DB_PASS }}' userInfo > database.sql"
-
-      # - name: Commit and push changes
-      #   run: |
-      #     git config --local user.email "action@github.com"
-      #     git config --local user.name "GitHub Action"
-      #     git add .
-      #     git commit -m "Automatically backup database" || true
-      #     git push origin main
+          git config --local user.email "blww885@163.com"
+          git config --local user.name "wwLoveWj"
+          git add .
+          git commit -m "Automatically backup database" || true
+          git push origin main
