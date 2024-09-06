@@ -29,5 +29,5 @@ jobs:
           git config --local user.email "blww885@163.com"
           git config --local user.name "wwLoveWj"
           git add .
-          git commit -m "Automatically backup database222" || true
+          git commit -m "Automatically backup database999" || true
           git push origin main
