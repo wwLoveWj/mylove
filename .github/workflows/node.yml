@@ -16,7 +16,7 @@ jobs:
           run: |
             sudo systemctl start mysql
             sudo systemctl status mysql
-            
+
       - name: Backup Database
         run: |
           mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' userInfo > database.sql
@@ -29,5 +29,5 @@ jobs:
           git config --local user.email "blww885@163.com"
           git config --local user.name "wwLoveWj"
           git add .
-          git commit -m "Automatically backup database" || true
+          git commit -m "Automatically backup database222" || true
           git push origin main
