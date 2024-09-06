@@ -5,14 +5,19 @@ const path = require("path");
 const expressJWT = require("express-jwt");
 // 导入全局配置文件（里面有token的密钥）
 const { jwtConfig } = require("./utils/config");
+const { camelCaseKeys } = require("./utils");
+const db = require("./utils/mysql");
 
 // 将所有的路由接口按不同文件分类，自定义router模块
-// const scoreRouter = require("./routers/score.js");
-// const userRouter = require("./routers/user.js");
-// const editorRouter = require("./routers/editor.js");
-
-// const fileRouter = require("./routers/file.js");
+const scoreRouter = require("./routers/scores");
+const userRouter = require("./routers/users/index.js");
+const roleRouter = require("./routers/roles");
+const articleRouter = require("./routers/article");
+const reminderRouter = require("./routers/reminderTasks/index.js");
+const tasksRouter = require("./routers/tasks/index.js");
+const fileRouter = require("./routers/file.js");
 const mailRouter = require("./routers/mails/index.js");
+const linkRouter = require("./routers/link.js");
 const loginRouter = require("./routers/login/index.js");
 const registerRouter = require("./routers/login/register.js");
 
@@ -55,14 +60,17 @@ app.use(
 );
 
 // 对路由进行分区划分
-// app.use("/userInfo", userRouter);
-// app.use("/scoreInfo", scoreRouter);
-// app.use("/editor", editorRouter);
-// app.use("/file", fileRouter);
-
+app.use("/userInfo", userRouter);
+app.use("/auth", roleRouter);
+app.use("/scoreInfo", scoreRouter);
+app.use("/article", articleRouter);
+app.use("/reminder", reminderRouter);
+app.use("/task", tasksRouter);
+app.use("/file", fileRouter);
 app.use("/mail", mailRouter);
 app.use("/login", loginRouter);
 app.use("/code", registerRouter);
+app.use("/link", linkRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
@@ -81,7 +89,24 @@ app.use((err, req, res, next) => {
     });
   }
 });
-
+// 获取讯飞星火大模型的签名url
+app.get("/api/getModelInfo", (req, res) => {
+  const sqlStr = "select * from api_info";
+  db.query(sqlStr, (err, rows) => {
+    if (err) return console.log(err.message);
+    rows = rows.map((item) => camelCaseKeys(item));
+    const { apiKey, apiSecret, appId } = rows[0];
+    res.send({
+      code: 1,
+      msg: "success",
+      data: {
+        APIKey: apiKey,
+        APISecret: apiSecret,
+        APPID: appId,
+      },
+    });
+  });
+});
 app.listen(3007, () => {
   console.log("服务开启在3007端口~");
 });
