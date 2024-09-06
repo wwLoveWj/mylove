@@ -1,0 +1,31 @@
+name: MySQL Backup
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # 每天凌晨执行一次
+  workflow_dispatch: # 手动触发
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup environment
+        run: |
+          echo "DB_USER=root" >> $GITHUB_ENV
+          echo "DB_PASSWORD=yourpassword" >> $GITHUB_ENV
+          echo "DB_HOST=localhost" >> $GITHUB_ENV
+          echo "DB_NAME=yourdbname" >> $GITHUB_ENV
+
+      - name: Backup Database
+        run: |
+          mysqldump -u ${{ env.DB_USER }} -p${{ env.DB_PASSWORD }} -h ${{ env.DB_HOST }} ${{ env.DB_NAME }} > db-backup.sql
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: database-backup
+          path: db-backup.sql
