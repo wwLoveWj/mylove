@@ -5,7 +5,7 @@ on:
     branches: [main] # 触发此工作流的分支
 
 jobs:
-  backup:
+  build:
     runs-on: ubuntu-latest
     services:
           mariadb:
