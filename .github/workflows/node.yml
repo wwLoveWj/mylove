@@ -18,7 +18,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: 123456
           MYSQL_DATABASE: userInfo
-          MYSQL_USER: users
+          MYSQL_USER: root
           MYSQL_PASSWORD: 123456
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
@@ -55,7 +55,7 @@ jobs:
           DB_HOST: localhost
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           DB_NAME: userInfo
-          DB_USER: users
+          DB_USER: root
           DB_PASS: 123456
 
         # run: |
