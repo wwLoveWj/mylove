@@ -16,10 +16,10 @@ jobs:
         ports:
           - 3306
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
+          MYSQL_ROOT_PASSWORD: "${{ secrets.DB_PASS }}"
           MYSQL_DATABASE: userInfo
           MYSQL_USER: ${{ secrets.DB_USER }}
-          MYSQL_PASSWORD: ${{ secrets.DB_PASS }}
+          MYSQL_PASSWORD: "${{ secrets.DB_PASS }}"
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
