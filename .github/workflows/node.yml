@@ -18,7 +18,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: 123456
           MYSQL_DATABASE: userInfo
-          MYSQL_USER: root
+          MYSQL_USER: users
           MYSQL_PASSWORD: 123456
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
@@ -29,7 +29,7 @@ jobs:
       - name: Verify MariaDB connection
         run: |
           # 等待 MariaDB 准备就绪
-          while ! nc -z 127.0.0.1 3306; do
+          while ! nc -z localhost 3306; do
             sleep 1;
           done
           echo "MariaDB is ready - $(date)"
@@ -37,12 +37,25 @@ jobs:
       - name: Install MySQL client
         run: sudo apt-get update && sudo apt-get install -y mysql-client
 
+      - name: Create User
+        env:
+          DB_HOST: localhost
+          DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+          DB_ROOT_PASS: 123456
+        run: |
+          # 使用 root 用户创建新用户
+          mysql -h"$DB_HOST" -P"$DB_PORT" -uroot -p"$DB_ROOT_PASS" -e "
+          CREATE USER 'root'@'localhost' IDENTIFIED BY '123456';
+          GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+          FLUSH PRIVILEGES;
+          "
+
       - name: Test Database
         env:
           DB_HOST: 127.0.0.1
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           DB_NAME: userInfo
-          DB_USER: root
+          DB_USER: users
           DB_PASS: 123456
 
         # run: |
