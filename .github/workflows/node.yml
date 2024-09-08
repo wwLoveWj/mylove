@@ -14,7 +14,7 @@ jobs:
 
       - name: Backup Database
         run: |
-          mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' userInfo > database.sql
+          mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' --socket=/var/run/mysqld/mysqld.sock userInfo > database.sql
         env:
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
