@@ -16,7 +16,7 @@ jobs:
         ports:
           - 3306
         env:
-          # MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
           MYSQL_DATABASE: userInfo
           MYSQL_USER: ${{ secrets.DB_USER }}
           MYSQL_PASSWORD: ${{ secrets.DB_PASS }}
@@ -45,17 +45,17 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
 
-        run: |
-          mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' --socket=/run/mysql/mysql.sock userInfo > database.sql
         # run: |
-        #   # 创建一个表
-        #   mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
-        #   CREATE TABLE IF NOT EXISTS users (
-        #       id INT AUTO_INCREMENT,
-        #       name VARCHAR(100),
-        #       PRIMARY KEY (id)
-        #   );
-        #   EOF
+        #   mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' --socket=/run/mysql/mysql.sock userInfo > database.sql
+        run: |
+          # 创建一个表
+          mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
+          CREATE TABLE IF NOT EXISTS users (
+              id INT AUTO_INCREMENT,
+              name VARCHAR(100),
+              PRIMARY KEY (id)
+          );
+          EOF
 
         #   # 插入数据
         #   mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
