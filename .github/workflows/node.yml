@@ -23,7 +23,7 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
-      - name: Checkout code
+      - name: Checkout code123
         uses: actions/checkout@v2
 
       - name: Verify MariaDB connection
@@ -39,20 +39,20 @@ jobs:
 
       - name: Create User
         env:
-          DB_HOST: 0.0.0.0
+          DB_HOST: localhost
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           DB_ROOT_PASS: 123456
         run: |
           # 使用 root 用户创建新用户
           mysql -h"$DB_HOST" -P"$DB_PORT" -uroot -p"$DB_ROOT_PASS" -e "
-          CREATE USER 'root'@'0.0.0.0' IDENTIFIED BY '123456';
-          GRANT ALL PRIVILEGES ON *.* TO 'root'@'0.0.0.0';
+          CREATE USER 'root'@'localhost' IDENTIFIED BY '123456';
+          GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost';
           FLUSH PRIVILEGES;
           "
 
       - name: Test Database
         env:
-          DB_HOST: 0.0.0.0
+          DB_HOST: localhost
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           DB_NAME: userInfo
           DB_USER: root
