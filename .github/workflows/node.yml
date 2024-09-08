@@ -46,13 +46,13 @@ jobs:
           # 使用 root 用户创建新用户
           mysql -h"$DB_HOST" -P"$DB_PORT" -uroot -p"$DB_ROOT_PASS" -e "
           CREATE USER 'root'@'localhost' IDENTIFIED BY '123456';
-          GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+          GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost';
           FLUSH PRIVILEGES;
           "
 
       - name: Test Database
         env:
-          DB_HOST: 127.0.0.1
+          DB_HOST: localhost
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           DB_NAME: userInfo
           DB_USER: users
