@@ -44,20 +44,23 @@ jobs:
           DB_NAME: userInfo
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
-        run: |
-          # 创建一个表
-          mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
-          CREATE TABLE IF NOT EXISTS users (
-              id INT AUTO_INCREMENT,
-              name VARCHAR(100),
-              PRIMARY KEY (id)
-          );
-          EOF
 
-          # 插入数据
-          mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
-          INSERT INTO users (name) VALUES ('Alice'), ('Bob');
-          EOF
+          run: |
+            mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' userInfo > database.sql
+        # run: |
+        #   # 创建一个表
+        #   mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
+        #   CREATE TABLE IF NOT EXISTS users (
+        #       id INT AUTO_INCREMENT,
+        #       name VARCHAR(100),
+        #       PRIMARY KEY (id)
+        #   );
+        #   EOF
 
-          # 查询数据
-          mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SELECT * FROM users;"
+        #   # 插入数据
+        #   mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
+        #   INSERT INTO users (name) VALUES ('Alice'), ('Bob');
+        #   EOF
+
+        #   # 查询数据
+        #   mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SELECT * FROM users;"
