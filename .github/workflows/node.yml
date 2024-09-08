@@ -7,17 +7,17 @@ on:
 jobs:
   backup:
     runs-on: ubuntu-latest
- services:
-      mariadb:
-        image: mariadb:latest
-        ports:
-          - 3306
-        env:
-          MYSQL_USER: ${{ secrets.DB_USER }}
-          MYSQL_PASSWORD: ${{ secrets.DB_PASS }}
-          MYSQL_DATABASE: userInfo
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+    services:
+          mariadb:
+            image: mariadb:latest
+            ports:
+              - 3306
+            env:
+              MYSQL_USER: ${{ secrets.DB_USER }}
+              MYSQL_PASSWORD: ${{ secrets.DB_PASS }}
+              MYSQL_DATABASE: userInfo
+              MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
+            options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
       - name: Checkout Repository
