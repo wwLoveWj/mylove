@@ -1,30 +1,35 @@
-name: MySQL Workflow
+name: Tests
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
+        env:
+          MYSQL_USER: root
+          MYSQL_PASSWORD: 123456
+          MYSQL_DATABASE: userInfo
+          MYSQL_ROOT_PASSWORD: 123456
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
-      - name: Set up MySQL
-        uses: mysql/setup-mysql@v2
-        with:
-          mysql-version: "5.7"
-          mysql-port: 3306
-          mysql-root-password: 123456
+      - uses: actions/checkout@v1
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Verify MariaDB connection
+        env:
+          PORT: ${{ job.services.mariadb.ports[3306] }}
+        run: |
+          while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
+            sleep 1
+          done
 
-      - name: Run tests
+      - name: Test
         run: |
           # 运行测试的命令
           mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' userInfo > database.sql
