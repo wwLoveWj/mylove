@@ -1,52 +1,63 @@
-name: Backup Local MySQL Database
+name: CI Workflow for MariaDB Testing
 
 on:
   push:
-    branches: [main] # 触发此工作流的分支
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  backup:
+  build:
     runs-on: ubuntu-latest
 
-    mariadb:
-      image: mariadb:latest
-      ports:
-        - 3306
-      env:
-        MYSQL_USER: ${{ secrets.DB_USER }}
-        MYSQL_PASSWORD: ${{ secrets.DB_PASS }}
-        MYSQL_DATABASE: userInfo
-        MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
-      options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+    services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
+          MYSQL_DATABASE: userInfo
+          MYSQL_USER: ${{ secrets.DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASS }}
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Verify MariaDB connection
-      env:
-        PORT: ${{ job.services.mariadb.ports[3306] }}
-      run: |
-        while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
-          sleep 1
-        done
-
-    # - name: Test
-    #   run: |
-    #     your tests
-
-
-      - name: Backup Database
+      - name: Verify MariaDB connection
         run: |
-          mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' --socket=/var/run/mysqld/mysqld.sock userInfo > database.sql
+          # 等待 MariaDB 准备就绪
+          while ! nc -z localhost 3306; do
+            sleep 1;
+          done
+          echo "MariaDB is ready - $(date)"
+
+      - name: Install MySQL client
+        run: sudo apt-get update && sudo apt-get install -y mysql-client
+
+      - name: Test Database
         env:
+          DB_HOST: localhost
+          DB_PORT: ${{ job.services.mariadb.ports[3306] }}
+          DB_NAME: userInfo
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
-
-      - name: Add and Commit Changes
         run: |
-          git config --local user.email "blww885@163.com"
-          git config --local user.name "wwLoveWj"
-          git add .
-          git commit -m "Automatically backup database999" || true
-          git push origin main
+          # 创建一个表
+          mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
+          CREATE TABLE IF NOT EXISTS users (
+              id INT AUTO_INCREMENT,
+              name VARCHAR(100),
+              PRIMARY KEY (id)
+          );
+          EOF
+
+          # 插入数据
+          mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
+          INSERT INTO users (name) VALUES ('Alice'), ('Bob');
+          EOF
+
+          # 查询数据
+          mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" -e "SELECT * FROM users;"
