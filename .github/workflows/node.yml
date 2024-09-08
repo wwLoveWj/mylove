@@ -16,10 +16,10 @@ jobs:
         ports:
           - 3306
         env:
-          MYSQL_ROOT_PASSWORD: "${{ secrets.DB_PASS }}"
+          MYSQL_ROOT_PASSWORD: 123456
           MYSQL_DATABASE: userInfo
-          MYSQL_USER: ${{ secrets.DB_USER }}
-          MYSQL_PASSWORD: "${{ secrets.DB_PASS }}"
+          MYSQL_USER: root
+          MYSQL_PASSWORD: 123456
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
@@ -42,8 +42,8 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           DB_NAME: userInfo
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASS: ${{ secrets.DB_PASS }}
+          DB_USER: root
+          DB_PASS: 123456
 
         # run: |
         #   mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' --socket=/run/mysql/mysql.sock userInfo > database.sql
