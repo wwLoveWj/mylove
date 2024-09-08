@@ -46,7 +46,7 @@ jobs:
           DB_PASS: ${{ secrets.DB_PASS }}
 
         run: |
-          mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' userInfo > database.sql
+          mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' --socket=/run/mysql/mysql.sock userInfo > database.sql
         # run: |
         #   # 创建一个表
         #   mysql -h"$DB_HOST" -P"$DB_PORT" -u"$DB_USER" -p"$DB_PASS" "$DB_NAME" <<EOF
