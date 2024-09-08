@@ -18,7 +18,7 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: 123456
           MYSQL_DATABASE: userInfo
-          MYSQL_USER: users
+          MYSQL_USER: root
           MYSQL_PASSWORD: 123456
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
@@ -39,23 +39,23 @@ jobs:
 
       - name: Create User
         env:
-          DB_HOST: localhost
+          DB_HOST: 0.0.0.0
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           DB_ROOT_PASS: 123456
         run: |
           # 使用 root 用户创建新用户
           mysql -h"$DB_HOST" -P"$DB_PORT" -uroot -p"$DB_ROOT_PASS" -e "
-          CREATE USER 'users'@'localhost' IDENTIFIED BY '123456';
-          GRANT ALL PRIVILEGES ON *.* TO 'users'@'localhost';
+          CREATE USER 'root'@'0.0.0.0' IDENTIFIED BY '123456';
+          GRANT ALL PRIVILEGES ON *.* TO 'root'@'0.0.0.0';
           FLUSH PRIVILEGES;
           "
 
       - name: Test Database
         env:
-          DB_HOST: localhost
+          DB_HOST: 0.0.0.0
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           DB_NAME: userInfo
-          DB_USER: users
+          DB_USER: root
           DB_PASS: 123456
 
         # run: |
