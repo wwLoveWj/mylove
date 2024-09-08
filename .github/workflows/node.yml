@@ -1,37 +1,30 @@
-name: test
+name: MySQL Workflow
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: windows-latest
 
     strategy:
       matrix:
-        node-version: ["16.x"]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
     steps:
-      - uses: actions/checkout@v1
-      - name: Shutdown Ubuntu MySQL (SUDO)
-        run: sudo service mysql stop
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Set up MySQL
+        uses: mysql/setup-mysql@v2
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Set up MySQL 5.7
-        uses: mirromutth/mysql-action@master
-        with:
-          mysql version: 5.7
-          mysql database: userInfo
-          mysql root password: ${{ secrets.DB_PASS }}
-      - name: npm install, build, and test
+          mysql-version: "5.7"
+          mysql-port: 3306
+          mysql-root-password: 123456
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run tests
         run: |
+          # 运行测试的命令
           mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' userInfo > database.sql
-        env:
-          CI: true
