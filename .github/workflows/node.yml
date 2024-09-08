@@ -16,9 +16,9 @@ jobs:
         ports:
           - 3306
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
+          # MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
           MYSQL_DATABASE: userInfo
-          MYSQL_USER: user
+          MYSQL_USER: ${{ secrets.DB_USER }}
           MYSQL_PASSWORD: ${{ secrets.DB_PASS }}
         options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
@@ -29,7 +29,7 @@ jobs:
       - name: Verify MariaDB connection
         run: |
           # 等待 MariaDB 准备就绪
-          while ! nc -z localhost 3306; do
+          while ! nc -z 127.0.0.1 3306; do
             sleep 1;
           done
           echo "MariaDB is ready - $(date)"
@@ -39,7 +39,7 @@ jobs:
 
       - name: Test Database
         env:
-          DB_HOST: localhost
+          DB_HOST: 127.0.0.1
           DB_PORT: ${{ job.services.mariadb.ports[3306] }}
           DB_NAME: userInfo
           DB_USER: ${{ secrets.DB_USER }}
