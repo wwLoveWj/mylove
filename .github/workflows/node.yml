@@ -31,5 +31,5 @@ jobs:
 
       - name: Test
         run: |
-          # 运行测试的命令
+          # 运行测试的命令234
           mysqldump -u ${{ secrets.DB_USER }} -p'${{ secrets.DB_PASS }}' userInfo > database.sql
