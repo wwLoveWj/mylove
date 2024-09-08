@@ -7,10 +7,34 @@ on:
 jobs:
   backup:
     runs-on: ubuntu-latest
+ services:
+      mariadb:
+        image: mariadb:latest
+        ports:
+          - 3306
+        env:
+          MYSQL_USER: ${{ secrets.DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASS }}
+          MYSQL_DATABASE: userInfo
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASS }}
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+    - name: Verify MariaDB connection
+      env:
+        PORT: ${{ job.services.mariadb.ports[3306] }}
+      run: |
+        while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
+          sleep 1
+        done
+
+    # - name: Test
+    #   run: |
+    #     your tests
+
 
       - name: Backup Database
         run: |
