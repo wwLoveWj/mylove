@@ -5,7 +5,7 @@ const client = require("../../utils/redis");
 const router = express.Router();
 
 // ==============================编辑器内容的读取和设置================================
-router.get("/tableList", (req, res) => {
+router.get("/query", (req, res) => {
   const sqlStr = "select * from editor_info";
   db.query(sqlStr, (err, rows) => {
     // 查询数据失败

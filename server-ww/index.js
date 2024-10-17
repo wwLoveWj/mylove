@@ -20,6 +20,7 @@ const mailRouter = require("./routers/mails/index.js");
 const linkRouter = require("./routers/link.js");
 const loginRouter = require("./routers/login/index.js");
 const registerRouter = require("./routers/login/register.js");
+const excelRouter = require("./routers/excel/index.js");
 
 const app = express();
 app.use(cors());
@@ -55,6 +56,15 @@ app.use(
         "/imgOCR",
         "/mail/send",
         "/code/send",
+        // "/article/query",
+        // "/task/query",
+        // "/task/create",
+        // "/excel/import",
+        // "/excel/export",
+        // {
+        //   url: /^\/excel\/.*/,
+        //   methods: ["GET", "POST"],
+        // },
       ],
     })
 );
@@ -71,6 +81,7 @@ app.use("/mail", mailRouter);
 app.use("/login", loginRouter);
 app.use("/code", registerRouter);
 app.use("/link", linkRouter);
+app.use("/excel", excelRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
