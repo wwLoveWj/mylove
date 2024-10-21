@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const WS_MODULE = require("ws");
+const client = require("./utils/redis"); //redis的配置模块
+const http = require("http");
 //token解析中间件 一定要在路由之前配置解析 Token 的中间件
 const expressJWT = require("express-jwt");
 // 导入全局配置文件（里面有token的密钥）
@@ -23,6 +26,11 @@ const registerRouter = require("./routers/login/register.js");
 const excelRouter = require("./routers/excel/index.js");
 
 const app = express();
+const port = 3007;
+// 创建websocket监听端口
+const server = http.createServer(app);
+wss = new WS_MODULE.Server({ server });
+
 app.use(cors());
 // 用于解析JSON类型的请求体
 app.use(express.json());
@@ -118,6 +126,40 @@ app.get("/api/getModelInfo", (req, res) => {
     });
   });
 });
-app.listen(3007, () => {
-  console.log("服务开启在3007端口~");
+
+// =====================文章实时编辑=======================
+// 将文章数据实时插入到redis中
+const realTimeSyncData = (data, ws) => {
+  // editorKey是redis保存的对应key
+  const { editorContent, editorKey, action } = data;
+  //存入redis
+  client.set(editorKey, editorContent).then((info) => {
+    console.log("成功存入redis-----", info);
+    ws.send(action === "A" ? "文章新增成功~" : "文章更新成功~");
+  });
+};
+wss.on("connection", function connection(ws) {
+  //   ws.on("pong", function () {
+  //     // 收到客户端响应，心跳检测成功
+  //     console.log("Pong received.");
+  //   });
+  ws.on("message", function incoming(data) {
+    if (data.toString() === "heartbeat") {
+      console.log(data.toString(), "心跳应答");
+      ws.send(data.toString());
+      return;
+    }
+    // 获取编辑器传递的所有数据信息
+    const allInfo = JSON.parse(data);
+    console.log(allInfo, "----------allInfo------------");
+    realTimeSyncData(allInfo, ws);
+  });
 });
+
+server.listen(port, () => {
+  console.log("服务器已开启，端口号：" + port);
+});
+
+// app.listen(3007, () => {
+//   console.log("服务开启在3007端口~");
+// });

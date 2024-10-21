@@ -2,11 +2,14 @@ const express = require("express");
 const db = require("../../utils/mysql");
 const Excel = require("exceljs");
 const multer = require("multer");
-const { camelCaseKeys, handleQueryDb } = require("../../utils");
+const { camelCaseKeys, handleQueryDb, guid } = require("../../utils");
 // const client = require("../../utils/redis");
 const router = express.Router();
 const path = require("path");
 const { storage, createFolder } = require("../../utils/files");
+
+// router.use(express.json()); // for parsing application/json
+// router.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 // ==============================excel的上传导出================================
 // excel上传接口
 /**
@@ -18,13 +21,53 @@ const { storage, createFolder } = require("../../utils/files");
 const uploadFolder = path.resolve(__dirname, "../upload/"); //文件按照日期分割创建文件夹
 createFolder(uploadFolder);
 const upload = multer({ storage: storage(uploadFolder) });
-// 导入技能
 
+// 待办事项查询列表
+router.get("/query", (req, res) => {
+  try {
+    // 接入分页参数
+    let pageNo = req.query.pageNo;
+    let pageSize = req.query.pageSize;
+    const startIndex = (pageNo - 1) * pageSize;
+    // 接入查询参数
+    const keyWords = req.query.keyWords || "";
+    const status = req.query.status || 1;
+    console.log(pageNo, pageSize, startIndex, keyWords);
+    // 查询待办事项所有的数据
+    const sqlStr = `select * from backlog_info WHERE (status=${status} AND backlog_name LIKE '%${keyWords}%') LIMIT ${startIndex}, ${pageSize}`;
+    const sql = `SELECT COUNT(*) AS total FROM backlog_info`;
+    db.query(sql, (err, results) => {
+      // 查询数据失败
+      if (err) return console.log(err.message);
+      // 计算总页数
+      const total = results[0].total;
+      db.query(sqlStr, (err, rows) => {
+        if (err) return console.log(err.message);
+        // 查询数据成功
+        rows = rows.map((item) => camelCaseKeys(item));
+        console.log("待办事项列表查询成功", rows, total);
+        res.send({
+          code: 1,
+          msg: "success",
+          data: { total, list: rows },
+        });
+      });
+    });
+  } catch (error) {
+    res.json({ success: false, msg: error.message, code: 0 });
+  }
+});
+// 删除待办事项
+router.post("/delete", (req, res) => {
+  const { backlogId } = req.body;
+  const sqlStr = "delete from backlog_info where backlog_id=?";
+  handleQueryDb(sqlStr, backlogId, res, "待办事项删除成功~");
+});
 // 导入技能
 router.post("/import/:append", upload.single("file"), (req, res) => {
   const { append } = req.params;
   // 下一步
-  function next(params) {
+  function next() {
     const workbook = new Excel.Workbook();
     console.log(req.file, "filePath");
     const filePath = req.file.path;
@@ -42,14 +85,16 @@ router.post("/import/:append", upload.single("file"), (req, res) => {
         });
         // 处理sql语句
         let sql =
-          "INSERT INTO backlog_info ( backlogName,status,description,noticeTime,sourceBuy) VALUES ?";
+          "INSERT INTO backlog_info ( backlog_name,status,description,notice_time,source_buy,backlog_id) VALUES ?";
         const params = data.map((item) => [
           item[0],
           item[1],
           item[2],
           item[3],
           item[4],
+          guid(),
         ]);
+        console.log(params, "导入数据");
         db.query(sql, [params], (err, rows) => {
           // 查询数据失败
           if (err) {
@@ -88,7 +133,6 @@ router.post("/import/:append", upload.single("file"), (req, res) => {
     // 先清点所有数据
     let cleanSql = "TRUNCATE TABLE backlog_info;";
     db.query(cleanSql, () => {
-      console.log("jianlail");
       next();
     });
   } else {
@@ -99,7 +143,7 @@ router.post("/import/:append", upload.single("file"), (req, res) => {
 // TODO:原文链接：https://blog.csdn.net/snows_l/article/details/139998373
 // 导出技能
 router.post("/export", (req, res) => {
-  const { template } = req.body;
+  const { template, backlogIds } = req.body;
   const sqlStr = "SELECT * FROM backlog_info";
   db.query(sqlStr, async (err, rows) => {
     // 查询数据失败
@@ -111,8 +155,13 @@ router.post("/export", (req, res) => {
       });
       return console.log(err.message);
     }
+    const allTableData = rows.map((item) => camelCaseKeys(item));
     // 查询数据成功
-    const data = rows.map((item) => camelCaseKeys(item));
+    const data =
+      backlogIds && backlogIds?.length > 0
+        ? allTableData?.filter((item) => backlogIds?.includes(item?.backlogId))
+        : allTableData;
+    console.log(data, "导出的数据", backlogIds);
     const workbook = new Excel.Workbook();
     const worksheet = workbook.addWorksheet("待办事项");
 
@@ -169,7 +218,7 @@ router.post("/export", (req, res) => {
     // const bufferString = bufferObj.toString();
     res.send({
       code: 1,
-      msg: "success",
+      msg: "导出成功",
       data: buffer,
     });
   });
