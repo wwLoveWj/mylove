@@ -3,7 +3,7 @@ const axios = require("axios");
 const notifier = require("node-notifier");
 const config = require("./config.js");
 
-schedule.scheduleJob("*/20 * * * * *", () => {
+const job = schedule.scheduleJob("*/20 * * * * *", () => {
   axios({
     url: config.check_url,
     method: "post",
@@ -13,7 +13,6 @@ schedule.scheduleJob("*/20 * * * * *", () => {
     },
   })
     .then((res) => {
-      console.log(res.data);
       if (res.data?.err_no === 0) {
         notifier.notify({
           title: "掘金签到通知",
@@ -22,8 +21,10 @@ schedule.scheduleJob("*/20 * * * * *", () => {
           closeLabel: "CANCEL",
           actions: "OK",
         });
+        return;
       }
       if (res.data?.err_no === 15001) {
+        console.log(res.data);
         notifier.notify({
           title: "掘金签到通知",
           message: res.data?.err_msg,
@@ -31,6 +32,9 @@ schedule.scheduleJob("*/20 * * * * *", () => {
           closeLabel: "CANCEL",
           actions: "OK",
         });
+        // schedule.cancelJob();
+        job.cancel();
+        return;
       }
     })
     .catch((err) => {

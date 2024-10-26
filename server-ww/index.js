@@ -15,6 +15,7 @@ const db = require("./utils/mysql");
 const scoreRouter = require("./routers/scores");
 const userRouter = require("./routers/users/index.js");
 const roleRouter = require("./routers/roles");
+const menuRouter = require("./routers/menu/index.js");
 const articleRouter = require("./routers/article");
 const reminderRouter = require("./routers/reminderTasks/index.js");
 const tasksRouter = require("./routers/tasks/index.js");
@@ -24,6 +25,7 @@ const linkRouter = require("./routers/link.js");
 const loginRouter = require("./routers/login/index.js");
 const registerRouter = require("./routers/login/register.js");
 const excelRouter = require("./routers/excel/index.js");
+const scanCodeRouter = require("./routers/login/scanCode.js");
 
 const app = express();
 const port = 3007;
@@ -59,8 +61,13 @@ app.use(
           url: /^\/login\/.*/,
           methods: ["GET", "POST"],
         },
+        {
+          url: /^\/scan\/.*/,
+          methods: ["GET", "POST"],
+        },
         // "/login/index",
         // "/login/register",
+        "/scan",
         "/imgOCR",
         "/mail/send",
         "/code/send",
@@ -80,6 +87,7 @@ app.use(
 // 对路由进行分区划分
 app.use("/userInfo", userRouter);
 app.use("/auth", roleRouter);
+app.use("/menu", menuRouter);
 app.use("/scoreInfo", scoreRouter);
 app.use("/article", articleRouter);
 app.use("/reminder", reminderRouter);
@@ -87,6 +95,7 @@ app.use("/task", tasksRouter);
 app.use("/file", fileRouter);
 app.use("/mail", mailRouter);
 app.use("/login", loginRouter);
+app.use("/scan", scanCodeRouter);
 app.use("/code", registerRouter);
 app.use("/link", linkRouter);
 app.use("/excel", excelRouter);

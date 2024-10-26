@@ -4,6 +4,23 @@ const { camelCaseKeys, handleQueryDb } = require("../../utils");
 
 const router = express.Router();
 
+// ===================================菜单权限相关============================================
+// 获取到所有的菜单列表权限
+router.get("/queryMenuList", (req, res) => {
+  let sqlStr = `SELECT * FROM menus`;
+  db.query(sqlStr, (err, rows) => {
+    // 查询数据失败
+    if (err) return console.log(err.message);
+    // 查询数据成功
+    rows = rows.map((item) => camelCaseKeys(item));
+    console.log("菜单列表查询成功~");
+    res.send({
+      code: 1,
+      msg: "success",
+      data: rows,
+    });
+  });
+});
 // 通过userId查到roleId，通过roleId查到menusId
 router.get("/menuIdsByroleIdByUserId", (req, res) => {
   // 1. 接收前端传的参数

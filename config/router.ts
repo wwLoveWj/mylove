@@ -160,14 +160,14 @@ export const routes = [
         path: "/files",
         title: "router.files",
         icon: NotificationOutlined,
-        hidden: true,
+        // hidden: true,
         routes: [
           {
             key: "upload",
             path: "/files/upload",
             component: "./files/Upload",
             title: "router.files.upload",
-            hidden: true,
+            // hidden: true,
           },
         ],
       },
