@@ -85,13 +85,15 @@ router.post("/import/:append", upload.single("file"), (req, res) => {
         });
         // 处理sql语句
         let sql =
-          "INSERT INTO backlog_info ( backlog_name,status,description,notice_time,source_buy,backlog_id) VALUES ?";
+          "INSERT INTO backlog_info ( backlog_name,status,description,notice_time,source_buy,quantity_buy,expire_time,backlog_id) VALUES ?";
         const params = data.map((item) => [
           item[0],
           item[1],
           item[2],
           item[3],
           item[4],
+          item[5],
+          item[6],
           guid(),
         ]);
         console.log(params, "导入数据");

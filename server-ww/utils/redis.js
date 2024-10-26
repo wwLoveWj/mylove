@@ -35,3 +35,5 @@ module.exports = client;
 // function deleteArticle(articleId) {
 //   client.del(`article:${articleId}`);
 // }
+
+// TODO:每次启动完项目后需要cmd执行命令：redis-server
