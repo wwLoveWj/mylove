@@ -1,7 +1,7 @@
 const express = require("express");
 const db = require("../mysql");
 const camelCaseKeys = require("../utils");
-
+const client = require("./redisStore");
 const router = express.Router();
 // ==============================编辑器内容的读取和设置================================
 router.get("/getEditorTable", (req, res) => {
@@ -49,15 +49,14 @@ router.post("/getEditorHtml", (req, res) => {
 });
 router.post("/setEditorHtml", (req, res) => {
   // 向 users 表中，新增一条数据，其中 username 的值为 Spider-Man，password 的值为 pcc123
-  let editor = req.body;
-  // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
-  const sqlStr =
-    "insert into editor_info (editor_content,editor_id,title) values (?,?,?)";
-  // 执行 SQL 语句，使用数组的形式，依次为 ? 占位符指定具体的值
-  db.query(
-    sqlStr,
-    [editor.editorContent, editor.editorId, editor.title],
-    (err, results) => {
+  let { editorContent, editorId, title } = req.body;
+  client.get(editorContent).then((info) => {
+    console.log(editorContent, "editorContent---------", info);
+    // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
+    const sqlStr =
+      "insert into editor_info (editor_content,editor_id,title) values (?,?,?)";
+    // 执行 SQL 语句，使用数组的形式，依次为 ? 占位符指定具体的值
+    db.query(sqlStr, [info, editorId, title], (err, results) => {
       if (err) {
         res.send({
           code: 0,
@@ -74,8 +73,8 @@ router.post("/setEditorHtml", (req, res) => {
           data: null,
         });
       }
-    }
-  );
+    });
+  });
 });
 
 router.post("/delete", (req, res) => {

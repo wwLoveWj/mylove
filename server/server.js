@@ -35,7 +35,7 @@ async function sendMail(text, html) {
 // { hour: 15, minute: 31 }
 // "*/5 * * * * *"
 //每天下午5点21分发送
-schedule.scheduleJob("*/100 * * * * *", function () {
+schedule.scheduleJob({ hour: 15, minute: 31 }, function () {
   notifier.notify({
     title: "待办通知",
     message: "已向老婆发送读书通知",
