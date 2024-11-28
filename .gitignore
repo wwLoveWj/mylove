@@ -8,4 +8,4 @@
 /dist
 .swc
 **/upload/
-/yarn.error.log
+/yarn-error.log

@@ -25,7 +25,7 @@ const linkRouter = require("./routers/link.js");
 const loginRouter = require("./routers/login/index.js");
 const registerRouter = require("./routers/login/register.js");
 const excelRouter = require("./routers/excel/index.js");
-const scanCodeRouter = require("./routers/login/scanCode.js");
+// const scanCodeRouter = require("./routers/login/scanCode.js");
 
 const app = express();
 const port = 3007;
@@ -95,16 +95,17 @@ app.use("/task", tasksRouter);
 app.use("/file", fileRouter);
 app.use("/mail", mailRouter);
 app.use("/login", loginRouter);
-app.use("/scan", scanCodeRouter);
+// app.use("/scan", scanCodeRouter);
 app.use("/code", registerRouter);
 app.use("/link", linkRouter);
 app.use("/excel", excelRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
+  console.log(err.code, "----------------------------------", err);
   console.dir(err.code, "401", err);
   if (err.code === "credentials_required") {
-    res.status(403).send({
+    res.status(401).send({
       code: 0,
       data: null,
       msg: "身份认证失败！",
@@ -140,11 +141,11 @@ app.get("/api/getModelInfo", (req, res) => {
 // 将文章数据实时插入到redis中
 const realTimeSyncData = (data, ws) => {
   // editorKey是redis保存的对应key
-  const { editorContent, editorKey, action } = data;
+  const { editorContent, editorKey, isEditMode } = data;
   //存入redis
   client.set(editorKey, editorContent).then((info) => {
     console.log("成功存入redis-----", info);
-    ws.send(action === "A" ? "文章新增成功~" : "文章更新成功~");
+    ws.send(!isEditMode ? "文章新增成功~" : "文章更新成功~");
   });
 };
 wss.on("connection", function connection(ws) {

@@ -104,3 +104,15 @@ CREATE TABLE `users_role` (
     role_id VARCHAR(255) COMMENT "角色列表的唯一标识",
     user_id VARCHAR(255) COMMENT "用户列表的唯一标识"
 ) COMMENT '角色表和用户表的映射关系';
+
+CREATE TABLE `img_info` (
+    id int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
+    `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Create Time',
+    `original_name` VARCHAR(255) COMMENT '原始图片名',
+    filename VARCHAR(255) COMMENT '图片名',
+    `img_id` VARCHAR(255) COMMENT "唯一值",
+    `img_path` VARCHAR(255) COMMENT "图片路径",
+    `img_url` VARCHAR(255) COMMENT '图片URL',
+    `img_type` VARCHAR(10) COMMENT '图片类型',
+    descrption VARCHAR(255) COMMENT '备注'
+) COMMENT '图片信息';

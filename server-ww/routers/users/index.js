@@ -30,7 +30,7 @@ const searchUser = (res) => {
 /**
  * 查询用户信息数据
  */
-router.get("/", (req, res) => {
+router.get("/query", (req, res) => {
   try {
     searchUser(res);
   } catch (error) {

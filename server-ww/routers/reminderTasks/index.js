@@ -2,7 +2,6 @@ const express = require("express");
 const schedule = require("node-schedule");
 const { sendMailFn, handleQueryDb } = require("../../utils");
 const { mailInfoFn } = require("../../utils/config");
-
 const router = express.Router();
 // 发送邮件函数
 function sendMail(mail, html, res, params) {
@@ -46,8 +45,17 @@ router.post("/time", (req, res) => {
     taskId,
     reminderPattern,
     interval,
+    endTime,
+    startTime,
   } = req.body;
-  console.log(reminderTime, "任务发送时间", reminderPattern, interval);
+  console.log(
+    reminderTime,
+    "任务发送时间",
+    reminderPattern,
+    interval,
+    endTime,
+    startTime
+  );
   let rule;
   // //每个15、30、45秒执行
   // rule.second = [15, 30, 45];
@@ -62,21 +70,35 @@ router.post("/time", (req, res) => {
   if (reminderPattern === "intervalTime") {
     rule = new schedule.RecurrenceRule();
     // 每小时的第10分钟
-    rule[interval] = Number(reminderTime);
-    // }else if(reminderPattern ==="fixedTime"){
+    // rule[interval] = Number(reminderTime);
+    console.log(interval, "interval单位时间------------");
+    // =======================周一到周日------------------------
+    rule.dayOfWeek = [0, new schedule.Range(1, 6)];
+    rule.hour = Number(reminderTime);
+    rule.minute = 0;
+    //  =========================================================
+  } else if (reminderPattern === "fixedTime") {
+    rule = { start: startTime, end: endTime, rule: reminderTime };
   } else {
     rule = reminderTime;
   }
   console.log(rule, "rule------------");
   // 定时任务：在提醒时间发送提醒邮件
-  schedule.scheduleJob(rule, () => {
+  const job = schedule.scheduleJob(taskId, rule, (time) => {
     try {
       // 更新提醒的状态为已提醒
+      console.log("定时任务创建成功", time);
       sendMail(userEmail, reminderContent, res, { taskId, reminderPattern });
     } catch (error) {
       console.error("Send reminder email error:", error);
     }
   });
+  // job.cancel();
+  console.log(job?.name, "job---------唯一值--------", job);
+  // 存储任务的唯一值，用于取消任务
+  let sqlStr = "UPDATE task_info SET job_id = ?, status = 0 WHERE task_id = ?";
+  handleQueryDb(sqlStr, [job.name, taskId], null, "");
+
   // { hour: 15, minute: 31 }
   // "*/5 * * * * *"
   //每天下午5点21分发送
@@ -91,6 +113,46 @@ router.post("/time", (req, res) => {
   //         "</b>"
   //     );
   //   });
+});
+// 删除所有任务
+function removeAll() {
+  for (let i in schedule.scheduledJobs) {
+    schedule.cancelJob(i);
+  }
+}
+// 取消单个设置任务或者所有任务
+router.post("/task/cancel", (req, res) => {
+  let { jobId, taskId, action, taskIdList } = req.body;
+  if (action === "ALL") {
+    removeAll();
+    console.log(
+      taskIdList,
+      "------------------所有任务取消成功",
+      action,
+      `${taskIdList.join('","')}`
+    );
+    // 取消所有任务
+    let sqlStr = `UPDATE task_info SET job_id = null, status = 2 WHERE task_id in ("${taskIdList.join('","')}")`;
+    handleQueryDb(sqlStr, null, res, "所有任务取消成功~");
+  } else {
+    console.log(
+      schedule?.scheduledJobs[jobId],
+      "单任务处理----------------------"
+    );
+    // 更新取消后的任务状态
+    let sqlStr =
+      "UPDATE task_info SET job_id = ?, status = 2 WHERE task_id = ?";
+    if (schedule.scheduledJobs[jobId]) {
+      schedule.scheduledJobs[jobId]?.cancel();
+      handleQueryDb(sqlStr, [null, taskId], res, "任务取消成功~");
+    } else {
+      res.send({
+        code: 0,
+        data: null,
+        msg: "当前任务还没设置",
+      });
+    }
+  }
 });
 
 module.exports = router;
