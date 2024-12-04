@@ -214,8 +214,9 @@ function sendMailFn(options, res, current, msg = "邮件发送成功~", params) 
         handleQueryDb(
           params.sqlStr,
           [params.taskId],
-          null,
-          "✅任务提醒发送成功~"
+          res,
+          "✅任务提醒发送成功~",
+          params?.reminderPattern
         );
       }
     }
@@ -232,8 +233,13 @@ const handleResposeFn = (err, results, res, msg, data, callback) => {
     }
     return console.log(err.message);
   }
-  if (results.affectedRows === 1) {
-    console.log(msg, "%c 成功的信息");
+  console.log(
+    msg,
+    "%c 成功的信息--------------------results.affectedRows",
+    results.affectedRows
+  );
+  if (results?.affectedRows >= 1) {
+    console.log("成功执行--------------------------OK");
     // 注意：执行了 update 语句之后，执行的结果，也是一个对象，可以通过 affectedRows 判断是否更新成功
     if (res) {
       res.send({
@@ -254,7 +260,7 @@ const handleResposeFn = (err, results, res, msg, data, callback) => {
  * @param {*} data 响应成功后返回的数据
  * @param {*} callback 响应成功后需要的操作
  */
-const handleQueryDb = (sql, param, res, msg, data = null, callback) => {
+const handleQueryDb = (sql, param, res, msg, data = null, callback = null) => {
   db.query(sql, param, (err, results) =>
     handleResposeFn(err, results, res, msg, data, callback)
   );
