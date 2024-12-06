@@ -34,17 +34,23 @@ router.post("/task", (req, res) => {
     userEmail,
     sendEmail,
   } = req.body;
+  let time =
+    reminderPattern === "fixedDate"
+      ? dayjs(reminderTime).format("YYYY-MM-DD HH:mm:ss")
+      : reminderPattern === "everyDay"
+        ? `${reminderTime?.hour || 0}:${reminderTime?.minute || 0}:${reminderTime?.second || 0}`
+        : reminderTime;
   // 更新提醒的时间
   let sqlStr =
     "UPDATE task_info SET reminder_time = ?,reminder_pattern=?, interval_unit=?, description=?, reminder_email=?, send_email=?, status = 0 WHERE task_id = ?";
   handleQueryDb(
     sqlStr,
     [
-      dayjs(reminderTime).format("YYYY-MM-DD HH:mm:ss"),
+      time,
       reminderPattern,
       interval,
       desc,
-      userEmail,
+      userEmail.join(","),
       sendEmail,
       taskId,
     ],
@@ -110,13 +116,9 @@ router.post("/time", (req, res) => {
       console.error("Send reminder email error:", error);
     }
   });
-  // 任务执行成功后的事件
-  job.on("success", () => {
-    // 存储任务的唯一值，用于取消任务，更新提醒的状态为已提醒
-    let sqlStr =
-      "UPDATE task_info SET job_id = ?, status = 0 WHERE task_id = ?";
-    handleQueryDb(sqlStr, [job.name, taskId], null, "");
-  });
+  // 存储任务的唯一值，用于取消任务，更新提醒的状态为已提醒
+  let sqlStr = "UPDATE task_info SET job_id = ?, status = 0 WHERE task_id = ?";
+  handleQueryDb(sqlStr, [job.name, taskId], null, "");
   // job.cancel();
 
   // { hour: 15, minute: 31 }
