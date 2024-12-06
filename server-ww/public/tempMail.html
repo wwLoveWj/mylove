@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="email code" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>定时提醒邮件</title>
+    <title>系统通知邮件</title>
   </head>
-  <!--定时提醒邮件模板-->
+  <!--系统通知邮件模板-->
   <body>
     <div style="background-color: #ececec; padding: 35px">
       <table
@@ -36,8 +36,8 @@
                 height: 25px;
                 line-height: 25px;
                 padding: 15px 35px;
-                border-bottom: 1px solid rgb(148, 0, 211);
-                background-color: RGB(148, 0, 211);
+                border-bottom: 1px solid #17c653;
+                background-color: #17c653;
                 border-top-left-radius: 5px;
                 border-top-right-radius: 5px;
                 border-bottom-right-radius: 0px;
@@ -45,7 +45,7 @@
               "
             >
               <span style="font-size: 24px; color: rgb(255, 255, 255)"
-                >致伟大的青女王大人</span
+                >系统通知</span
               >
             </th>
           </tr>
@@ -65,17 +65,7 @@
                     >
                   </span>
                 </h2>
-                <p style="text-indent: 2em">
-                  您好！请记得按时补充<span style="color: #ff8c00"
-                    ><%= importantReminder %></span
-                  >，不要忘记哦，这是为了均衡您的营养所定制的，千万不要忘记吃哦！
-                </p>
-                <p>
-                  科普链接：<a
-                    href="https://m.baidu.com/bh/m/detail/ar_4715248454193209075"
-                    >维生素和铁的补充</a
-                  >
-                </p>
+                <p style="text-indent: 2em"><%= content %></p>
                 <br />
 
                 <div style="width: 100%; margin: 0 auto">
