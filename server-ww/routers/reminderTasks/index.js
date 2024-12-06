@@ -2,7 +2,7 @@ const express = require("express");
 const schedule = require("node-schedule");
 const { sendMailFn, handleQueryDb } = require("../../utils");
 const { mailInfoFn } = require("../../utils/config");
-const { sendMailTemp } = require("../mails/template");
+const { sendMailTemp } = require("../mails/email");
 const dayjs = require("dayjs");
 const router = express.Router();
 // 发送邮件函数

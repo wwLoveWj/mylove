@@ -6,7 +6,7 @@ const _ = require("lodash");
 const { sendMailFn } = require("../../utils");
 const { mailInfoFn } = require("../../utils/config");
 const db = require("../../utils/mysql");
-const { camelCaseKeys } = require("../../utils");
+const { camelCaseKeys, handleQueryDb } = require("../../utils");
 const router = express.Router();
 
 const mailYamlPath = path.join(__dirname, "../../utils/mail/setting.yaml");
@@ -71,4 +71,43 @@ router.get("/query", (req, res) => {
     });
   });
 });
+
+// 插入邮箱配置信息
+router.post("/config", (req, res) => {
+  let {
+    configName,
+    configKey,
+    pass,
+    user,
+    host,
+    port,
+    secure,
+    enteruser,
+    description,
+    updateTime,
+    emailConfig,
+  } = req.body;
+  // 定义待执行的 SQL 语句，其中英文的 ? 表示占位符
+  const sqlStr =
+    "insert into mail_config (config_name,config_key,pass,user,host,port,secure,enteruser,description,update_time,email_config) values (?,?,?,?,?,?,?,?,?,?,?)";
+  handleQueryDb(
+    sqlStr,
+    [
+      configName,
+      configKey,
+      pass,
+      user,
+      host,
+      port,
+      secure,
+      enteruser,
+      description,
+      updateTime,
+      emailConfig,
+    ],
+    res,
+    "邮箱配置新增成功~"
+  );
+});
+
 module.exports = router;
