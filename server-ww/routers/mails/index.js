@@ -110,4 +110,27 @@ router.post("/config", (req, res) => {
   );
 });
 
+// 获取当前用户的所有配置信息
+router.get("/config/query", (req, res) => {
+  let params = req.query;
+  // const sqlStr = `select * from task_info where task like '%${params.taskName || ""}%' and status=?`;
+  const sql = `select config_name,description,update_time,config_key,status from mail_config where enteruser=?`;
+  db.query(sql, params.currentEmail, (err, rows) => {
+    if (err) {
+      res.send({
+        code: 0,
+        msg: err.message,
+        data: null,
+      });
+      return console.log(err.message);
+    }
+    // 查询数据成功
+    rows = rows.map((item) => camelCaseKeys(item));
+    res.send({
+      code: 1,
+      msg: "邮件配置信息查询成功！",
+      data: { list: rows },
+    });
+  });
+});
 module.exports = router;

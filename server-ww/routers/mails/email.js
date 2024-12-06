@@ -4,6 +4,7 @@ const { camelCaseKeys } = require("../../utils");
 const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
+const notifier = require("node-notifier");
 
 let configTempAll = {};
 // 获取当前系统登录用户的邮箱配置
@@ -25,6 +26,28 @@ const getCurrentConfig = async () => {
 };
 
 /**
+ * @description 发送邮件函数
+ * @param options 邮件发送配置
+ * @param res 接口响应配置
+ * @param msg 接口响应成功的提示语
+ */
+async function sendMailFn(options, transporter, msg = "邮件发送成功~") {
+  await transporter.sendMail(options, (error, info) => {
+    if (error) {
+      return console.log(error);
+    }
+    console.log("邮件发送成功~", info.response);
+    notifier.notify({
+      title: "邮件通知",
+      message: msg,
+      sound: "Submarine",
+      closeLabel: "CANCEL",
+      actions: "OK",
+    });
+  });
+}
+
+/**
  * 邮件发送方法
  * @param {*} subject  发送主题
  * @param {*} to       发送给谁
@@ -41,22 +64,26 @@ const sendMail = async ({ to, subject, html }) => {
     //   secure: false,
     host,
     port,
-    secure,
+    secure: Number(secure) === 1,
     // ...testAccount?.pop3,
     auth: {
       user, // 你的邮箱地址
       pass, // 你的授权码
     },
   });
-  await transporter.sendMail({
-    from: {
-      name: configTempAll?.nickname || "系统",
-      address: user, // 你的邮箱地址
+  // 真正发送邮件方法
+  await sendMailFn(
+    {
+      from: {
+        name: configTempAll?.nickname || "系统",
+        address: user, // 你的邮箱地址
+      },
+      to,
+      subject,
+      html,
     },
-    to,
-    subject,
-    html,
-  });
+    transporter
+  );
 };
 
 // 生成一个长度为 6 的随机字符串
@@ -118,4 +145,5 @@ const sendMailTemp = async (address, title = "定时提醒") => {
 module.exports = {
   sendMailTemp,
   sendMail,
+  sendMailFn,
 };
