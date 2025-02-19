@@ -5,20 +5,22 @@ const path = require("path");
 const fs = require("fs");
 const ejs = require("ejs");
 const notifier = require("node-notifier");
-
+const client = require("../../utils/redis");
 let configTempAll = {};
 // 获取当前系统登录用户的邮箱配置
-const getCurrentConfig = async () => {
+const getCurrentConfig = async (result) => {
   let res = await new Promise((resolve, reject) => {
-    const sql = `select * from mail_config where enteruser=?`;
-    db.query(sql, "blww885@163.com", async (err, rows) => {
+    const sql = `select * from mail_config where config_key=?`;
+
+    db.query(sql, [result], async (err, rows) => {
       if (err) {
         reject({ err: err.message });
         return console.log(err.message);
       }
+      console.log(rows, "oop900------------------------");
       // 查询邮箱配置成功
       rows = rows.map((item) => camelCaseKeys(item));
-      const config = rows.find((item) => item?.enteruser === "blww885@163.com");
+      const config = rows.find((item) => item?.configKey === result);
       resolve(config);
     });
   });
@@ -104,6 +106,7 @@ const tempList = [
     emailConfig: {
       code,
       validity,
+      nickname: "xxx",
     },
   },
   {
@@ -116,28 +119,27 @@ const tempList = [
  * 获取到发送邮件的模板
  * @param {*} address  想发送的人
  */
-const sendMailTemp = async (address, title = "定时提醒") => {
-  // 请求接口拿到当前的邮件配置
-  configTempAll = await getCurrentConfig();
-  // 寻找到当前的模板
-  let configTemp = tempList?.find(
-    (item) => item.key === configTempAll?.configKey
-  );
-  // 读取 HTML 模板文件  ejs || html
-  const htmlPath = path.join(__dirname, configTemp?.value);
-  const emailTemplate = fs.readFileSync(htmlPath, "utf-8");
-  //  拿到转换后的html数据模板
-  const emailHtml = ejs.render(
-    emailTemplate,
-    configTempAll?.emailConfig
+const sendMailTemp = (address, title = "定时提醒") => {
+  client.get("configKey").then(async (result) => {
+    // 请求接口拿到当前的邮件配置
+    configTempAll = await getCurrentConfig(result);
+    // 寻找到当前的模板
+    let configTemp = tempList?.find((item) => item.key === result);
+    // 读取 HTML 模板文件  ejs || html
+    const htmlPath = path.join(__dirname, configTemp?.value);
+    const emailTemplate = fs.readFileSync(htmlPath, "utf-8");
+    // 拿到对应的节点填充
+    const emailConfig = configTempAll?.emailConfig
       ? JSON.parse(configTempAll?.emailConfig || `{}`)
-      : configTemp?.emailConfig
-  );
-  // await this.redisService.set("/login", code, validity * 60);
-  await sendMail({
-    to: address,
-    subject: title,
-    html: emailHtml,
+      : configTemp?.emailConfig;
+    //  拿到转换后的html数据模板
+    const emailHtml = ejs.render(emailTemplate, emailConfig);
+    // await this.redisService.set("/login", code, validity * 60);
+    await sendMail({
+      to: address,
+      subject: title,
+      html: emailHtml,
+    });
   });
   // 链接：https://juejin.cn/post/7299621996249366591
 };
