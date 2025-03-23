@@ -25,15 +25,15 @@ router.get("/query", (req, res) => {
       }
       // 查询数据成功
       rows = rows.map((item) => camelCaseKeys(item));
-      const result = rows.map((item) => {
-        item.startDate = dayjs(item?.startDate).format("YYYY-MM-DD");
-        item.endDate = dayjs(item?.endDate).format("YYYY-MM-DD");
-        return item;
-      });
+      // const result = rows.map((item) => {
+      //   item.startDate = dayjs(item?.startDate).format("YYYY-MM-DD");
+      //   item.endDate = dayjs(item?.endDate).format("YYYY-MM-DD");
+      //   return item;
+      // });
       res.send({
         code: 1,
         msg: "日历待办查询成功~",
-        data: { total, list: result },
+        data: { total, list: rows },
       });
     });
   });
@@ -52,12 +52,12 @@ router.post("/create", (req, res) => {
 });
 
 router.post("/update", (req, res) => {
-  const { calendarId, content, startDate, endDate } = req.body;
+  const { calendarId, content, startDate, endDate, type } = req.body;
   const sqlStr =
-    "update calendar_info set content=?, startDate=?, endDate=? where calendarId=?";
+    "update calendar_info set content=?, startDate=?, endDate=?, type=? where calendarId=?";
   handleQueryDb(
     sqlStr,
-    [content, startDate, endDate, calendarId],
+    [content, startDate, endDate, type, calendarId],
     res,
     "日历待办更新成功~"
   );
