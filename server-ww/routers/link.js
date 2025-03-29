@@ -5,7 +5,11 @@ const { camelCaseKeys, handleQueryDb } = require("../utils");
 const router = express.Router();
 // ==============================网址卡片的增删改查接口================================
 router.get("/query", (req, res) => {
-  const sqlStr = "select * from link_info";
+  let pageNo = req.query.pageNo;
+  let pageSize = req.query.pageSize;
+  // 接入查询参数
+  const keyWords = req.query.keyWords || "";
+  const sqlStr = `select * from link_info WHERE name LIKE '%${keyWords}%'`;
   db.query(sqlStr, (err, rows) => {
     if (err) {
       res.send({

@@ -31,16 +31,19 @@ router.get("/query", (req, res) => {
     const startIndex = (pageNo - 1) * pageSize;
     // 接入查询参数
     const keyWords = req.query.keyWords || "";
-    const status = req.query.status || 1;
+    const status = req.query.status || ["1", "2", "0"];
     console.log(pageNo, pageSize, startIndex, keyWords);
+    // LIMIT ${startIndex}, ${pageSize}
     // 查询待办事项所有的数据
-    const sqlStr = `select * from backlog_info WHERE (status=${status} AND backlog_name LIKE '%${keyWords}%') LIMIT ${startIndex}, ${pageSize}`;
-    const sql = `SELECT COUNT(*) AS total FROM backlog_info`;
+    const sqlStr = `select * from backlog_info WHERE (status IN (${status}) AND backlog_name LIKE '%${keyWords}%') LIMIT ${startIndex}, ${pageSize}`;
+    // LIMIT ${pageSize} OFFSET ${startIndex}`;
+    const sql = `SELECT COUNT(*) AS total FROM (select * from backlog_info WHERE status IN (${status}) AND backlog_name LIKE '%${keyWords}%') t`;
     db.query(sql, (err, results) => {
       // 查询数据失败
       if (err) return console.log(err.message);
       // 计算总页数
       const total = results[0].total;
+      console.log(results, "导入-------------------");
       db.query(sqlStr, (err, rows) => {
         if (err) return console.log(err.message);
         // 查询数据成功
