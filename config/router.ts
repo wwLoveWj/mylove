@@ -178,6 +178,12 @@ export const routes = [
         icon: NotificationOutlined,
         routes: [
           {
+            path: "/mails",
+            hidden: true,
+            title: "收藏管理",
+            redirect: "/mails/send",
+          },
+          {
             key: "send",
             path: "/mails/send",
             component: "./mails/index",

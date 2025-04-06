@@ -1,0 +1,61 @@
+.login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 500px;
+  height: 330px;
+  border-radius: 15px;
+  color: #fff;
+  padding: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  z-index: 0;
+}
+.login .showImg {
+  flex: 1;
+  border-right: 1px solid pink;
+  height: inherit;
+  line-height: inherit;
+  text-transform: uppercase;
+  letter-spacing: 2;
+}
+.login .userInfo {
+  flex: 1.5;
+}
+.login::before {
+  content: "";
+  width: 200%;
+  height: 200%;
+  background: red;
+  background-image: conic-gradient(transparent, #66ddf7, transparent 30%);
+  z-index: -66;
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  animation: rotateAn 5s linear infinite;
+}
+.login::after {
+  content: "";
+  position: absolute;
+  inset: 1vmin;
+  z-index: -55;
+  border-radius: 12px;
+}
+@keyframes rotateAn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.tvGif {
+  width: 11em;
+  height: 7.85em;
+  overflow: hidden;
+  border-radius: 10px;
+  z-index: 88;
+}
+.tvGif img {
+  height: 100%;
+}
