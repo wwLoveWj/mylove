@@ -154,8 +154,8 @@ router.post("/register", (req, res) => {
  * 登录接口
  */
 router.post("/index", (req, res) => {
-  const { email, password, username } = req.body;
-  if (!email) {
+  const { loginName, password, username } = req.body;
+  if (!loginName) {
     if (!username || !password) {
       res.send({
         code: 0,
@@ -165,7 +165,7 @@ router.post("/index", (req, res) => {
     }
   }
   if (!username) {
-    if (!email || !password) {
+    if (!loginName || !password) {
       res.send({
         code: 0,
         msg: "邮箱与密码为必传参数...",
@@ -174,11 +174,11 @@ router.post("/index", (req, res) => {
     }
   }
   const sqlStr = username
-    ? "select user_id,username from login_info WHERE username=? And password=?"
-    : "select user_id,username from login_info WHERE email=? And password=?";
+    ? "select * from login_info WHERE username=? And password=?"
+    : "select * from login_info WHERE email=? And password=?";
   db.query(
     sqlStr,
-    username ? [username, password] : [email, password],
+    username ? [username, password] : [loginName, password],
     (err, result) => {
       if (err) throw err;
       if (result.length > 0) {
@@ -186,7 +186,7 @@ router.post("/index", (req, res) => {
         var token = jwt.sign(
           {
             identity: result[0].identity,
-            email: username ? result[0].username : result[0].email,
+            email: username ? result[0].username : result[0].loginName,
           },
           jwtConfig.jwtSecretKey,
           {
@@ -196,8 +196,9 @@ router.post("/index", (req, res) => {
         console.log("token返回成功！");
         const rows = result.map((item) => camelCaseKeys(item));
         const info = rows.find(
-          (item) => item.email === email || item.username === username
+          (item) => item.email === loginName || item.username === username
         );
+        console.log("当前用户信息---------", rows);
         res.send({ code: 1, msg: "登录成功", data: { ...info, token } });
         // 如果没有登录成功，则返回登录失败
       } else {

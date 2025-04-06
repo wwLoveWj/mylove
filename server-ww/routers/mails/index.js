@@ -3,10 +3,10 @@ const yaml = require("js-yaml");
 const path = require("path");
 const fs = require("node:fs");
 const _ = require("lodash");
+const { sendMailFn } = require("../../utils");
 const { mailInfoFn } = require("../../utils/config");
 const db = require("../../utils/mysql");
-const { camelCaseKeys, handleQueryDb, sendMailFn } = require("../../utils");
-const client = require("../../utils/redis");
+const { camelCaseKeys, handleQueryDb } = require("../../utils");
 const router = express.Router();
 
 const mailYamlPath = path.join(__dirname, "../../utils/mail/setting.yaml");
@@ -130,31 +130,6 @@ router.get("/config/query", (req, res) => {
       code: 1,
       msg: "邮件配置信息查询成功！",
       data: { list: rows },
-    });
-  });
-});
-
-// 插入邮箱配置信息
-router.post("/config/set", (req, res) => {
-  let { configKey } = req.body;
-  //存入redis
-  client.set("configKey", configKey).then((info) => {
-    console.log(configKey, "configKey-----", info);
-    res.send({
-      code: 1,
-      msg: "邮箱配置设置成功",
-      data: null,
-    });
-  });
-});
-// 查询当前邮箱模板配置
-router.post("/config/set/query", (req, res) => {
-  //存入redis
-  client.get("configKey").then((result) => {
-    res.send({
-      code: 1,
-      msg: "",
-      data: result,
     });
   });
 });

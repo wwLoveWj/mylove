@@ -23,6 +23,106 @@ function sendMail(mail, title, html, res, params) {
   });
 }
 
+// ===========================ww的个性化定制=============================
+router.post("/ww", (req, res) => {
+  let {
+    // notificationRule, //通知规则
+    noticeMode,
+    noticeTime,
+    noticeEmail,
+    noticeContent = "9998877", //通知内容
+    noticeTitle = "邮件通知提醒",
+    notificationTime, //整点通知时间
+    taskId,
+    frequencyConfig,
+    startTime,
+    endTime,
+  } = req.body;
+  const { frequencyNum, frequencyType, frequencyWeek } = frequencyConfig[0];
+  const time = noticeTime?.split(":");
+  console.log(time, "q=========================");
+  const notificationRule = {
+    week: `0 ${time[1]} ${time[0]} * * ${frequencyWeek}#${frequencyNum}`,
+    month: `0 ${time[1]} ${time[0]} * ${frequencyWeek}#${frequencyNum} *`,
+    day: `0 ${time[1]} ${time[0]} */${frequencyNum} * *`,
+    hour: `* * */${frequencyNum} * * *`,
+    minute: `* */${frequencyNum} * * * *`,
+    second: `*/${frequencyNum} * * * * *`,
+  }[frequencyType];
+  console.log(notificationRule, "============notificationRule");
+  // //每个15、30、45秒执行
+  // rule.second = [15, 30, 45];
+  // // 每分钟的第10秒
+  // rule.second = 10;
+  // // 每小时的第10分钟
+  // rule.minute = 10;
+  // // 每周四，周五，周六，周天的17点
+  // rule.dayOfWeek = [0, new schedule.Range(4, 6)];
+  // rule.hour = 17;
+  // rule.minute = 0;
+  // 间隔多久多久通知
+  let rule;
+  if (noticeMode === "fixedTime1") {
+    const {
+      second = 0,
+      hour = 0,
+      minute = 0,
+      week = [0, 6],
+      // endTime,
+      // startTime = dayjs().format("YYYY-MM-DD HH:mm:ss"),
+    } = notificationTime;
+    rule = new schedule.RecurrenceRule();
+    rule.dayOfWeek = [new schedule.Range(week[0], week[1])]; //周一到周五
+    // rule.month = 0; // 1 月（注意：月份从 0 开始）
+    // rule.date = 1; // 1 号
+    rule.hour = hour;
+    rule.minute = minute;
+    rule.second = second;
+  } else if (noticeMode === "frequencyMode") {
+    // cron格式 "*/5 * * * * *"
+    rule = notificationRule;
+  } else if (noticeMode === "fixedTime") {
+    // { hour: 15, minute: 31 }
+    rule = noticeTime;
+  }
+  const endRule = { start: startTime, end: endTime, rule };
+  console.log(endRule, "-----------提醒时间规则格式------------");
+
+  // ==================================定时任务：在提醒时间发送提醒邮件======================================
+  schedule.scheduleJob(endRule, (time) => {
+    try {
+      // 定时提醒时间到了发送邮件
+      console.log(
+        "定时任务提醒时间",
+        dayjs(time).format("YYYY-MM-DD HH:mm:ss")
+      );
+      notifier.notify(
+        {
+          title: noticeTitle,
+          message: noticeContent,
+          sound: "Submarine",
+          closeLabel: "CANCEL",
+          actions: "OK",
+        },
+        function (err, response) {
+          if (err) {
+            console.error("通知失败:", err);
+          } else {
+            console.log("用户响应:", response);
+          }
+        }
+      );
+      res.send({
+        code: 0,
+        data: null,
+        msg: "请查看每日待办事项~",
+      });
+    } catch (error) {
+      console.error("Send reminder email error:", error);
+    }
+  });
+});
+
 // ===========================更新任务提醒内容时间主题接口===============================
 router.post("/task", (req, res) => {
   let {
