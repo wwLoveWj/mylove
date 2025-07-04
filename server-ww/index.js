@@ -29,6 +29,8 @@ const feedingRouter = require("./routers/baby/index.js");
 const calendarRouter = require("./routers/calendar/index.js");
 const eventRouter = require("./routers/event/index.js");
 // const scanCodeRouter = require("./routers/login/scanCode.js");
+const scanLoginRouter = require("./routers/scan/index.js");
+const articleAppRouter = require("./routers/article-app/index.js");
 
 const app = express();
 const port = 3007;
@@ -109,7 +111,8 @@ app.use("/excel", excelRouter);
 app.use("/feeding", feedingRouter);
 app.use("/calendar", calendarRouter);
 app.use("/event", eventRouter);
-
+app.use("/scan", scanLoginRouter);
+app.use("/api/article", articleAppRouter);
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
   console.log(err.code, "----------------------------------", err);
