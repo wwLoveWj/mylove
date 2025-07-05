@@ -165,7 +165,7 @@ router.post("/like", async (req, res) => {
     [userId, articleId]
   );
   await db.query(
-    "UPDATE article_app SET likeCount = likeCount + 1 WHERE id = ?",
+    "UPDATE article_app SET likeCount = likeCount + 1 , isLiked = 1 WHERE articleId = ?",
     [articleId]
   );
   res.send({
@@ -183,7 +183,7 @@ router.post("/unlike", async (req, res) => {
     [userId, articleId]
   );
   await db.query(
-    "UPDATE article_app SET likeCount = IF(likeCount>0, likeCount-1, 0) WHERE id = ?",
+    "UPDATE article_app SET likeCount = IF(likeCount>0, likeCount-1, 0) ,isLiked = 0 WHERE articleId = ?",
     [articleId]
   );
   res.send({
@@ -200,7 +200,7 @@ router.post("/collect", async (req, res) => {
     "INSERT IGNORE INTO article_user_collection (userId, articleId) VALUES (?, ?)",
     [userId, articleId]
   );
-  await db.query("UPDATE article_app SET isCollected = 1 WHERE id = ?", [
+  await db.query("UPDATE article_app SET isCollected = 1 WHERE articleId = ?", [
     articleId,
   ]);
   res.send({
@@ -217,7 +217,7 @@ router.post("/uncollect", async (req, res) => {
     "DELETE FROM article_user_collection WHERE userId = ? AND articleId = ?",
     [userId, articleId]
   );
-  await db.query("UPDATE article_app SET isCollected = 0 WHERE id = ?", [
+  await db.query("UPDATE article_app SET isCollected = 0 WHERE articleId = ?", [
     articleId,
   ]);
   res.send({
