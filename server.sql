@@ -117,22 +117,66 @@ CREATE TABLE `img_info` (
     descrption VARCHAR(255) COMMENT '备注'
 ) COMMENT '图片信息';
 
+-- CREATE TABLE `article_app` (
+--     id BIGINT PRIMARY KEY AUTO_INCREMENT,
+--     title VARCHAR(255) NOT NULL,
+--     content TEXT NOT NULL,
+--     coverType VARCHAR(16),
+--     coverUrl VARCHAR(255),
+--     type VARCHAR(16),
+--     visible VARCHAR(32),
+--     tag VARCHAR(64),
+--     `column` VARCHAR(64),
+--     author VARCHAR(64),
+--     authorAvatar VARCHAR(255),
+--     createTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+--     likeCount INT DEFAULT 0,
+--     readCount INT DEFAULT 0,
+--     commentCount INT DEFAULT 0,
+--     isLiked TINYINT DEFAULT 0,
+--     isCollected TINYINT DEFAULT 0
+-- ) COMMENT 'APP端的文章系统';
+
 CREATE TABLE `article_app` (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
+    summary VARCHAR(512),
     content TEXT NOT NULL,
-    coverType VARCHAR(16),
-    coverUrl VARCHAR(255),
-    type VARCHAR(16),
-    visible VARCHAR(32),
-    tag VARCHAR(64),
-    `column` VARCHAR(64),
+    coverImage VARCHAR(255),
+    category VARCHAR(32),
+    author VARCHAR(64),
+    authorAvatar VARCHAR(255),
+    publishTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+    readCount INT DEFAULT 0,
+    likeCount INT DEFAULT 0,
+    commentCount INT DEFAULT 0,
+    isLiked TINYINT DEFAULT 0,
+    isCollected TINYINT DEFAULT 0,
+    tags VARCHAR(255),
+    articleId BIGINT NOT NULL
+) COMMENT 'APP端的文章系统';
+-- 评论表
+CREATE TABLE comment (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    articleId BIGINT NOT NULL,
+    content TEXT NOT NULL,
     author VARCHAR(64),
     authorAvatar VARCHAR(255),
     createTime DATETIME DEFAULT CURRENT_TIMESTAMP,
     likeCount INT DEFAULT 0,
-    readCount INT DEFAULT 0,
-    commentCount INT DEFAULT 0,
-    isLiked TINYINT DEFAULT 0,
-    isCollected TINYINT DEFAULT 0
-) COMMENT 'APP端的文章系统';
+    isLiked TINYINT DEFAULT 0
+);
+
+-- 用户点赞表
+CREATE TABLE user_like (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    userId VARCHAR(32) NOT NULL,
+    articleId BIGINT NOT NULL
+);
+
+-- 用户收藏表
+CREATE TABLE user_collection (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    userId VARCHAR(32) NOT NULL,
+    articleId BIGINT NOT NULL
+);
