@@ -1,6 +1,56 @@
 const express = require("express");
 const router = express.Router();
+const db = require("../../utils/mysql");
 
+/**
+ * 新增文章
+ * @route POST /api/article/add
+ */
+router.post("/add", async (req, res) => {
+  const {
+    title,
+    content,
+    coverType,
+    coverUrl,
+    type,
+    visible,
+    tag,
+    column,
+    author,
+    authorAvatar,
+  } = req.body;
+
+  // 校验必填项
+  if (!title || !content) {
+    return res.json({ code: 0, msg: "标题和内容不能为空" });
+  }
+
+  try {
+    const sql = `
+      INSERT INTO article_app
+      (title, content, coverType, coverUrl, type, visible, tag, \`column\`, author, authorAvatar, createTime)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `;
+    const params = [
+      title,
+      content,
+      coverType,
+      coverUrl,
+      type,
+      visible,
+      tag,
+      column,
+      author,
+      authorAvatar,
+    ];
+    const result = await db.query(sql, params);
+
+    res.json({ code: 1, msg: "新增成功", data: { id: result.insertId } });
+  } catch (err) {
+    console.error("新增文章失败", err);
+    res.json({ code: 0, msg: "新增失败", error: err.message });
+  }
+});
 // 模拟数据
 let articles = [
   {
@@ -23,7 +73,46 @@ let articles = [
     isCollected: false,
     tags: ["React", "JavaScript", "前端"],
   },
-  // ... 其他文章
+  {
+    id: "2",
+    title: "Vue 3 Composition API 深度解析",
+    summary:
+      "Vue 3 的 Composition API 为组件逻辑复用提供了更灵活的方式。本文将从基础概念到高级用法，全面解析 Composition API。",
+    content: "Vue 3 的 Composition API 是一个全新的组件逻辑组织方式...",
+    coverImage:
+      "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop",
+    category: "vue",
+    author: "Vue.js 社区",
+    authorAvatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face",
+    publishTime: "2024-01-14T14:30:00Z",
+    readCount: 980,
+    likeCount: 67,
+    commentCount: 15,
+    isLiked: true,
+    isCollected: true,
+    tags: ["Vue", "JavaScript", "前端框架"],
+  },
+  {
+    id: "3",
+    title: "现代 CSS 布局技术：Grid 与 Flexbox 实战指南",
+    summary:
+      "CSS Grid 和 Flexbox 是现代网页布局的两大核心技术。本文将通过实际案例展示如何结合使用这两种技术创建复杂的响应式布局。",
+    content: "CSS Grid 和 Flexbox 的出现彻底改变了网页布局的方式...",
+    coverImage:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop",
+    category: "css",
+    author: "CSS 专家",
+    authorAvatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=50&h=50&fit=crop&crop=face",
+    publishTime: "2024-01-13T09:15:00Z",
+    readCount: 756,
+    likeCount: 45,
+    commentCount: 12,
+    isLiked: false,
+    isCollected: false,
+    tags: ["CSS", "布局", "响应式"],
+  },
 ];
 
 let categories = [

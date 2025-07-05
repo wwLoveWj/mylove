@@ -116,3 +116,23 @@ CREATE TABLE `img_info` (
     `img_type` VARCHAR(10) COMMENT '图片类型',
     descrption VARCHAR(255) COMMENT '备注'
 ) COMMENT '图片信息';
+
+CREATE TABLE `article_app` (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    coverType VARCHAR(16),
+    coverUrl VARCHAR(255),
+    type VARCHAR(16),
+    visible VARCHAR(32),
+    tag VARCHAR(64),
+    `column` VARCHAR(64),
+    author VARCHAR(64),
+    authorAvatar VARCHAR(255),
+    createTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+    likeCount INT DEFAULT 0,
+    readCount INT DEFAULT 0,
+    commentCount INT DEFAULT 0,
+    isLiked TINYINT DEFAULT 0,
+    isCollected TINYINT DEFAULT 0
+) COMMENT 'APP端的文章系统';
