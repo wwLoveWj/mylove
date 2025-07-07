@@ -69,15 +69,17 @@ router.get("/categories", (req, res) => {
 
 // 获取文章列表
 router.get("/list", async (req, res) => {
-  const { category, page = 1, pageSize = 10 } = req.query;
+  const { category, page = 1, pageSize = 10, isPage = false } = req.query;
   let sql = "SELECT * FROM article_app";
   let params = [];
   if (category && category !== "recommend") {
     sql += " WHERE category = ?";
     params.push(category);
   }
-  sql += " ORDER BY publishTime DESC LIMIT ?, ?";
-  params.push((page - 1) * pageSize, Number(pageSize));
+  if (isPage) {
+    sql += " ORDER BY publishTime DESC LIMIT ?, ?";
+    params.push((page - 1) * pageSize, Number(pageSize));
+  }
   const [list, totalRes] = await Promise.all([
     db.query(sql, params),
     db.query(
