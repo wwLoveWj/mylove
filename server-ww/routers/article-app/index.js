@@ -140,13 +140,13 @@ router.get("/comments", async (req, res) => {
 
 // 发表评论
 router.post("/comment", async (req, res) => {
-  const { articleId, content } = req.body;
+  const { articleId, content, canvasImage } = req.body;
   const author = "测试用户";
   const authorAvatar =
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face";
   await db.query(
-    "INSERT INTO article_comment (articleId, content, author, authorAvatar) VALUES (?, ?, ?, ?)",
-    [articleId, content, author, authorAvatar]
+    "INSERT INTO article_comment (articleId, content,canvasImage, author, authorAvatar) VALUES (?, ?, ?, ?, ?)",
+    [articleId, content, canvasImage, author, authorAvatar]
   );
   await db.query(
     "UPDATE article_app SET commentCount = commentCount + 1 WHERE id = ?",
@@ -234,9 +234,9 @@ router.get("/my-collections", async (req, res) => {
   const { userId = "1", page = 1, pageSize = 10 } = req.query;
   const list = await db.query(
     `SELECT a.* FROM article_app a
-     JOIN article_user_collection c ON a.id = c.articleId
+     JOIN article_user_collection c ON a.articleId = c.articleId
      WHERE c.userId = ?
-     ORDER BY c.id DESC
+     ORDER BY c.articleId DESC
      LIMIT ?, ?`,
     [userId, (page - 1) * pageSize, Number(pageSize)]
   );

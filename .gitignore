@@ -9,3 +9,4 @@
 .swc
 **/upload/
 /yarn-error.log
+**/uploads/

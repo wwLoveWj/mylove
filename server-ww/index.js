@@ -31,6 +31,7 @@ const eventRouter = require("./routers/event/index.js");
 // const scanCodeRouter = require("./routers/login/scanCode.js");
 const scanLoginRouter = require("./routers/scan/index.js");
 const articleAppRouter = require("./routers/article-app/index.js");
+const imgUploadAppRouter = require("./routers/article-app/img.js");
 
 const app = express();
 const port = 3007;
@@ -85,10 +86,10 @@ app.use(
         // "/task/create",
         // "/excel/import",
         // "/excel/export",
-        // {
-        //   url: /^\/excel\/.*/,
-        //   methods: ["GET", "POST"],
-        // },
+        {
+          url: /^\/img\/.*/,
+          methods: ["GET", "POST"],
+        },
       ],
     })
 );
@@ -113,6 +114,8 @@ app.use("/calendar", calendarRouter);
 app.use("/event", eventRouter);
 app.use("/scan", scanLoginRouter);
 app.use("/api/article", articleAppRouter);
+app.use("/img", imgUploadAppRouter);
+
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
   console.log(err.code, "----------------------------------", err);
