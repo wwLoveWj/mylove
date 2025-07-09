@@ -87,7 +87,7 @@ app.use(
         // "/excel/import",
         // "/excel/export",
         {
-          url: /^\/img\/.*/,
+          url: /^\/api\/album\/.*/,
           methods: ["GET", "POST"],
         },
       ],
@@ -114,7 +114,7 @@ app.use("/calendar", calendarRouter);
 app.use("/event", eventRouter);
 app.use("/scan", scanLoginRouter);
 app.use("/api/article", articleAppRouter);
-app.use("/img", imgUploadAppRouter);
+app.use("/api/album", imgUploadAppRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {

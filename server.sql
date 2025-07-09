@@ -180,3 +180,10 @@ CREATE TABLE user_collection (
     userId VARCHAR(32) NOT NULL,
     articleId BIGINT NOT NULL
 );
+
+CREATE TABLE baby_album (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    url VARCHAR(255) NOT NULL,
+    thumb_url VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) COMMENT '宝宝相册';

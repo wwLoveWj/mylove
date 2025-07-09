@@ -10,3 +10,4 @@
 **/upload/
 /yarn-error.log
 **/uploads/
+/.history
