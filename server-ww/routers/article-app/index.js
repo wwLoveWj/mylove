@@ -268,14 +268,15 @@ router.post("/add", async (req, res) => {
     authorAvatar,
     tags,
     articleId,
+    authorId,
   } = req.body;
   if (!title || !content) {
     return res.json({ code: 1, msg: "标题和内容不能为空" });
   }
   const sql = `
     INSERT INTO article_app
-    (title, summary, content, coverImage, category, author, authorAvatar, tags, articleId, publishTime)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    (title, summary, content, coverImage, category, author, authorAvatar, tags, articleId,authorId, publishTime)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
   const params = [
     title,
@@ -287,6 +288,7 @@ router.post("/add", async (req, res) => {
     authorAvatar,
     Array.isArray(tags) ? tags.join(",") : tags,
     articleId,
+    authorId,
   ];
   const result = await db.query(sql, params);
   res.json({ code: 1, msg: "新增成功", data: { id: result.insertId } });
@@ -339,4 +341,49 @@ router.post("/view/:id", async (req, res) => {
   res.json({ code: 1, readCount: rows[0]?.readCount || 0 });
 });
 
+//关注作者
+router.post("/follow", async (req, res) => {
+  const { userId, followUserId } = req.body; // userId为当前登录用户
+  console.log(userId, followUserId, "关注");
+  if (userId === followUserId)
+    return res.json({ code: 0, msg: "不能关注自己" });
+
+  // 1. 插入关注关系
+  await db.query(
+    "INSERT IGNORE INTO article_user_follow (userId, followUserId) VALUES (?, ?)",
+    [userId, followUserId]
+  );
+  // 2. 被关注者关注量+1
+  await db.query(
+    "UPDATE user_info SET followerCount = followerCount + 1 WHERE user_id = ?",
+    [followUserId]
+  );
+  res.json({ code: 1, msg: "关注成功" });
+});
+
+// 取消关注
+router.post("/unfollow", async (req, res) => {
+  const { userId, followUserId } = req.body;
+  // 1. 删除关注关系
+  await db.query(
+    "DELETE FROM article_user_follow WHERE userId = ? AND followUserId = ?",
+    [userId, followUserId]
+  );
+  // 2. 被关注者关注量-1
+  await db.query(
+    "UPDATE user_info SET followerCount = GREATEST(followerCount - 1, 0) WHERE userId = ?",
+    [followUserId]
+  );
+  res.json({ code: 1, msg: "已取消关注" });
+});
+
+// 查询是否已关注  GET /api/user/isFollow?userId=xxx&followUserId=yyy
+router.get("/isFollow", async (req, res) => {
+  const { userId, followUserId } = req.query;
+  const rows = await db.query(
+    "SELECT 1 FROM article_user_follow WHERE userId = ? AND followUserId = ?",
+    [userId, followUserId]
+  );
+  res.json({ code: 1, data: { isFollowed: rows.length > 0 } });
+});
 module.exports = router;

@@ -247,3 +247,14 @@ ON DUPLICATE KEY UPDATE
 
 -- 文章浏览量
 ALTER TABLE article_app ADD COLUMN readCount INT DEFAULT 0;
+
+ALTER TABLE user_info
+ADD COLUMN followerCount INT DEFAULT 0 COMMENT '被关注数';
+
+CREATE TABLE user_follow (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(50) NOT NULL, -- 关注者
+    followUserId VARCHAR(50) NOT NULL, -- 被关注者
+    createTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_follow (userId, followUserId)
+);
