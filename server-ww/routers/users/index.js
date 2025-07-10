@@ -1,6 +1,10 @@
 const express = require("express");
 const db = require("../../utils/mysql");
 const { camelCaseKeys, handleQueryDb } = require("../../utils");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs-extra");
+require("dotenv").config();
 
 const router = express.Router();
 //================================  获取所有用户信息  ===========================
@@ -85,6 +89,62 @@ router.post("/edit", (req, res) => {
     "用户信息更新成功~"
   );
 });
+
+/**
+ * @api {post}  更新用户信息
+ * @body { userId, ...fields }
+ */
+router.post("/update", async (req, res) => {
+  const { userId, ...fields } = req.body;
+  if (!userId) {
+    return res.status(400).json({
+      code: 0,
+      msg: `userId不能为空~`,
+      data: null,
+    });
+  }
+  if (Object.keys(fields).length === 0) {
+    return res.status(400).json({
+      code: 0,
+      msg: `没有需要更新的字段~`,
+      data: null,
+    });
+  }
+  if (!fields || typeof fields !== "object") {
+    throw new Error("fields 必须是一个对象");
+  }
+  // 构建 SQL 动态字段
+  const setStr = Object.keys(fields)
+    .map((key) => `\`${key}\` = ?`)
+    .join(", ");
+  const values = Object.values(fields);
+  try {
+    const result = await db.query(
+      `UPDATE user_info SET ${setStr} WHERE user_id = ?`,
+      [...values, userId]
+    );
+    if (result.affectedRows > 0) {
+      res.json({
+        code: 1,
+        msg: `信息更新成功~`,
+        data: null,
+      });
+    } else {
+      res.status(404).json({
+        code: 0,
+        msg: `用户不存在~`,
+        data: null,
+      });
+    }
+  } catch (err) {
+    res.status(500).json({
+      code: 0,
+      msg: `数据库错误,${err.message}`,
+      data: null,
+    });
+  }
+});
+
 /**
  * 删除用户接口
  */
@@ -94,5 +154,95 @@ router.post("/delete", (req, res) => {
   handleQueryDb(sqlStr, params.userId, res, "用户信息删除成功~");
 });
 
+// ------------------------------ 头像上传 ------------------------------
+// 数据库连接配置
+const dbConfig = {
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "baby_growth",
+  port: process.env.DB_PORT || 3306,
+};
+// 静态文件服务
+router.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+/**
+ * 确保上传目录存在
+ */
+const uploadDir = path.join(__dirname, "uploads", "avatars");
+fs.ensureDirSync(uploadDir);
+
+/**
+ * 配置文件上传
+ */
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // 生成唯一文件名：时间戳 + 随机数 + 原扩展名
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, "avatar-" + uniqueSuffix + ext);
+  },
+});
+
+/**
+ * 文件过滤器
+ */
+const fileFilter = (req, file, cb) => {
+  // 只允许上传图片文件
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("只允许上传图片文件！"), false);
+  }
+};
+
+/**
+ * 创建multer实例
+ */
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB限制
+  },
+});
+
+/**
+ * 头像上传接口
+ * POST /userInfo/uploadAvatar
+ */
+router.post("/uploadAvatar", upload.single("avatar"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        code: 0,
+        msg: "请选择要上传的头像文件",
+      });
+    }
+
+    // 生成文件访问URL
+    const avatarUrl = `${req.protocol}://${req.get("host")}/userInfo/uploads/avatars/${req.file.filename}`;
+
+    // 返回成功响应
+    res.json({
+      code: 1,
+      msg: "头像上传成功",
+      data: {
+        avatarUrl: avatarUrl,
+        message: "头像上传成功",
+      },
+    });
+  } catch (error) {
+    console.error("头像上传错误:", error);
+    res.status(500).json({
+      code: 0,
+      msg: "头像上传失败",
+      error: error.message,
+    });
+  }
+});
 // 5. 导出路由模块
 module.exports = router;

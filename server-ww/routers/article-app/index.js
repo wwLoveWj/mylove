@@ -292,4 +292,51 @@ router.post("/add", async (req, res) => {
   res.json({ code: 1, msg: "新增成功", data: { id: result.insertId } });
 });
 
+// 内存缓存（可用redis替换，生产建议用redis）
+const viewCache = new Map();
+
+/**
+ * 统计文章浏览量，30分钟内同一IP/同一用户只计一次
+ */
+router.post("/view/:id", async (req, res) => {
+  const articleId = req.params.id;
+  // 用户唯一标识（优先用用户ID，没有则用IP）
+  const userId = req.user?.userId; // 如果有登录
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+  const uniqueKey = userId
+    ? `user_${userId}_${articleId}`
+    : `ip_${ip}_${articleId}`;
+  const now = Date.now();
+  const interval = 1000 * 60 * 30; // 30分钟
+
+  // 检查缓存
+  if (viewCache.has(uniqueKey)) {
+    const lastView = viewCache.get(uniqueKey);
+    if (now - lastView < interval) {
+      // 30分钟内已统计过
+      // 查询最新浏览量返回
+      const rows = await db.query(
+        "SELECT readCount FROM article_app WHERE id = ?",
+        [articleId]
+      );
+      return res.json({ code: 1, readCount: rows[0]?.readCount || 0 });
+    }
+  }
+
+  // 更新数据库
+  await db.query(
+    "UPDATE article_app SET readCount = readCount + 1 WHERE id = ?",
+    [articleId]
+  );
+  // 更新缓存
+  viewCache.set(uniqueKey, now);
+
+  // 查询最新浏览量
+  const rows = await db.query(
+    "SELECT readCount FROM article_app WHERE id = ?",
+    [articleId]
+  );
+  res.json({ code: 1, readCount: rows[0]?.readCount || 0 });
+});
+
 module.exports = router;

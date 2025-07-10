@@ -174,8 +174,8 @@ router.post("/index", (req, res) => {
     }
   }
   const sqlStr = username
-    ? "select * from login_info WHERE username=? And password=?"
-    : "select * from login_info WHERE email=? And password=?";
+    ? "select * from user_info WHERE username=? And password=?"
+    : "select * from user_info WHERE email=? And password=?";
   db.query(
     sqlStr,
     username ? [username, password] : [loginName, password],
