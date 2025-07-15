@@ -10,6 +10,7 @@ const expressJWT = require("express-jwt");
 const { jwtConfig } = require("./utils/config");
 const { camelCaseKeys } = require("./utils");
 const db = require("./utils/mysql");
+const notificationService = require("./routers/notice/notificationService");
 
 // 将所有的路由接口按不同文件分类，自定义router模块
 const scoreRouter = require("./routers/scores");
@@ -32,12 +33,14 @@ const eventRouter = require("./routers/event/index.js");
 const scanLoginRouter = require("./routers/scan/index.js");
 const articleAppRouter = require("./routers/article-app/index.js");
 const imgUploadAppRouter = require("./routers/article-app/img.js");
+const goalsRouter = require("./routers/goals");
+const noticeRouter = require("./routers/notice/notifications.js");
 
 const app = express();
 const port = 3007;
 // 创建websocket监听端口
 const server = http.createServer(app);
-wss = new WS_MODULE.Server({ server });
+// wss = new WS_MODULE.Server({ server });
 
 app.use(cors());
 // 用于解析JSON类型的请求体
@@ -90,6 +93,10 @@ app.use(
           url: /^\/api\/album\/.*/,
           methods: ["GET", "POST"],
         },
+        {
+          url: /^\/userInfo\/.*/,
+          methods: ["GET", "POST"],
+        },
       ],
     })
 );
@@ -115,6 +122,8 @@ app.use("/event", eventRouter);
 app.use("/scan", scanLoginRouter);
 app.use("/api/article", articleAppRouter);
 app.use("/api/album", imgUploadAppRouter);
+app.use("/goals", goalsRouter);
+app.use("/notice", noticeRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
@@ -164,28 +173,53 @@ const realTimeSyncData = (data, ws) => {
     ws.send(!isEditMode ? "文章新增成功~" : "文章更新成功~");
   });
 };
-wss.on("connection", function connection(ws) {
-  //   ws.on("pong", function () {
-  //     // 收到客户端响应，心跳检测成功
-  //     console.log("Pong received.");
-  //   });
-  ws.on("message", function incoming(data) {
-    if (data.toString() === "heartbeat") {
-      console.log(data.toString(), "心跳应答");
-      ws.send(data.toString());
-      return;
-    }
-    // 获取编辑器传递的所有数据信息
-    const allInfo = JSON.parse(data);
-    console.log(allInfo, "----------allInfo------------");
-    realTimeSyncData(allInfo, ws);
+// wss.on("connection", function connection(ws) {
+//   //   ws.on("pong", function () {
+//   //     // 收到客户端响应，心跳检测成功
+//   //     console.log("Pong received.");
+//   //   });
+//   ws.on("message", function incoming(data) {
+//     if (data.toString() === "heartbeat") {
+//       console.log(data.toString(), "心跳应答");
+//       ws.send(data.toString());
+//       return;
+//     }
+//     // 获取编辑器传递的所有数据信息
+//     const allInfo = JSON.parse(data);
+//     console.log(allInfo, "----------allInfo------------");
+//     realTimeSyncData(allInfo, ws);
+//   });
+// });
+
+server.listen(port, async () => {
+  console.log("服务器已开启，端口号：" + port);
+  try {
+    // 初始化通知服务
+    await notificationService.initialize(server);
+    console.log("通知服务初始化成功");
+  } catch (error) {
+    console.error("通知服务初始化失败:", error);
+  }
+});
+
+// 优雅关闭
+process.on("SIGTERM", async () => {
+  console.log("收到SIGTERM信号，正在关闭服务器...");
+  await notificationService.close();
+  server.close(() => {
+    console.log("服务器已关闭");
+    process.exit(0);
   });
 });
 
-server.listen(port, () => {
-  console.log("服务器已开启，端口号：" + port);
+process.on("SIGINT", async () => {
+  console.log("收到SIGINT信号，正在关闭服务器...");
+  await notificationService.close();
+  server.close(() => {
+    console.log("服务器已关闭");
+    process.exit(0);
+  });
 });
-
 // app.listen(3007, () => {
 //   console.log("服务开启在3007端口~");
 // });

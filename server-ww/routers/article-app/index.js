@@ -341,40 +341,80 @@ router.post("/view/:id", async (req, res) => {
   res.json({ code: 1, readCount: rows[0]?.readCount || 0 });
 });
 
-//关注作者
+/**
+ * @api {post} /api/article/follow 关注作者
+ * @apiName FollowAuthor
+ * @apiGroup Article
+ * @apiBody {String} userId 当前用户ID
+ * @apiBody {String} followUserId 被关注用户ID
+ * @apiSuccess {Number} code 1-成功 0-失败
+ * @apiSuccess {String} msg 提示信息
+ */
 router.post("/follow", async (req, res) => {
-  const { userId, followUserId } = req.body; // userId为当前登录用户
-  console.log(userId, followUserId, "关注");
-  if (userId === followUserId)
-    return res.json({ code: 0, msg: "不能关注自己" });
-
-  // 1. 插入关注关系
-  await db.query(
-    "INSERT IGNORE INTO article_user_follow (userId, followUserId) VALUES (?, ?)",
-    [userId, followUserId]
-  );
-  // 2. 被关注者关注量+1
-  await db.query(
-    "UPDATE user_info SET followerCount = followerCount + 1 WHERE user_id = ?",
-    [followUserId]
-  );
-  res.json({ code: 1, msg: "关注成功" });
+  /**
+   * @type {{userId: string, followUserId: string}}
+   */
+  const { userId, followUserId } = req.body; //userId为当前登录用户
+  if (!userId || !followUserId) {
+    return res.json({ code: 0, msg: "userId和followUserId不能为空" });
+  }
+  try {
+    // 1. 插入article_user_follow表
+    await db.query(
+      "INSERT IGNORE INTO article_user_follow (userId, followUserId) VALUES (?, ?)",
+      [userId, followUserId]
+    );
+    // 2. 更新关注数
+    await db.query(
+      "UPDATE user_info SET authorFollowCount = authorFollowCount + 1 WHERE user_id = ?",
+      [userId]
+    );
+    await db.query(
+      "UPDATE user_info SET authorFollowerCount = authorFollowerCount + 1 WHERE user_id = ?",
+      [followUserId]
+    );
+    res.json({ code: 1, msg: "关注成功" });
+  } catch (err) {
+    res.json({ code: 0, msg: "关注失败", error: err.message });
+  }
 });
 
-// 取消关注
+/**
+ * @api {post} /api/article/unfollow 取消关注
+ * @apiName UnfollowAuthor
+ * @apiGroup Article
+ * @apiBody {String} userId 当前用户ID
+ * @apiBody {String} followUserId 被取关用户ID
+ * @apiSuccess {Number} code 1-成功 0-失败
+ * @apiSuccess {String} msg 提示信息
+ */
 router.post("/unfollow", async (req, res) => {
+  /**
+   * @type {{userId: string, followUserId: string}}
+   */
   const { userId, followUserId } = req.body;
-  // 1. 删除关注关系
-  await db.query(
-    "DELETE FROM article_user_follow WHERE userId = ? AND followUserId = ?",
-    [userId, followUserId]
-  );
-  // 2. 被关注者关注量-1
-  await db.query(
-    "UPDATE user_info SET followerCount = GREATEST(followerCount - 1, 0) WHERE userId = ?",
-    [followUserId]
-  );
-  res.json({ code: 1, msg: "已取消关注" });
+  if (!userId || !followUserId) {
+    return res.json({ code: 0, msg: "userId和followUserId不能为空" });
+  }
+  try {
+    // 1. 删除article_user_follow表
+    await db.query(
+      "DELETE FROM article_user_follow WHERE userId = ? AND followUserId = ?",
+      [userId, followUserId]
+    );
+    // 2. 更新关注数
+    await db.query(
+      "UPDATE user_info SET authorFollowCount = authorFollowCount - 1 WHERE user_id = ?",
+      [userId]
+    );
+    await db.query(
+      "UPDATE user_info SET authorFollowerCount = authorFollowerCount - 1 WHERE user_id = ?",
+      [followUserId]
+    );
+    res.json({ code: 1, msg: "取消关注成功" });
+  } catch (err) {
+    res.json({ code: 0, msg: "取消关注失败", error: err.message });
+  }
 });
 
 // 查询是否已关注  GET /api/user/isFollow?userId=xxx&followUserId=yyy

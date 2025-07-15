@@ -68,6 +68,7 @@
     "tesseract.js-core": "^5.1.0",
     "umi": "^4.1.10",
     "umi-plugin-keep-alive": "^0.0.1-beta.35",
+    "uuid": "^11.1.0",
     "vite-plugin-oh-my-live2d": "^0.19.3",
     "wechat-oauth": "^1.5.0",
     "ws": "^8.17.0",

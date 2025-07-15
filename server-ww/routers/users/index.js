@@ -244,5 +244,37 @@ router.post("/uploadAvatar", upload.single("avatar"), async (req, res) => {
     });
   }
 });
+
+/**
+ * 校验原密码并修改新密码接口
+ * POST /userInfo/checkPassword
+ * body: { userId, oldPassword, newPassword }
+ */
+router.post("/checkPassword", async (req, res) => {
+  try {
+    const { userId, oldPassword, newPassword } = req.body;
+    if (!userId || !oldPassword || !newPassword) {
+      return res.status(400).json({ code: 0, msg: "参数不完整" });
+    }
+    const sql = "SELECT password FROM user_info WHERE user_id = ?";
+    const rows = await db.query(sql, [userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ code: 0, msg: "用户不存在" });
+    }
+    if (rows[0].password === oldPassword) {
+      // 原密码正确，更新新密码
+      await db.query("UPDATE user_info SET password = ? WHERE user_id = ?", [
+        newPassword,
+        userId,
+      ]);
+      res.json({ code: 1, msg: "密码修改成功" });
+    } else {
+      res.json({ code: 0, msg: "原密码错误" });
+    }
+  } catch (error) {
+    console.error("校验原密码错误:", error);
+    res.status(500).json({ code: 0, msg: "服务器错误", error: error.message });
+  }
+});
 // 5. 导出路由模块
 module.exports = router;

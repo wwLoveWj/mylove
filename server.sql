@@ -258,3 +258,112 @@ CREATE TABLE user_follow (
     createTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uniq_follow (userId, followUserId)
 );
+
+ALTER TABLE user_info
+ADD COLUMN authorFollowCount INT DEFAULT 0 COMMENT '关注数',
+ADD COLUMN authorFollowerCount INT DEFAULT 0 COMMENT '粉丝数';
+
+-- 目标管理表
+CREATE TABLE IF NOT EXISTS goals (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId VARCHAR(50) NOT NULL COMMENT '用户ID',
+    title VARCHAR(255) NOT NULL COMMENT '目标内容',
+    type VARCHAR(50) COMMENT '目标类型',
+    deadline DATETIME COMMENT '截止时间',
+    reward VARCHAR(255) COMMENT '奖励内容',
+    remindTimes TEXT COMMENT '提醒时间(JSON数组)',
+    completed TINYINT(1) DEFAULT 0 COMMENT '是否已完成',
+    createTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updateTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_userId (userId)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '目标管理表';
+
+-- 通知表
+CREATE TABLE IF NOT EXISTS notifications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    type ENUM(
+        'system',
+        'article_update',
+        'like',
+        'collect',
+        'follow',
+        'comment'
+    ) NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    related_id INT, -- 关联的文章ID、用户ID等
+    related_type VARCHAR(50), -- 关联类型：article, user, comment等
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user_info (id) ON DELETE CASCADE,
+    INDEX idx_user_read (user_id, is_read),
+    INDEX idx_created_at (created_at)
+);
+
+-- 订阅设置表
+CREATE TABLE IF NOT EXISTS subscription_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    article_update BOOLEAN DEFAULT TRUE,
+    like_notification BOOLEAN DEFAULT TRUE,
+    collect_notification BOOLEAN DEFAULT TRUE,
+    follow_notification BOOLEAN DEFAULT TRUE,
+    system_notification BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user_info (id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user (user_id)
+);
+
+-- 插入测试数据
+INSERT INTO
+    user_info (username, password, email)
+VALUES (
+        'admin',
+        '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        'admin@example.com'
+    ),
+    (
+        'testuser',
+        '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+        'test@example.com'
+    );
+
+INSERT INTO subscription_settings (user_id) VALUES (1), (2);
+
+DESC subscription_settings;
+
+DESC user_info;
+
+-- 2. 通知表
+DROP TABLE IF EXISTS `notifications`;
+
+CREATE TABLE `notifications` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '通知ID',
+    `user_id` VARCHAR(255) NOT NULL COMMENT '用户ID，外键',
+    `type` VARCHAR(50) COMMENT '通知类型',
+    `title` VARCHAR(255) COMMENT '通知标题',
+    `content` TEXT COMMENT '通知内容',
+    `is_read` BOOLEAN DEFAULT FALSE COMMENT '是否已读',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `user_info` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '通知表';
+
+-- 3. 订阅设置表
+DROP TABLE IF EXISTS `subscription_settings`;
+
+CREATE TABLE `subscription_settings` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    `user_id` VARCHAR(255) NOT NULL COMMENT '用户ID，外键',
+    `receive_system_notify` BOOLEAN DEFAULT TRUE COMMENT '是否接收系统通知',
+    `receive_comment_notify` BOOLEAN DEFAULT TRUE COMMENT '是否接收评论通知',
+    `receive_like_notify` BOOLEAN DEFAULT TRUE COMMENT '是否接收点赞通知',
+    CONSTRAINT `fk_subscription_settings_user` FOREIGN KEY (`user_id`) REFERENCES `user_info` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '订阅设置表';
+
+ALTER TABLE subscription_settings
+ADD COLUMN followNotification TINYINT(1) DEFAULT 1 COMMENT '是否关注通知';
+
+ALTER TABLE subscription_settings
+ADD COLUMN collectNotification TINYINT(1) DEFAULT 1 COMMENT '是否收藏通知';
