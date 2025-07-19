@@ -5,7 +5,7 @@
 const express = require("express");
 const router = express.Router();
 const notificationService = require("./notificationService");
-
+const { camelCaseKeys } = require("../../utils");
 /**
  * 获取用户通知列表
  * GET /notifications?userId=1&page=1&pageSize=20
@@ -18,11 +18,12 @@ router.get("/notifications", async (req, res) => {
       return res.status(400).json({ error: "用户ID不能为空" });
     }
 
-    const notifications = await notificationService.getUserNotifications(
+    let notifications = await notificationService.getUserNotifications(
       parseInt(userId),
       parseInt(page),
       parseInt(pageSize)
     );
+    notifications = notifications.map((item) => camelCaseKeys(item));
 
     res.json({ data: notifications, code: 1 });
   } catch (error) {
@@ -88,7 +89,7 @@ router.get("/notifications/unread-count", async (req, res) => {
     }
 
     const rows = await notificationService.db.query(
-      "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = FALSE",
+      "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0",
       [parseInt(userId)]
     );
 

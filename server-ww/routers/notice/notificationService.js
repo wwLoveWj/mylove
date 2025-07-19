@@ -7,6 +7,7 @@ const WebSocket = require("ws");
 const { v4: uuidv4 } = require("uuid");
 const client = require("../../utils/redis");
 const db = require("../../utils/mysql");
+const dayjs = require("dayjs");
 
 class NotificationService {
   constructor() {
@@ -313,11 +314,10 @@ class NotificationService {
     try {
       // 检查用户是否启用了点赞通知
       const settings = await this.db.query(
-        "SELECT like_notification FROM subscription_settings WHERE user_id = ?",
+        "SELECT likeNotification FROM subscription_settings WHERE user_id = ?",
         [targetUserId]
       );
-
-      if (settings.length === 0 || settings[0].like_notification) {
+      if (settings.length === 0 || settings[0].likeNotification) {
         const user = await this.db.query(
           "SELECT username FROM user_info WHERE id = ?",
           [fromUserId]
@@ -329,6 +329,7 @@ class NotificationService {
           content: `用户 ${user[0].username} 点赞了您的文章《${article.title}》`,
           relatedId: article.id,
           relatedType: "article",
+          createdAt: dayjs().valueOf(),
         };
 
         await this.sendNotification(targetUserId, notification);
@@ -414,7 +415,7 @@ class NotificationService {
   async updateUnreadCount(userId) {
     try {
       const rows = await this.db.query(
-        "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = FALSE",
+        "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0",
         [userId]
       );
 
@@ -446,7 +447,7 @@ class NotificationService {
 
       if (!count) {
         const rows = await this.db.query(
-          "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = FALSE",
+          "SELECT COUNT(*) as count FROM notifications WHERE user_id = ? AND is_read = 0",
           [userId]
         );
         count = rows[0].count;
@@ -479,7 +480,7 @@ class NotificationService {
   async markNotificationAsRead(userId, notificationId) {
     try {
       await this.db.query(
-        "UPDATE notifications SET is_read = TRUE WHERE id = ? AND user_id = ?",
+        "UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?",
         [notificationId, userId]
       );
 
@@ -499,7 +500,7 @@ class NotificationService {
   async markAllNotificationsAsRead(userId) {
     try {
       await this.db.query(
-        "UPDATE notifications SET is_read = TRUE WHERE user_id = ?",
+        "UPDATE notifications SET is_read = 1 WHERE user_id = ?",
         [userId]
       );
 

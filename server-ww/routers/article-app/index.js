@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../../utils/mysql");
-
+const notificationService = require("../notice/notificationService");
 /**
  * 新增文章
  * @route POST /api/article/add
@@ -161,14 +161,23 @@ router.post("/comment", async (req, res) => {
 
 // 点赞
 router.post("/like", async (req, res) => {
-  const { articleId, userId = "1" } = req.body;
+  const { fromUserId, article, userId = 1 } = req.body;
   await db.query(
     "INSERT IGNORE INTO article_user_like (userId, articleId) VALUES (?, ?)",
-    [userId, articleId]
+    [userId, article?.articleId]
   );
   await db.query(
     "UPDATE article_app SET likeCount = likeCount + 1 , isLiked = 1 WHERE articleId = ?",
-    [articleId]
+    [article?.articleId]
+  );
+  // websocket通知
+  if (!fromUserId || !article?.id || !article?.title) {
+    return res.status(400).json({ msg: "参数不能为空", code: 0 });
+  }
+  await notificationService.sendLikeNotification(
+    article?.authorId,
+    fromUserId,
+    article
   );
   res.send({
     code: 1,
@@ -197,14 +206,24 @@ router.post("/unlike", async (req, res) => {
 
 // 收藏
 router.post("/collect", async (req, res) => {
-  const { articleId, userId = "1" } = req.body;
+  const { userId = 1, fromUserId, article } = req.body;
   await db.query(
     "INSERT IGNORE INTO article_user_collection (userId, articleId) VALUES (?, ?)",
-    [userId, articleId]
+    [userId, article?.articleId]
   );
   await db.query("UPDATE article_app SET isCollected = 1 WHERE articleId = ?", [
-    articleId,
+    article?.articleId,
   ]);
+  // websocket通知
+  if (!fromUserId || !article?.id || !article?.title) {
+    return res.status(400).json({ msg: "参数不能为空", code: 0 });
+  }
+  await notificationService.sendCollectNotification(
+    article?.authorId,
+    fromUserId,
+    article
+  );
+
   res.send({
     code: 1,
     msg: `不要放到收藏夹落灰哦~`,

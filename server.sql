@@ -367,3 +367,16 @@ ADD COLUMN followNotification TINYINT(1) DEFAULT 1 COMMENT '是否关注通知';
 
 ALTER TABLE subscription_settings
 ADD COLUMN collectNotification TINYINT(1) DEFAULT 1 COMMENT '是否收藏通知';
+
+ALTER TABLE notifications
+ADD COLUMN collect_notification TINYINT(1) DEFAULT 1 COMMENT '是否收藏通知';
+
+ALTER TABLE subscription_settings
+ADD COLUMN collect_notification TINYINT(1) DEFAULT 1 COMMENT '是否收藏通知';
+
+ALTER TABLE subscription_settings
+ADD COLUMN like_notification TINYINT(1) DEFAULT 1 COMMENT '是否点赞通知',
+ADD COLUMN collect_notification TINYINT(1) DEFAULT 1 COMMENT '是否收藏通知',
+ADD COLUMN comment_notification TINYINT(1) DEFAULT 1 COMMENT '是否评论通知',
+ADD COLUMN follow_notification TINYINT(1) DEFAULT 1 COMMENT '是否关注通知',
+ADD COLUMN system_notification TINYINT(1) DEFAULT 1 COMMENT '是否系统通知';
