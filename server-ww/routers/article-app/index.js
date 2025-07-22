@@ -102,40 +102,57 @@ router.get("/list", async (req, res) => {
 
 // 文章详情
 router.get("/detail/:id", async (req, res) => {
-  const [article] = await db.query("SELECT * FROM article_app WHERE id = ?", [
-    req.params.id,
-  ]);
-  if (!article) return res.status(404).json({ msg: "未找到文章" });
-  res.send({
-    code: 1,
-    msg: `文章详情查询成功~`,
-    data: {
-      ...article,
-      htmlContent: `<h1>${article.title}</h1><p>${article.summary}</p>`,
-      markdownContent: `# ${article.title}\n\n${article.summary}`,
-    },
-  });
+  try {
+    const result = await db.query("SELECT * FROM article_app WHERE id = ?", [
+      req.params.id,
+    ]);
+    const rows = Array.isArray(result) ? result[0] : result;
+    const article = rows && rows.length > 0 ? rows[0] : null;
+
+    if (!article) return res.status(404).json({ msg: "未找到文章" });
+    res.send({
+      code: 1,
+      msg: `文章详情查询成功~`,
+      data: {
+        ...article,
+        htmlContent: `<h1>${article.title}</h1><p>${article.summary}</p>`,
+        markdownContent: `# ${article.title}\n\n${article.summary}`,
+      },
+    });
+  } catch (error) {
+    console.error("获取文章详情失败:", error);
+    res.status(500).json({ msg: "获取文章详情失败" });
+  }
 });
 
 // 获取评论
 router.get("/comments", async (req, res) => {
-  const { articleId, page = 1, pageSize = 20 } = req.query;
-  const list = await db.query(
-    "SELECT * FROM article_comment WHERE articleId = ? ORDER BY createTime DESC LIMIT ?, ?",
-    [articleId, (page - 1) * pageSize, Number(pageSize)]
-  );
-  const totalRes = await db.query(
-    "SELECT COUNT(*) as total FROM article_comment WHERE articleId = ?",
-    [articleId]
-  );
-  res.send({
-    code: 1,
-    msg: `评论查询成功~`,
-    data: {
-      list,
-      total: totalRes[0].total,
-    },
-  });
+  try {
+    const { articleId, page = 1, pageSize = 20 } = req.query;
+    const listResult = await db.query(
+      "SELECT * FROM article_comment WHERE articleId = ? ORDER BY createTime DESC LIMIT ?, ?",
+      [articleId, (page - 1) * pageSize, Number(pageSize)]
+    );
+    const totalResult = await db.query(
+      "SELECT COUNT(*) as total FROM article_comment WHERE articleId = ?",
+      [articleId]
+    );
+
+    const list = Array.isArray(listResult) ? listResult[0] : listResult;
+    const totalRes = Array.isArray(totalResult) ? totalResult[0] : totalResult;
+
+    res.send({
+      code: 1,
+      msg: `评论查询成功~`,
+      data: {
+        list: list || [],
+        total: totalRes && totalRes.length > 0 ? totalRes[0].total : 0,
+      },
+    });
+  } catch (error) {
+    console.error("获取评论失败:", error);
+    res.status(500).json({ msg: "获取评论失败" });
+  }
 });
 
 // 发表评论
@@ -250,29 +267,38 @@ router.post("/uncollect", async (req, res) => {
 
 // 我的收藏
 router.get("/my-collections", async (req, res) => {
-  const { userId = "1", page = 1, pageSize = 10 } = req.query;
-  const list = await db.query(
-    `SELECT a.* FROM article_app a
-     JOIN article_user_collection c ON a.articleId = c.articleId
-     WHERE c.userId = ?
-     ORDER BY c.articleId DESC
-     LIMIT ?, ?`,
-    [userId, (page - 1) * pageSize, Number(pageSize)]
-  );
-  const totalRes = await db.query(
-    `SELECT COUNT(*) as total FROM article_user_collection WHERE userId = ?`,
-    [userId]
-  );
-  res.send({
-    code: 1,
-    msg: `一大堆收藏正在袭来~`,
-    data: {
-      list,
-      total: totalRes[0].total,
-      page: Number(page),
-      pageSize: Number(pageSize),
-    },
-  });
+  try {
+    const { userId = "1", page = 1, pageSize = 10 } = req.query;
+    const listResult = await db.query(
+      `SELECT a.* FROM article_app a
+       JOIN article_user_collection c ON a.articleId = c.articleId
+       WHERE c.userId = ?
+       ORDER BY c.articleId DESC
+       LIMIT ?, ?`,
+      [userId, (page - 1) * pageSize, Number(pageSize)]
+    );
+    const totalResult = await db.query(
+      `SELECT COUNT(*) as total FROM article_user_collection WHERE userId = ?`,
+      [userId]
+    );
+
+    const list = Array.isArray(listResult) ? listResult[0] : listResult;
+    const totalRes = Array.isArray(totalResult) ? totalResult[0] : totalResult;
+
+    res.send({
+      code: 1,
+      msg: `一大堆收藏正在袭来~`,
+      data: {
+        list: list || [],
+        total: totalRes && totalRes.length > 0 ? totalRes[0].total : 0,
+        page: Number(page),
+        pageSize: Number(pageSize),
+      },
+    });
+  } catch (error) {
+    console.error("获取收藏失败:", error);
+    res.status(500).json({ msg: "获取收藏失败" });
+  }
 });
 
 // 新增文章

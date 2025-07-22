@@ -11,6 +11,7 @@ const { jwtConfig } = require("./utils/config");
 const { camelCaseKeys } = require("./utils");
 const db = require("./utils/mysql");
 const notificationService = require("./routers/notice/notificationService");
+const WebSocketServer = require("./routers/chat/websocket");
 
 // 将所有的路由接口按不同文件分类，自定义router模块
 const scoreRouter = require("./routers/scores");
@@ -35,6 +36,7 @@ const articleAppRouter = require("./routers/article-app/index.js");
 const imgUploadAppRouter = require("./routers/article-app/img.js");
 const goalsRouter = require("./routers/goals");
 const noticeRouter = require("./routers/notice/notifications.js");
+const chatRouter = require("./routers/chat/chat.js");
 
 const app = express();
 const port = 3007;
@@ -124,6 +126,8 @@ app.use("/api/article", articleAppRouter);
 app.use("/api/album", imgUploadAppRouter);
 app.use("/goals", goalsRouter);
 app.use("/notice", noticeRouter);
+// 注册聊天路由
+app.use("/api/chat", chatRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
@@ -193,9 +197,12 @@ const realTimeSyncData = (data, ws) => {
 
 server.listen(port, async () => {
   console.log("服务器已开启，端口号：" + port);
+  // 启动WebSocket服务器
+  const wss = new WebSocketServer(server);
+  console.log("WebSocket服务器已启动", wss);
   try {
-    // 初始化通知服务
-    await notificationService.initialize(server);
+    // 初始化通知服务，传入WebSocket服务器实例而不是HTTP服务器
+    await notificationService.initializeWithWss(wss);
     console.log("通知服务初始化成功");
   } catch (error) {
     console.error("通知服务初始化失败:", error);

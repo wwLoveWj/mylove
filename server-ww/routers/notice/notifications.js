@@ -201,4 +201,27 @@ router.post("/notifications/system", async (req, res) => {
   }
 });
 
+/**
+ * 发送文章收藏通知
+ * POST /notifications/system
+ */
+router.post("/notifications/collect", async (req, res) => {
+  try {
+    const { targetUserId, fromUserId, article } = req.body;
+
+    if (!targetUserId || !fromUserId || !article?.id || !article?.title) {
+      return res.status(400).json({ msg: "参数不能为空", code: 0 });
+    }
+    await notificationService.sendCollectNotification(
+      targetUserId,
+      fromUserId,
+      article
+    );
+    res.json({ code: 1 });
+  } catch (error) {
+    console.error("发送文章收藏通知失败:", error);
+    res.status(500).json({ msg: "发送系文章收藏通知失败", code: 0 });
+  }
+});
+
 module.exports = router;

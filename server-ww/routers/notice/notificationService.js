@@ -14,8 +14,6 @@ class NotificationService {
     this.wss = null;
     this.redisClient = null;
     this.db = null;
-    this.clients = new Map(); // 存储用户连接: userId -> WebSocket
-    this.connectionIds = new Map(); // 存储连接ID: connectionId -> userId
   }
 
   /**
@@ -41,138 +39,20 @@ class NotificationService {
   }
 
   /**
-   * 设置WebSocket事件处理器
+   * 使用已存在的WebSocket服务器初始化通知服务
+   * @param {Object} wss - 已存在的WebSocket服务器实例
    */
-  setupWebSocketHandlers() {
-    this.wss.on("connection", (ws, req) => {
-      const connectionId = uuidv4();
-      console.log(`新的WebSocket连接: ${connectionId}`);
+  async initializeWithWss(wss) {
+    // 使用已存在的WebSocket服务器实例
+    this.wss = wss;
 
-      // 发送连接确认
-      ws.send(
-        JSON.stringify({
-          type: "connection_established",
-          connectionId,
-          timestamp: Date.now(),
-        })
-      );
+    // 初始化Redis客户端（已在utils/redis.js中连接，无需重复连接）
+    this.redisClient = client;
 
-      // 处理消息
-      ws.on("message", async (data) => {
-        try {
-          const message = JSON.parse(data);
-          await this.handleMessage(ws, message, connectionId);
-        } catch (error) {
-          console.error("处理WebSocket消息错误:", error);
-          ws.send(
-            JSON.stringify({
-              type: "error",
-              message: "消息格式错误",
-            })
-          );
-        }
-      });
+    // 初始化数据库连接
+    this.db = db;
 
-      // 处理连接关闭
-      ws.on("close", () => {
-        this.handleDisconnect(connectionId);
-      });
-
-      // 处理错误
-      ws.on("error", (error) => {
-        console.error("WebSocket错误:", error);
-        this.handleDisconnect(connectionId);
-      });
-    });
-  }
-
-  /**
-   * 处理WebSocket消息
-   * @param {WebSocket} ws - WebSocket实例
-   * @param {Object} message - 消息对象
-   * @param {string} connectionId - 连接ID
-   */
-  async handleMessage(ws, message, connectionId) {
-    switch (message.type) {
-      case "authenticate":
-        await this.authenticateUser(ws, message.userId, connectionId);
-        break;
-      case "ping":
-        ws.send(JSON.stringify({ type: "pong", timestamp: Date.now() }));
-        break;
-      default:
-        ws.send(
-          JSON.stringify({
-            type: "error",
-            message: "未知消息类型",
-          })
-        );
-    }
-  }
-
-  /**
-   * 用户认证
-   * @param {WebSocket} ws - WebSocket实例
-   * @param {string} userId - 用户ID
-   * @param {string} connectionId - 连接ID
-   */
-  async authenticateUser(ws, userId, connectionId) {
-    try {
-      // 验证用户是否存在
-      const rows = await this.db.query(
-        "SELECT id FROM user_info WHERE id = ?",
-        [userId]
-      );
-
-      if (rows.length === 0) {
-        ws.send(
-          JSON.stringify({
-            type: "auth_error",
-            message: "用户不存在",
-          })
-        );
-        return;
-      }
-
-      // 存储连接信息
-      this.clients.set(userId, ws);
-      this.connectionIds.set(connectionId, userId);
-
-      // 发送认证成功消息
-      ws.send(
-        JSON.stringify({
-          type: "authenticated",
-          userId,
-          timestamp: Date.now(),
-        })
-      );
-
-      // 发送未读通知数量
-      await this.sendUnreadCount(userId);
-
-      console.log(`用户 ${userId} 认证成功`);
-    } catch (error) {
-      console.error("用户认证错误:", error);
-      ws.send(
-        JSON.stringify({
-          type: "auth_error",
-          message: "认证失败",
-        })
-      );
-    }
-  }
-
-  /**
-   * 处理连接断开
-   * @param {string} connectionId - 连接ID
-   */
-  handleDisconnect(connectionId) {
-    const userId = this.connectionIds.get(connectionId);
-    if (userId) {
-      this.clients.delete(userId);
-      this.connectionIds.delete(connectionId);
-      console.log(`用户 ${userId} 断开连接`);
-    }
+    console.log("通知服务初始化完成（使用现有WebSocket服务器）");
   }
 
   /**
@@ -203,15 +83,23 @@ class NotificationService {
         JSON.stringify({ ...notification, id: notificationId })
       );
 
-      // 发送实时通知
-      const ws = this.clients.get(userId);
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(
-          JSON.stringify({
-            type: "notification",
-            data: { ...notification, id: notificationId },
-          })
-        );
+      // 通过WebSocket服务器发送实时通知
+      if (this.wss && this.wss.clients) {
+        // 查找用户的WebSocket连接
+        for (const [connectionId, clientInfo] of this.wss.clients) {
+          if (
+            clientInfo.notificationUserId === userId &&
+            clientInfo.ws.readyState === WebSocket.OPEN
+          ) {
+            clientInfo.ws.send(
+              JSON.stringify({
+                type: "notification",
+                data: { ...notification, id: notificationId },
+              })
+            );
+            break;
+          }
+        }
       }
 
       // 更新未读数量
@@ -319,7 +207,7 @@ class NotificationService {
       );
       if (settings.length === 0 || settings[0].likeNotification) {
         const user = await this.db.query(
-          "SELECT username FROM user_info WHERE id = ?",
+          "SELECT * FROM user_info WHERE id = ?",
           [fromUserId]
         );
 
@@ -330,6 +218,7 @@ class NotificationService {
           relatedId: article.id,
           relatedType: "article",
           createdAt: dayjs().valueOf(),
+          avatar: user[0].avatar,
         };
 
         await this.sendNotification(targetUserId, notification);
@@ -355,7 +244,7 @@ class NotificationService {
 
       if (settings.length === 0 || settings[0].collect_notification) {
         const user = await this.db.query(
-          "SELECT username FROM user_info WHERE id = ?",
+          "SELECT * FROM user_info WHERE id = ?",
           [fromUserId]
         );
 
@@ -365,6 +254,8 @@ class NotificationService {
           content: `用户 ${user[0].username} 收藏了您的文章《${article.title}》`,
           relatedId: article.id,
           relatedType: "article",
+          createdAt: dayjs().valueOf(),
+          avatar: user[0].avatar,
         };
 
         await this.sendNotification(targetUserId, notification);
@@ -422,15 +313,22 @@ class NotificationService {
       const count = rows[0].count;
       await this.redisClient.setEx(`unread:${userId}`, 3600, count.toString());
 
-      // 发送未读数量更新
-      const ws = this.clients.get(userId);
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(
-          JSON.stringify({
-            type: "unread_count_update",
-            count,
-          })
-        );
+      // 通过WebSocket服务器发送未读数量更新
+      if (this.wss && this.wss.clients) {
+        for (const [connectionId, clientInfo] of this.wss.clients) {
+          if (
+            clientInfo.notificationUserId === userId &&
+            clientInfo.ws.readyState === WebSocket.OPEN
+          ) {
+            clientInfo.ws.send(
+              JSON.stringify({
+                type: "notification_unread_count_update",
+                count,
+              })
+            );
+            break;
+          }
+        }
       }
     } catch (error) {
       console.error("更新未读数量错误:", error);
@@ -458,14 +356,22 @@ class NotificationService {
         );
       }
 
-      const ws = this.clients.get(userId);
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(
-          JSON.stringify({
-            type: "unread_count",
-            count: parseInt(count),
-          })
-        );
+      // 通过WebSocket服务器发送未读数量
+      if (this.wss && this.wss.clients) {
+        for (const [connectionId, clientInfo] of this.wss.clients) {
+          if (
+            clientInfo.notificationUserId === userId &&
+            clientInfo.ws.readyState === WebSocket.OPEN
+          ) {
+            clientInfo.ws.send(
+              JSON.stringify({
+                type: "notification_unread_count",
+                count: parseInt(count),
+              })
+            );
+            break;
+          }
+        }
       }
     } catch (error) {
       console.error("发送未读数量错误:", error);
