@@ -380,3 +380,38 @@ ADD COLUMN collect_notification TINYINT(1) DEFAULT 1 COMMENT '是否收藏通知
 ADD COLUMN comment_notification TINYINT(1) DEFAULT 1 COMMENT '是否评论通知',
 ADD COLUMN follow_notification TINYINT(1) DEFAULT 1 COMMENT '是否关注通知',
 ADD COLUMN system_notification TINYINT(1) DEFAULT 1 COMMENT '是否系统通知';
+
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    from_user_id VARCHAR(50) NOT NULL COMMENT '发送者用户ID',
+    to_user_id VARCHAR(50) NOT NULL COMMENT '接收者用户ID',
+    content TEXT NOT NULL COMMENT '消息内容',
+    message_type ENUM(
+        'text',
+        'image',
+        'file',
+        'system'
+    ) DEFAULT 'text' COMMENT '消息类型',
+    is_read TINYINT(1) DEFAULT 0 COMMENT '是否已读',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    INDEX idx_from_user (from_user_id),
+    INDEX idx_to_user (to_user_id),
+    INDEX idx_conversation (from_user_id, to_user_id),
+    INDEX idx_created_at (created_at)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '聊天消息表'
+
+CREATE TABLE IF NOT EXISTS chat_sessions (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id VARCHAR(50) NOT NULL COMMENT '用户ID',
+    target_user_id VARCHAR(50) NOT NULL COMMENT '目标用户ID',
+    last_message TEXT COMMENT '最后一条消息内容',
+    last_message_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '最后消息时间',
+    unread_count INT DEFAULT 0 COMMENT '未读消息数量',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY unique_conversation (user_id, target_user_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_target_user_id (target_user_id),
+    INDEX idx_last_message_time (last_message_time)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '聊天会话表'

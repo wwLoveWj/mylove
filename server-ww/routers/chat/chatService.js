@@ -66,26 +66,18 @@ class ChatService {
    * @returns {Promise<Object>} 保存的消息
    */
   async saveMessage(messageData) {
-    const {
-      fromUserId,
-      toUserId,
-      content,
-      messageType = "text",
-      fromAvatar,
-    } = messageData;
+    const { fromUserId, toUserId, content, messageType = "text" } = messageData;
 
     const sql = `
-      INSERT INTO chat_messages (from_user_id, to_user_id, content, message_type,fromAvatar)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO chat_messages (from_user_id, to_user_id, content, message_type)
+      VALUES (?, ?, ?, ?)
     `;
-    console.log(fromAvatar, "头像--");
     try {
       const result = await db.query(sql, [
         fromUserId,
         toUserId,
         content,
         messageType,
-        fromAvatar,
       ]);
 
       // 处理不同的数据库驱动返回格式
@@ -184,7 +176,7 @@ class ChatService {
   }
 
   /**
-   * 获取用户的所有聊天会话（实时统计未读数）
+   * 获取用户的所有聊天会话（实时统计未读数，带对方昵称和头像）
    * @param {string} userId 用户ID
    * @returns {Promise<Array>} 聊天会话列表
    */
@@ -200,8 +192,11 @@ class ChatService {
           WHERE m.from_user_id = cs.target_user_id 
             AND m.to_user_id = cs.user_id 
             AND m.is_read = 0
-        ) AS unreadCount
+        ) AS unreadCount,
+        u.nickname AS targetNickname,
+        u.avatar AS targetAvatar
       FROM chat_sessions cs
+      LEFT JOIN user_info u ON cs.target_user_id = u.id
       WHERE cs.user_id = ?
       ORDER BY cs.last_message_time DESC
     `;

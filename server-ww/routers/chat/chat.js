@@ -29,9 +29,8 @@ router.get("/history/:targetUserId", async (req, res) => {
       parseInt(limit),
       parseInt(offset)
     );
-
     res.json({
-      success: true,
+      code: 1,
       data: {
         messages,
         hasMore: messages.length === parseInt(limit),
@@ -58,7 +57,7 @@ router.get("/sessions", async (req, res) => {
     const sessions = await chatService.getChatSessions(userId);
 
     res.json({
-      success: true,
+      code: 1,
       data: sessions,
     });
   } catch (error) {
@@ -83,7 +82,7 @@ router.post("/read/:targetUserId", async (req, res) => {
     await chatService.markMessagesAsRead(userId, targetUserId);
 
     res.json({
-      success: true,
+      code: 1,
       message: "标记已读成功",
     });
   } catch (error) {
@@ -109,7 +108,7 @@ router.post("/recall/:messageId", async (req, res) => {
 
     if (success) {
       res.json({
-        success: true,
+        code: 1,
         message: "消息撤回成功",
       });
     } else {
@@ -136,7 +135,7 @@ router.get("/unread-count", async (req, res) => {
     const count = await chatService.getUnreadCount(userId);
 
     res.json({
-      success: true,
+      code: 1,
       data: { count },
     });
   } catch (error) {
@@ -161,7 +160,7 @@ router.delete("/history/:targetUserId", async (req, res) => {
     await chatService.deleteChatHistory(userId, targetUserId);
 
     res.json({
-      success: true,
+      code: 1,
       message: "删除聊天记录成功",
     });
   } catch (error) {

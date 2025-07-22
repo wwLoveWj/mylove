@@ -19,51 +19,58 @@ class WebSocketServer {
   /**
    * 初始化WebSocket服务器
    */
-  init() {
-    this.wss.on("connection", (ws, req) => {
-      console.log("新的WebSocket连接建立");
+  async init() {
+    try {
+      // 初始化数据库表
+      // await this.chatService.initDatabase();
 
-      // 设置连接ID
-      const connectionId = this.generateConnectionId();
-      ws.connectionId = connectionId;
+      this.wss.on("connection", (ws, req) => {
+        console.log("新的WebSocket连接建立");
 
-      // 发送连接建立消息
-      ws.send(
-        JSON.stringify({
-          type: "connection_established",
-          connectionId: connectionId,
-        })
-      );
+        // 设置连接ID
+        const connectionId = this.generateConnectionId();
+        ws.connectionId = connectionId;
 
-      // 处理消息
-      ws.on("message", async (data) => {
-        try {
-          const message = JSON.parse(data);
-          await this.handleMessage(ws, message);
-        } catch (error) {
-          console.error("处理WebSocket消息失败:", error);
-          ws.send(
-            JSON.stringify({
-              type: "error",
-              message: "消息格式错误",
-            })
-          );
-        }
+        // 发送连接建立消息
+        ws.send(
+          JSON.stringify({
+            type: "connection_established",
+            connectionId: connectionId,
+          })
+        );
+
+        // 处理消息
+        ws.on("message", async (data) => {
+          try {
+            const message = JSON.parse(data);
+            await this.handleMessage(ws, message);
+          } catch (error) {
+            console.error("处理WebSocket消息失败:", error);
+            ws.send(
+              JSON.stringify({
+                type: "error",
+                message: "消息格式错误",
+              })
+            );
+          }
+        });
+
+        // 处理连接关闭
+        ws.on("close", () => {
+          this.handleClientDisconnect(ws);
+        });
+
+        // 处理错误
+        ws.on("error", (error) => {
+          console.error("WebSocket错误:", error);
+          this.handleClientDisconnect(ws);
+        });
       });
 
-      // 处理连接关闭
-      ws.on("close", () => {
-        this.handleClientDisconnect(ws);
-      });
-
-      // 处理错误
-      ws.on("error", (error) => {
-        console.error("WebSocket错误:", error);
-        this.handleClientDisconnect(ws);
-      });
-    });
-
-    console.log("WebSocket服务器已启动");
+      console.log("WebSocket服务器已启动");
+    } catch (error) {
+      console.error("WebSocket服务器初始化失败:", error);
+    }
   }
 
   /**
@@ -89,7 +96,6 @@ class WebSocketServer {
       );
       return;
     }
-
     switch (type) {
       case "authenticate":
         await this.handleAuthentication(ws, data || {});

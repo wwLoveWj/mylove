@@ -52,6 +52,9 @@ class NotificationService {
     // 初始化数据库连接
     this.db = db;
 
+    // 确保notifications表结构正确
+    await this.ensureNotificationsTable();
+
     console.log("通知服务初始化完成（使用现有WebSocket服务器）");
   }
 
@@ -62,9 +65,12 @@ class NotificationService {
    */
   async sendNotification(userId, notification) {
     try {
+      // 首先检查并创建notifications表（如果不存在）
+      await this.ensureNotificationsTable();
+
       // 保存通知到数据库
       const result = await this.db.query(
-        "INSERT INTO notifications (user_id, type, title, content, related_id, related_type) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO notifications (user_id, type, title, content, related_id, related_type, sendFormUserId) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           userId,
           notification.type,
@@ -72,6 +78,7 @@ class NotificationService {
           notification.content,
           notification.relatedId,
           notification.relatedType,
+          notification.sendFormUserId || null,
         ]
       );
 
@@ -219,6 +226,7 @@ class NotificationService {
           relatedType: "article",
           createdAt: dayjs().valueOf(),
           avatar: user[0].avatar,
+          sendFormUserId: user[0].id,
         };
 
         await this.sendNotification(targetUserId, notification);
@@ -256,6 +264,7 @@ class NotificationService {
           relatedType: "article",
           createdAt: dayjs().valueOf(),
           avatar: user[0].avatar,
+          sendFormUserId: user[0].id,
         };
 
         await this.sendNotification(targetUserId, notification);
@@ -460,6 +469,55 @@ class NotificationService {
       await this.db.end();
     }
     console.log("通知服务已关闭");
+  }
+
+  /**
+   * 确保notifications表存在并包含所需字段
+   */
+  async ensureNotificationsTable() {
+    try {
+      // 创建notifications表（如果不存在）
+      const createTableSQL = `
+        CREATE TABLE IF NOT EXISTS notifications (
+          id INT AUTO_INCREMENT PRIMARY KEY COMMENT '通知ID',
+          user_id VARCHAR(255) NOT NULL COMMENT '用户ID',
+          type VARCHAR(50) COMMENT '通知类型',
+          title VARCHAR(255) COMMENT '通知标题',
+          content TEXT COMMENT '通知内容',
+          related_id INT COMMENT '关联ID',
+          related_type VARCHAR(50) COMMENT '关联类型',
+          sendFormUserId VARCHAR(255) COMMENT '发送者用户ID',
+          is_read BOOLEAN DEFAULT FALSE COMMENT '是否已读',
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+          INDEX idx_user_read (user_id, is_read),
+          INDEX idx_created_at (created_at)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '通知表'
+      `;
+
+      await this.db.query(createTableSQL);
+
+      // 检查sendFormUserId字段是否存在，如果不存在则添加
+      const checkColumnSQL = `
+        SELECT COUNT(*) as count 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'notifications' 
+        AND COLUMN_NAME = 'sendFormUserId'
+      `;
+
+      const columnCheck = await this.db.query(checkColumnSQL);
+
+      if (columnCheck[0].count === 0) {
+        const addColumnSQL = `
+          ALTER TABLE notifications 
+          ADD COLUMN sendFormUserId VARCHAR(255) COMMENT '发送者用户ID'
+        `;
+        await this.db.query(addColumnSQL);
+        console.log("已添加sendFormUserId字段到notifications表");
+      }
+    } catch (error) {
+      console.error("确保notifications表结构失败:", error);
+    }
   }
 }
 

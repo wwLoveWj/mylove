@@ -197,15 +197,16 @@ const realTimeSyncData = (data, ws) => {
 
 server.listen(port, async () => {
   console.log("服务器已开启，端口号：" + port);
-  // 启动WebSocket服务器
-  const wss = new WebSocketServer(server);
-  console.log("WebSocket服务器已启动", wss);
   try {
+    // 启动WebSocket服务器
+    const wss = new WebSocketServer(server);
+    console.log("WebSocket服务器已启动");
+
     // 初始化通知服务，传入WebSocket服务器实例而不是HTTP服务器
     await notificationService.initializeWithWss(wss);
     console.log("通知服务初始化成功");
   } catch (error) {
-    console.error("通知服务初始化失败:", error);
+    console.error("服务初始化失败:", error);
   }
 });
 
