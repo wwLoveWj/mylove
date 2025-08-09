@@ -107,7 +107,7 @@ router.get("/detail/:id", async (req, res) => {
       req.params.id,
     ]);
     const rows = Array.isArray(result) ? result[0] : result;
-    const article = rows && rows.length > 0 ? rows[0] : null;
+    const article = rows ? rows : null;
 
     if (!article) return res.status(404).json({ msg: "未找到文章" });
     res.send({
@@ -277,20 +277,17 @@ router.get("/my-collections", async (req, res) => {
        LIMIT ?, ?`,
       [userId, (page - 1) * pageSize, Number(pageSize)]
     );
-    const totalResult = await db.query(
+    const [{ total }] = await db.query(
       `SELECT COUNT(*) as total FROM article_user_collection WHERE userId = ?`,
       [userId]
     );
-
-    const list = Array.isArray(listResult) ? listResult[0] : listResult;
-    const totalRes = Array.isArray(totalResult) ? totalResult[0] : totalResult;
 
     res.send({
       code: 1,
       msg: `一大堆收藏正在袭来~`,
       data: {
-        list: list || [],
-        total: totalRes && totalRes.length > 0 ? totalRes[0].total : 0,
+        list: listResult || [],
+        total,
         page: Number(page),
         pageSize: Number(pageSize),
       },

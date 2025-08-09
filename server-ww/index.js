@@ -37,6 +37,7 @@ const imgUploadAppRouter = require("./routers/article-app/img.js");
 const goalsRouter = require("./routers/goals");
 const noticeRouter = require("./routers/notice/notifications.js");
 const chatRouter = require("./routers/chat/chat.js");
+const toolsRouter = require("./routers/tools/index.js");
 
 const app = express();
 const port = 3007;
@@ -128,6 +129,7 @@ app.use("/goals", goalsRouter);
 app.use("/notice", noticeRouter);
 // 注册聊天路由
 app.use("/api/chat", chatRouter);
+app.use("/api/tools", toolsRouter);
 
 // 错误中间件 当token失效时 返回信息
 app.use((err, req, res, next) => {
